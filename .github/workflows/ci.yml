@@ -41,3 +41,26 @@ jobs:
 
             - name: Build Docker image
               run: docker build --progress=plain --tag hookrelay:ci .
+
+            - name: Start CI stack
+              timeout-minutes: 5
+              run: >
+                  docker compose -p hookrelay-ci -f docker-compose.ci.yml
+                  up --no-build --wait --wait-timeout 120
+
+            - name: Show container status
+              run: >
+                  docker compose -p hookrelay-ci -f docker-compose.ci.yml
+                  ps --all
+
+            - name: Show logs on failure
+              if: failure()
+              run: |
+                  docker compose -p hookrelay-ci -f docker-compose.ci.yml ps --all
+                  docker compose -p hookrelay-ci -f docker-compose.ci.yml logs --no-color --timestamps
+
+            - name: Clean up CI stack
+              if: always()
+              run: >
+                  docker compose -p hookrelay-ci -f docker-compose.ci.yml
+                  down --volumes --remove-orphans

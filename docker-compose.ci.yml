@@ -1,0 +1,122 @@
+x-application-image: &application-image
+  image: hookrelay:ci
+  pull_policy: never
+  init: true
+
+x-database-environment: &database-environment
+  NODE_ENV: production
+  DB_USER: ${DB_USER:-dbuser}
+  DB_PASSWORD: ${DB_PASSWORD:-dbpassword}
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_NAME: ${DB_NAME:-db}
+  DB_SSL: "${DB_SSL:-false}"
+  DB_POOL_MAX: "${DB_POOL_MAX:-10}"
+  DB_IDLE_TIMEOUT: "${DB_IDLE_TIMEOUT:-10000}"
+  DB_CONNECTION_TIMEOUT: "${DB_CONNECTION_TIMEOUT:-5000}"
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: no
+    environment:
+      POSTGRES_USER: ${DB_USER:-dbuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dbpassword}
+      POSTGRES_DB: ${DB_NAME:-db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:8-alpine
+    restart: no
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --maxmemory-policy
+      - noeviction
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  migrate:
+    <<: *application-image
+    command: ["npm", "run", "db:migrate"]
+    restart: "no"
+    environment: *database-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  test-receiver:
+    <<: *application-image
+    command: ["node", "dist/apps/test-receiver/main.js"]
+    restart: no
+    environment:
+      NODE_ENV: production
+      TEST_RECEIVER_PORT: "3001"
+    expose:
+      - "3001"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          fetch('http://127.0.0.1:3001/')
+          .then(response => process.exit(response.ok ? 0 : 1))
+          .catch(() => process.exit(1))
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  hookrelay:
+    <<: *application-image
+    command: ["node", "dist/apps/hookrelay/main.js"]
+    restart: no
+    environment:
+      <<: *database-environment
+      PORT: "3000"
+      WEBHOOK_TARGET_URL: http://test-receiver:3001/webhooks
+    ports:
+      - "127.0.0.1:3200:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *application-image
+    command: ["node", "dist/apps/worker/main.js"]
+    restart: no
+    environment:
+      <<: *database-environment
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_DB: "${REDIS_DB:-0}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
