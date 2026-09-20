@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "resolvePackageJsonExports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2023",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "paths": {
+      "@app/database": ["./libs/database/src/index.ts"],
+      "@app/database/*": ["./libs/database/src/*"]
+    },
+    "types": ["vitest/globals", "node"]
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./libs/database/tsconfig.lib.json"
+    },
+    {
+      "path": "./apps/hookrelay/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/worker/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/test-receiver/tsconfig.app.json"
+    }
+  ]
+}

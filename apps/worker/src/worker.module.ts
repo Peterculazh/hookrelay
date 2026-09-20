@@ -1,0 +1,16 @@
+import { BullModule } from '@nestjs/bullmq';
+import { Module } from '@nestjs/common';
+import { ScheduleModule as NestScheduleModule } from '@nestjs/schedule';
+import { JobsModule } from './jobs/jobs.module.js';
+import { loadRedisConnection } from './queue/queue.config.js';
+import { ScheduleModule } from './schedule/schedule.module.js';
+
+@Module({
+  imports: [
+    BullModule.forRoot({ connection: loadRedisConnection() }),
+    NestScheduleModule.forRoot(),
+    JobsModule,
+    ScheduleModule,
+  ],
+})
+export class WorkerModule {}

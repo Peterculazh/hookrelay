@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "rewriteRelativeImportExtensions": true,
+    "rootDir": "./src",
+    "outDir": "../../dist/apps/hookrelay"
+  },
+  "include": [
+    "src/**/*",
+    "tests/events/events.controller.spec.ts",
+    "tests/events/evets.service.spec.ts"
+  ],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"],
+  "references": [{ "path": "../../libs/database/tsconfig.lib.json" }]
+}
