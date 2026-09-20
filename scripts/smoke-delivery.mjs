@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
 
-const baseUrl = process.env.SMOKE_BASE_URL ?? 'http://127.0.0.1:3200';
+const baseUrl = process.env.SMOKE_BASE_URL ?? 'http://127.0.0.1:3299';
 const requestTimeoutMs = 3_000;
 const pollIntervalMs = 1_000;
 let eventId;
@@ -35,7 +35,10 @@ async function waitForApi() {
       const body = await response.text();
       assert.equal(response.status, 200, 'GET /api-json must return 200');
       const document = JSON.parse(body);
-      assert.ok(document.paths?.['/v1/events']?.post, 'Missing event POST route');
+      assert.ok(
+        document.paths?.['/v1/events']?.post,
+        'Missing event POST route',
+      );
       assert.ok(
         document.paths?.['/v1/events/{id}']?.get,
         'Missing event GET route',

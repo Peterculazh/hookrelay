@@ -1,70 +1,72 @@
 name: CI
 
 on:
-    push:
-        branches: [main]
-    pull_request:
+  push:
+    branches: [main]
+  pull_request:
 
 permissions:
-    contents: read
+  contents: read
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-    checks:
-        runs-on: ubuntu-latest
-        timeout-minutes: 20
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
 
-        steps:
-            - name: Check out repository
-              uses: actions/checkout@v7
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v7
-              with:
-                  node-version: "24"
-                  cache: npm
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
 
-            - name: Install dependencies
-              run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-            - name: Lint
-              run: npm run lint
+      - name: Lint
+        run: npm run lint
 
-            - name: Typecheck
-              run: npm run typecheck
+      - name: Typecheck
+        run: npm run typecheck
 
-            - name: Run unit tests
-              run: npm test
+      - name: Run unit tests
+        run: npm test
 
-            - name: Build Docker image
-              run: docker build --progress=plain --tag hookrelay:ci .
+      - name: Build Docker image
+        run: docker build --progress=plain --tag hookrelay:ci .
 
-            - name: Start CI stack
-              timeout-minutes: 5
-              run: >
-                  docker compose -p hookrelay-ci -f docker-compose.ci.yml
-                  up --no-build --wait --wait-timeout 120
+      - name: Start CI stack
+        timeout-minutes: 5
+        run: >
+          docker compose -p hookrelay-ci -f docker-compose.ci.yml
+          up --no-build --wait --wait-timeout 120
 
-            - name: Show container status
-              run: >
-                  docker compose -p hookrelay-ci -f docker-compose.ci.yml
-                  ps --all
+      - name: Show container status
+        run: >
+          docker compose -p hookrelay-ci -f docker-compose.ci.yml
+          ps --all
 
-            - name: Verify webhook delivery
-              timeout-minutes: 2
-              run: npm run test:smoke
+      - name: Verify webhook delivery
+        timeout-minutes: 2
+        env:
+          SMOKE_BASE_URL: http://127.0.0.1:3299
+        run: npm run test:smoke
 
-            - name: Show logs on failure
-              if: failure()
-              run: |
-                  docker compose -p hookrelay-ci -f docker-compose.ci.yml ps --all
-                  docker compose -p hookrelay-ci -f docker-compose.ci.yml logs --no-color --timestamps
+      - name: Show logs on failure
+        if: failure()
+        run: |
+          docker compose -p hookrelay-ci -f docker-compose.ci.yml ps --all
+          docker compose -p hookrelay-ci -f docker-compose.ci.yml logs --no-color --timestamps
 
-            - name: Clean up CI stack
-              if: always()
-              run: >
-                  docker compose -p hookrelay-ci -f docker-compose.ci.yml
-                  down --volumes --remove-orphans
+      - name: Clean up CI stack
+        if: always()
+        run: >
+          docker compose -p hookrelay-ci -f docker-compose.ci.yml
+          down --volumes --remove-orphans
