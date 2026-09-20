@@ -15,7 +15,7 @@ concurrency:
 jobs:
     checks:
         runs-on: ubuntu-latest
-        timeout-minutes: 10
+        timeout-minutes: 20
 
         steps:
             - name: Check out repository
@@ -38,3 +38,6 @@ jobs:
 
             - name: Run unit tests
               run: npm test
+
+            - name: Build Docker image
+              run: docker build --progress=plain --tag hookrelay:ci .
