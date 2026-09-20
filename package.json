@@ -19,6 +19,7 @@
     "lint": "oxlint apps/ libs/",
     "typecheck": "tsc --project tsconfig.typecheck.json",
     "test": "vitest run",
+    "test:smoke": "node scripts/smoke-delivery.mjs",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",

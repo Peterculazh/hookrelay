@@ -53,6 +53,10 @@ jobs:
                   docker compose -p hookrelay-ci -f docker-compose.ci.yml
                   ps --all
 
+            - name: Verify webhook delivery
+              timeout-minutes: 2
+              run: npm run test:smoke
+
             - name: Show logs on failure
               if: failure()
               run: |
