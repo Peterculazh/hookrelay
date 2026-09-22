@@ -30,21 +30,17 @@ async function waitForApi() {
 
   while (performance.now() < deadline) {
     try {
-      // main.ts registers Swagger at /api; AppModule has no GET / route.
-      const response = await request('/api-json', deadline);
-      const body = await response.text();
-      assert.equal(response.status, 200, 'GET /api-json must return 200');
-      const document = JSON.parse(body);
-      assert.ok(document.paths?.['/v1/events']?.post, 'Missing event POST route');
-      assert.ok(
-        document.paths?.['/v1/events/{id}']?.get,
-        'Missing event GET route',
-      );
+      const response = await request('/health/ready', deadline);
+      await response.text();
+
+      assert.equal(response.status, 200, 'GET /health/ready must return 200');
+
       return;
     } catch (error) {
-      // Connection failures are expected while Nest is starting.
+      // Retry while the API or PostgreSQL is becoming ready.
       lastError = error;
     }
+
     await pause(deadline);
   }
 

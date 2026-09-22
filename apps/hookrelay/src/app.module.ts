@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { createObserveModule } from '@nestjs/observe';
 import { EventsModule } from './events/domain/events.module.ts';
 import { DatabaseModule } from '@app/database';
+import { AppController } from './app.controller.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -17,5 +18,6 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     DatabaseModule,
     EventsModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
