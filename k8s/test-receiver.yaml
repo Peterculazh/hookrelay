@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-receiver
+  namespace: hookrelay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-receiver
+  template:
+    metadata:
+      labels:
+        app: test-receiver
+    spec:
+      containers:
+        - name: test-receiver
+          image: hookrelay:k8s-1
+          imagePullPolicy: Never
+          command: ['node', 'dist/apps/test-receiver/main.js']
+          env:
+            - name: TEST_RECEIVER_PORT
+              value: '3001'
+          ports:
+            - name: http
+              containerPort: 3001
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 256Mi

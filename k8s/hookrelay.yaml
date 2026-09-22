@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hookrelay
+  namespace: hookrelay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hookrelay
+  template:
+    metadata:
+      labels:
+        app: hookrelay
+    spec:
+      containers:
+        - name: hookrelay
+          image: hookrelay:k8s-1
+          imagePullPolicy: Never
+          command: ['node', 'dist/apps/hookrelay/main.js']
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: '3000'
+            - name: WEBHOOK_TARGET_URL
+              value: http://test-receiver:3001/webhooks
+            - name: DB_HOST
+              value: postgres
+            - name: DB_PORT
+              value: '5432'
+            - name: DB_SSL
+              value: 'false'
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_PASSWORD
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_DB
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 2
+            timeoutSeconds: 2
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hookrelay
+  namespace: hookrelay
+spec:
+  selector:
+    app: hookrelay
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
