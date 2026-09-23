@@ -6,6 +6,7 @@ import {
 } from '../queue/queue.constants.js';
 import type { EventDeliveryRepository } from './event-delivery.repository.js';
 import { EventsProcessor } from './events.processor.js';
+import { workerMetrics } from '../../../../libs/observability/src/metrics.js';
 
 const now = new Date('2026-09-12T10:00:00.000Z');
 const attemptId = '83afeffc-87f2-43d1-aea1-c5555cd193e4';
@@ -54,6 +55,7 @@ describe('EventsProcessor', () => {
   let processor: EventsProcessor;
 
   beforeEach(() => {
+    workerMetrics.registry.resetMetrics();
     vi.useFakeTimers();
     vi.setSystemTime(now);
     fetchMock = vi.fn();
@@ -196,6 +198,46 @@ describe('EventsProcessor', () => {
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(eventDeliveryRepository.startAttempt).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['succeeded', 204, undefined],
+    ['failed', 503, undefined],
+    ['failed', undefined, new TypeError('fetch failed')],
+    ['failed', undefined, new DOMException('timeout', 'TimeoutError')],
+  ] as const)(
+    'counts a %s receiver outcome once (status %s)',
+    async (outcome, status, error) => {
+      vi.spyOn(performance, 'now')
+        .mockReturnValueOnce(100)
+        .mockReturnValueOnce(350);
+      if (error) fetchMock.mockRejectedValueOnce(error);
+      else fetchMock.mockResolvedValueOnce(new Response(null, { status }));
+      await processor.process(createJob()).catch(() => undefined);
+      const counter = await workerMetrics.attempts.get();
+      expect(counter.values).toEqual([
+        expect.objectContaining({ labels: { outcome }, value: 1 }),
+      ]);
+      const histogram = await workerMetrics.webhookDuration.get();
+      expect(histogram.values).toContainEqual(
+        expect.objectContaining({
+          metricName: 'hookrelay_webhook_request_duration_seconds_sum',
+          labels: { outcome },
+          value: 0.25,
+        }),
+      );
+    },
+  );
+
+  it('retains the receiver outcome metric when database finalization fails', async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+    eventDeliveryRepository.markSucceededAndDelivered.mockRejectedValueOnce(
+      new Error('DB down'),
+    );
+    await expect(processor.process(createJob())).rejects.toThrow('DB down');
+    expect((await workerMetrics.attempts.get()).values).toEqual([
+      expect.objectContaining({ labels: { outcome: 'succeeded' }, value: 1 }),
+    ]);
   });
 
   it('rejects legacy jobs that do not contain an event snapshot', async () => {

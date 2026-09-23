@@ -1,4 +1,4 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import type { Job } from 'bullmq';
 import { UnrecoverableError } from 'bullmq';
 import {
@@ -7,6 +7,8 @@ import {
   type PublishEventJobData,
 } from '../queue/queue.constants.js';
 import { EventDeliveryRepository } from './event-delivery.repository.js';
+import { createLogger } from '../../../../libs/observability/src/logger.js';
+import { workerMetrics } from '../../../../libs/observability/src/metrics.js';
 
 const WEBHOOK_TIMEOUT_MS = 10_000;
 const HTTP_ERROR = 'HTTP_ERROR';
@@ -35,6 +37,30 @@ function eventStatusAfterFailure(
 
 @Processor(EVENTS_QUEUE)
 export class EventsProcessor extends WorkerHost {
+  private readonly logger = createLogger('worker');
+
+  @OnWorkerEvent('failed')
+  onFailed(job: Job<PublishEventJobData> | undefined, err: Error) {
+    this.logger.error({
+      action: 'job.failed',
+      eventId: job?.data?.event?.id ?? null,
+      jobId: job?.id ?? null,
+      attemptId: null,
+      attemptNumber: job?.attemptsMade,
+      errorCode: 'JOB_FAILED',
+      err,
+    });
+  }
+
+  @OnWorkerEvent('error')
+  onError(err: Error) {
+    this.logger.error({
+      action: 'worker.error',
+      errorCode: 'WORKER_ERROR',
+      err,
+    });
+  }
+
   constructor(
     private readonly eventDeliveryRepository: EventDeliveryRepository,
   ) {
@@ -60,8 +86,17 @@ export class EventsProcessor extends WorkerHost {
       event.id,
       new Date(),
     );
-    let response: Response;
 
+    this.logger.info({
+      action: 'delivery.started',
+      eventId: event.id,
+      jobId: job.id,
+      attemptId,
+      attemptNumber: job.attemptsMade + 1,
+    });
+
+    let response: Response;
+    const started = performance.now();
     try {
       response = await fetch(targetUrl, {
         method: 'POST',
@@ -72,21 +107,49 @@ export class EventsProcessor extends WorkerHost {
         signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
       });
     } catch (error) {
+      const durationMs = performance.now() - started;
+      workerMetrics.observeDelivery('failed', durationMs / 1000);
+      const eventStatus = eventStatusAfterFailure(job);
+      const errorCode = isTimeoutError(error) ? TIMEOUT : NETWORK_ERROR;
+
       await this.eventDeliveryRepository.markFailed(
         attemptId,
         event.id,
         {
           httpStatus: null,
-          errorCode: isTimeoutError(error) ? TIMEOUT : NETWORK_ERROR,
+          errorCode: errorCode,
           errorMessage: errorMessage(error),
         },
         new Date(),
-        eventStatusAfterFailure(job),
+        eventStatus,
       );
+
+      const failureLog = {
+        action: 'delivery.failed',
+        eventId: event.id,
+        jobId: job.id,
+        attemptId,
+        attemptNumber: job.attemptsMade + 1,
+        httpStatus: null,
+        errorCode,
+        eventStatus,
+        durationMs,
+      };
+
+      if (eventStatus === 'failed') {
+        this.logger.error(failureLog);
+      } else {
+        this.logger.warn(failureLog);
+      }
 
       throw error;
     }
 
+    const durationMs = performance.now() - started;
+    workerMetrics.observeDelivery(
+      response.ok ? 'succeeded' : 'failed',
+      durationMs / 1000,
+    );
     await response.body?.cancel().catch(() => undefined);
 
     if (!response.ok) {
@@ -95,17 +158,38 @@ export class EventsProcessor extends WorkerHost {
         `Webhook for event ${event.id} responded with ${status}`,
       );
 
+      const eventStatus = eventStatusAfterFailure(job);
+      const errorCode = HTTP_ERROR;
+
       await this.eventDeliveryRepository.markFailed(
         attemptId,
         event.id,
         {
           httpStatus: response.status,
-          errorCode: HTTP_ERROR,
+          errorCode: errorCode,
           errorMessage: error.message,
         },
         new Date(),
-        eventStatusAfterFailure(job),
+        eventStatus,
       );
+
+      const failureLog = {
+        action: 'delivery.failed',
+        eventId: event.id,
+        jobId: job.id,
+        attemptId,
+        attemptNumber: job.attemptsMade + 1,
+        httpStatus: response.status,
+        errorCode,
+        eventStatus,
+        durationMs,
+      };
+
+      if (eventStatus === 'failed') {
+        this.logger.error(failureLog);
+      } else {
+        this.logger.warn(failureLog);
+      }
 
       throw error;
     }
@@ -116,5 +200,15 @@ export class EventsProcessor extends WorkerHost {
       response.status,
       new Date(),
     );
+
+    this.logger.info({
+      action: 'delivery.succeeded',
+      eventId: event.id,
+      jobId: job.id,
+      attemptId,
+      attemptNumber: job.attemptsMade + 1,
+      httpStatus: response.status,
+      durationMs,
+    });
   }
 }

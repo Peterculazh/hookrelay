@@ -1,5 +1,6 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { createLogger } from '../../../../libs/observability/src/logger.js';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { type TransactionContext, UnitOfWork } from '@app/database';
 import type { Queue } from 'bullmq';
@@ -17,7 +18,7 @@ const OUTBOX_BATCH_SIZE = 100;
 
 @Injectable()
 export class ScheduleService {
-  private readonly logger = new Logger(ScheduleService.name);
+  private readonly logger = createLogger('worker');
 
   constructor(
     private readonly unitOfWork: UnitOfWork,
@@ -47,6 +48,7 @@ export class ScheduleService {
     entry: UnpublishedOutboxEntry,
     transaction: TransactionContext,
   ): Promise<void> {
+    const started = performance.now();
     const event = {
       ...entry.event,
       createdAt: entry.event.createdAt.toISOString(),
@@ -68,13 +70,37 @@ export class ScheduleService {
         },
       );
     } catch (error) {
-      this.logger.error(
-        `Failed to enqueue event ${event.id}`,
-        error instanceof Error ? error.stack : String(error),
-      );
+      this.logger.error({
+        action: 'job.publish_failed',
+        eventId: event.id,
+        jobId: event.id,
+        attemptId: null,
+        errorCode: 'QUEUE_PUBLISH_ERROR',
+        err: error,
+        durationMs: performance.now() - started,
+      });
       return;
     }
 
-    await this.outboxRepository.markPublished(entry.id, transaction);
+    this.logger.info({
+      action: 'job.published',
+      eventId: event.id,
+      jobId: event.id,
+      attemptId: null,
+      durationMs: performance.now() - started,
+    });
+    try {
+      await this.outboxRepository.markPublished(entry.id, transaction);
+    } catch (err) {
+      this.logger.error({
+        action: 'outbox.mark_failed',
+        eventId: event.id,
+        jobId: event.id,
+        attemptId: null,
+        errorCode: 'OUTBOX_UPDATE_ERROR',
+        err,
+      });
+      throw err;
+    }
   }
 }

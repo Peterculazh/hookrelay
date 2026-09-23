@@ -6,6 +6,7 @@ x-application-image: &application-image
 
 x-database-environment: &database-environment
   NODE_ENV: production
+  LOG_LEVEL: ${LOG_LEVEL:-info}
   DB_USER: ${DB_USER:-dbuser}
   DB_PASSWORD: ${DB_PASSWORD:-dbpassword}
   DB_HOST: postgres
@@ -95,6 +96,8 @@ services:
       <<: *database-environment
       PORT: "3000"
       WEBHOOK_TARGET_URL: http://test-receiver:3001/webhooks
+    expose:
+      - "9464"
     ports:
       - "127.0.0.1:${API_HOST_PORT:-3000}:3000"
     depends_on:
@@ -112,6 +115,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_DB: "${REDIS_DB:-0}"
+    expose:
+      - "9465"
     depends_on:
       postgres:
         condition: service_healthy
@@ -120,6 +125,32 @@ services:
       redis:
         condition: service_healthy
 
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    restart: unless-stopped
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=7d"]
+    ports:
+      - "127.0.0.1:${PROMETHEUS_HOST_PORT:-9090}:9090"
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+
+  grafana:
+    image: grafana/grafana:12.4.0
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-hookrelay-local}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "127.0.0.1:${GRAFANA_HOST_PORT:-18082}:3000"
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+
 volumes:
   postgres_data:
   redis_data:
+  prometheus_data:
+  grafana_data:

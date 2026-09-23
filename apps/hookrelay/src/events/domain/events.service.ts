@@ -1,4 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { createLogger } from '../../../../../libs/observability/src/logger.js';
 import { UnitOfWork } from '@app/database';
 import { randomUUID } from 'node:crypto';
 import { OutboxService } from '../../outbox/domain/outbox.service.ts';
@@ -14,6 +15,7 @@ import { WEBHOOK_TARGET_URL } from '../../config/config.ts';
 
 @Injectable()
 export class EventsServiceImpl implements EventsService {
+  private readonly logger = createLogger('api');
   private targetUrl: string;
 
   constructor(
@@ -26,10 +28,10 @@ export class EventsServiceImpl implements EventsService {
   }
 
   async saveEvent(body: SaveEventInput) {
+    const started = performance.now();
     const id = randomUUID();
 
-    return this.unitOfWork.run(async (transaction) => {
-      console.log(this.targetUrl);
+    const event = await this.unitOfWork.run(async (transaction) => {
       const event = await this.eventsRepository.save(
         {
           id,
@@ -45,6 +47,18 @@ export class EventsServiceImpl implements EventsService {
 
       return event;
     });
+
+    this.logger.info({
+      action: 'event.accepted',
+      eventId: event.id,
+      jobId: event.id,
+      attemptId: null,
+      httpStatus: 202,
+      durationMs: performance.now() - started,
+      eventType: event.type,
+    });
+
+    return event;
   }
 
   async getEvent(id: string) {
