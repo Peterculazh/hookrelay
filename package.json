@@ -28,7 +28,8 @@
     "start:h:dev": "nest start hookrelay --watch --env-file apps/hookrelay/.env",
     "start:w:dev": "nest start worker --watch --env-file .env",
     "start:r:dev": "nest start test-receiver --watch --env-file apps/test-receiver/.env",
-    "start:all:dev": "concurrently -k -n hookrelay,worker,receiver -c cyan,magenta,green \"npm run start:h:dev\" \"npm run start:w:dev\" \"npm run start:r:dev\""
+    "start:all:dev": "concurrently -k -n hookrelay,worker,receiver,relay -c cyan,magenta,green,yellow \"npm run start:h:dev\" \"npm run start:w:dev\" \"npm run start:r:dev\" \"npm run start:relay:dev\"",
+    "start:relay:dev": "nest start relay --watch --env-file .env"
   },
   "dependencies": {
     "@nestjs/bullmq": "^12.0.0",

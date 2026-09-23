@@ -9,7 +9,7 @@ The stack is a NestJS monorepo with TypeScript, PostgreSQL and Drizzle ORM, Redi
 ```text
 Client -> REST API -> PostgreSQL (event + outbox, one transaction)
                            |
-                    Worker outbox relay
+                    Dedicated outbox relay
                            |
                       Redis / BullMQ
                            |
@@ -21,7 +21,8 @@ Client -> REST API -> PostgreSQL (event + outbox, one transaction)
 | Application     | Responsibility                                                                      |
 | --------------- | ----------------------------------------------------------------------------------- |
 | `hookrelay`     | Accept events, return delivery status and attempt history, expose health endpoints. |
-| `worker`        | Run the outbox relay and webhook delivery processor in one process.                 |
+| `worker`        | Run webhook delivery processors independently of the relay.                 |
+| `relay`        | Publish committed outbox records to BullMQ; run exactly one instance. |
 | `test-receiver` | Accept `POST /webhooks` and return HTTP 204.                                        |
 
 The API returns HTTP 202 after committing the event and outbox record together. Every ten seconds, the relay enqueues unpublished records using the event ID as the BullMQ job ID, then marks them published. Each job contains the delivery snapshot, including the target URL.
@@ -79,14 +80,14 @@ docker compose -f docker-compose.yml ps --all
 npm run test:smoke
 ```
 
-This starts PostgreSQL, Redis, the migration service, the API, the worker, the receiver, Prometheus, and Grafana. The migration service must finish successfully before the API and worker start. Its `Exited (0)` status is expected.
+This starts PostgreSQL, Redis, the migration service, the API, the relay, the worker, the receiver, Prometheus, and Grafana. The migration service must finish successfully before the API, relay, and worker start. Its `Exited (0)` status is expected.
 
 The API is available at `http://localhost:3200`. PostgreSQL is exposed on `127.0.0.1:5433`; the applications use `postgres:5432` internally. Redis and the receiver do not need host ports.
 
 ```powershell
 curl.exe -i http://localhost:3200/health/live
 curl.exe -i http://localhost:3200/health/ready
-docker compose -f docker-compose.yml logs -f hookrelay worker
+docker compose -f docker-compose.yml logs -f hookrelay relay worker
 ```
 
 This container setup runs compiled code. After source changes, rerun `up -d --build`. The explicit `-f docker-compose.yml` keeps these commands independent of a local override file.
@@ -99,23 +100,23 @@ docker compose -f docker-compose.yml down
 
 ## Observability
 
-After starting Compose, open [HookRelay delivery overview](http://localhost:18082/d/hookrelay-overview) in Grafana. Log in with `admin` / `hookrelay-local` (override with `GRAFANA_ADMIN_PASSWORD` before first startup). The Prometheus data source and dashboard are provisioned from `observability/`; no manual dashboard setup is needed. [Prometheus targets](http://localhost:9090/targets) should show both services up. Host ports can be changed using `GRAFANA_HOST_PORT` and `PROMETHEUS_HOST_PORT`.
+After starting Compose, open [HookRelay delivery overview](http://localhost:18082/d/hookrelay-overview) in Grafana. Log in with `admin` / `hookrelay-local` (override with `GRAFANA_ADMIN_PASSWORD` before first startup). The Prometheus data source and dashboard are provisioned from `observability/`; no manual dashboard setup is needed. [Prometheus targets](http://localhost:9090/targets) should show all three services up. Host ports can be changed using `GRAFANA_HOST_PORT` and `PROMETHEUS_HOST_PORT`.
 
 The dashboard shows API traffic and HTTP errors, API p95 latency, delivery attempts by outcome, receiver p95 response time, waiting/active/delayed queue jobs, and unpublished outbox records. Allow two five-second scrapes for rates to appear. Percentiles are estimates from histogram buckets and are empty when there are no observations.
 
-Both processes expose `GET /metrics` on separate internal HTTP listeners: API port 9464 and worker port 9465. Compose does not publish these ports to the host. For local Node development, `METRICS_HOST` and `METRICS_PORT` override their bindings. The API's public port does not expose metrics. A failed collector returns HTTP 503 instead of a misleading zero. The API collects the outbox gauge directly so backlog growth remains visible when the worker (which also publishes the outbox) is stopped. Queue metrics are collected by the worker; they leave a gap during downtime, with the scrape-health panel showing it down.
+All three processes expose `GET /metrics` on separate internal HTTP listeners: API port 9464, worker port 9465, and relay port 9466. Compose does not publish these ports to the host. For local Node development, `METRICS_HOST` and `METRICS_PORT` override their bindings. The API's public port does not expose metrics. A failed collector returns HTTP 503 instead of a misleading zero. The API collects the outbox gauge directly so backlog growth remains visible when the relay is stopped. Queue metrics are collected by the relay, so queue backlog remains visible while workers are stopped. Relay downtime leaves a queue-metric gap, while the API still reports unpublished outbox records.
 
 Metrics use bounded method, route template, status, outcome, and state labels. IDs, payloads, and receiver URLs are never labels. API middleware counts completed responses including validation errors and unmatched routes. Delivery counters count actual receiver request outcomes, including every retry, before database finalization. A receiver 2xx followed by a database failure still counts as a successful receiver response; `job.failed` logs and event history explain finalization failures. Counters reset when a process restarts; the dashboard uses `rate`/`increase` to handle resets. A process killed before the next scrape can lose unobserved increments.
 
 Durations use `performance.now()` in milliseconds for logs and seconds for histograms. Receiver duration ends at response headers or request failure, excluding database work and discarded response bodies. Stored timestamps are unchanged; the timestamp investigation remains deferred.
 
-API and worker logs are Pino JSON on stdout. `event.accepted`, `job.published`, `delivery.started`, and `delivery.succeeded`/`delivery.failed` share `eventId` and `jobId`; delivery records add `attemptId`, `attemptNumber`, HTTP status, error code where applicable, and duration. `attemptId` is null before an attempt exists. `job.published` means Redis accepted the add operation, which is idempotent by event ID; it does not assert that the enclosing outbox transaction committed. `job.publish_failed`, `outbox.mark_failed`, and `job.failed` expose infrastructure failures. `LOG_LEVEL` defaults to `info`.
+API, relay, and worker logs are Pino JSON on stdout. `event.accepted`, `job.published`, `delivery.started`, and `delivery.succeeded`/`delivery.failed` share `eventId` and `jobId`; delivery records add `attemptId`, `attemptNumber`, HTTP status, error code where applicable, and duration. `attemptId` is null before an attempt exists. `job.published` means Redis accepted the add operation, which is idempotent by event ID; it does not assert that the enclosing outbox transaction committed. `job.publish_failed`, `outbox.mark_failed`, and `job.failed` expose infrastructure failures. `LOG_LEVEL` defaults to `info`.
 
 Follow one event without querying database tables:
 
 ```powershell
 $eventId = 'paste-event-id-here'
-docker compose -f docker-compose.yml logs --no-color --no-log-prefix hookrelay worker |
+docker compose -f docker-compose.yml logs --no-color --no-log-prefix hookrelay relay worker |
     ForEach-Object { $_ | ConvertFrom-Json } |
     Where-Object eventId -EQ $eventId |
     Format-Table service, action, eventId, jobId, attemptId, attemptNumber, httpStatus, errorCode, durationMs
@@ -127,9 +128,9 @@ Run the acceptance scenarios against the local Compose stack:
 npm run test:observability
 ```
 
-This creates seven test events, verifies a normal delivery, stops the receiver until three failed attempts are observed, restarts it, stops the worker while submitting five events, checks the API outbox gauge rises, and restarts the worker to verify draining. It checks correlated JSON logs, every dashboard query, and Grafana provisioning. It restores both services in `finally` and retains test events. It discovers published host ports through Compose. Run it against a disposable local workload, since it intentionally interrupts delivery. CI continues using the delivery smoke test and its separate Compose file.
+This creates twelve test events, verifies a normal delivery, stops the receiver until three failed attempts are observed, restarts it, stops the relay while submitting five events, checks the API outbox gauge rises, and restarts the relay to verify draining. It then stops the worker, submits five more events, verifies publication continues and queue backlog is visible, and restarts the worker to verify delivery. It checks correlated JSON logs, every dashboard query, and Grafana provisioning. It restores the receiver, relay, and worker in `finally` and retains test events. It discovers published host ports through Compose. Run it against a disposable local workload, since it intentionally interrupts delivery. CI continues using the delivery smoke test and its separate Compose file.
 
-For manual inspection, run `docker compose -f docker-compose.yml stop test-receiver`, submit events, and watch failed attempts; restore it with `start test-receiver`. Then `stop worker`, submit events, watch the outbox gauge grow, and `start worker` to drain it. Jobs that have exhausted all retries stay failed; submit a new event to verify receiver recovery.
+For manual inspection, run `docker compose -f docker-compose.yml stop test-receiver`, submit events, and watch failed attempts; restore it with `start test-receiver`. Then `stop relay`, submit events, watch the outbox gauge grow, and `start relay` to drain it. Jobs that have exhausted all retries stay failed; submit a new event to verify receiver recovery.
 
 ## Checks and CI
 
@@ -174,11 +175,11 @@ Create the database Secret once in the new namespace. These are local learning c
 kubectl --context docker-desktop -n hookrelay create secret generic postgres-credentials --from-literal=POSTGRES_USER=dbuser --from-literal=POSTGRES_PASSWORD=local-learning-password --from-literal=POSTGRES_DB=db
 ```
 
-The PostgreSQL, API, worker, and migration manifests read this Secret. Changing its values later does not change credentials inside an already initialized PostgreSQL volume.
+The PostgreSQL, API, relay, worker, and migration manifests read this Secret. Changing its values later does not change credentials inside an already initialized PostgreSQL volume.
 
 ### 2. Build and import the application image
 
-All three applications and the migration Job use the same image, with different startup commands. The manifests currently reference `hookrelay:k8s-1` with `imagePullPolicy: Never`.
+All four applications and the migration Job use the same image, with different startup commands. The manifests currently reference `hookrelay:k8s-1` with `imagePullPolicy: Never`.
 
 ```powershell
 docker build --tag hookrelay:k8s-1 .
@@ -223,17 +224,20 @@ kubectl --context docker-desktop -n hookrelay exec redis-0 -- redis-cli -h redis
 
 Expect Redis to return `PONG`. Redis uses a 1 GiB claim, AOF persistence with `appendfsync everysec`, and `noeviction`. Its configured Redis memory limit is 128 MB, within a 256 MiB container memory limit.
 
-### 5. Start the API and worker
+### 5. Start the API, relay, and worker
 
 ```powershell
 kubectl --context docker-desktop apply -f k8s/hookrelay.yaml
 kubectl --context docker-desktop -n hookrelay rollout status deployment/hookrelay --timeout=180s
-kubectl --context docker-desktop apply -f k8s/worker.yaml
+kubectl --context docker-desktop apply -f k8s/worker.yaml -f k8s/relay.yaml
 kubectl --context docker-desktop -n hookrelay rollout status deployment/worker --timeout=180s
+kubectl --context docker-desktop -n hookrelay rollout status deployment/relay --timeout=180s
 kubectl --context docker-desktop -n hookrelay get pods,services,pvc,jobs
 ```
 
-The API has startup, liveness, and readiness probes. The worker exposes an internal metrics listener but has no Kubernetes health probes, so its rollout status alone does not prove that webhook delivery works. Verify the full path with the smoke test next. The Prometheus/Grafana setup above is currently Compose-only.
+Keep exactly one relay replica. Its Deployment uses `Recreate` to avoid overlapping relay Pods during an update. Rebuild/import an image containing the relay before applying its manifest.
+
+The API has startup, liveness, and readiness probes. The worker and relay expose internal metrics listeners but have no Kubernetes health probes, so its rollout status alone does not prove that webhook delivery works. Verify the full path with the smoke test next. The Prometheus/Grafana setup above is currently Compose-only.
 
 ### 6. Forward the API and verify delivery
 
@@ -298,4 +302,4 @@ PostgreSQL data was verified to survive deletion and recreation of `postgres-0`:
 
 Implemented and verified: transactional outbox delivery, retry handling, automated CI delivery checks, API health endpoints, and an end-to-end delivery through local Kubernetes.
 
-Upcoming learning milestones are observability and load testing. A previously observed attempt had `finishedAt` earlier than `startedAt` by 3.110 seconds. Investigation of attempt creation, schema, response mapping, and clock behavior remains deferred; duration-based assertions are not part of the smoke test.
+Observability and the relay/worker separation are implemented. Next are receiver deduplication and crash-recovery testing before scaling. A previously observed attempt had `finishedAt` earlier than `startedAt` by 3.110 seconds. Investigation of attempt creation, schema, response mapping, and clock behavior remains deferred; duration-based assertions are not part of the smoke test.

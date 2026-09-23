@@ -125,6 +125,26 @@ services:
       redis:
         condition: service_healthy
 
+  # Keep one relay instance until multi-relay coordination is deliberately tested.
+  relay:
+    <<: *application-image
+    command: ["node", "dist/apps/relay/main.js"]
+    restart: unless-stopped
+    environment:
+      <<: *database-environment
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_DB: "${REDIS_DB:-0}"
+    expose:
+      - "9466"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
   prometheus:
     image: prom/prometheus:v3.5.0
     restart: unless-stopped

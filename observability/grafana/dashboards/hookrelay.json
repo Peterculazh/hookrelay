@@ -9,9 +9,7 @@
     "from": "now-15m",
     "to": "now"
   },
-  "tags": [
-    "hookrelay"
-  ],
+  "tags": ["hookrelay"],
   "panels": [
     {
       "id": 1,
@@ -59,9 +57,7 @@
       "options": {
         "colorMode": "background",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "values": false
         }
       }
@@ -91,9 +87,7 @@
       ],
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "values": false
         }
       },
@@ -351,7 +345,7 @@
       "id": 8,
       "title": "Queue jobs by state",
       "type": "timeseries",
-      "description": "Point-in-time counts. A stopped worker leaves a gap, not a zero; see scrape health and API outbox backlog.",
+      "description": "Queue counts collected by the relay remain visible while delivery workers are stopped. A stopped relay leaves a gap.",
       "gridPos": {
         "x": 0,
         "y": 27,
@@ -365,7 +359,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (state) (hookrelay_queue_jobs{service=\"worker\"})",
+          "expr": "sum by (state) (hookrelay_queue_jobs{service=\"relay\"})",
           "legendFormat": "{{state}}"
         }
       ],
@@ -384,7 +378,7 @@
       "id": 9,
       "title": "Unpublished outbox records",
       "type": "timeseries",
-      "description": "Scraped from the API so this remains visible while the worker/publisher is stopped. Max avoids double-counting a shared database across API replicas.",
+      "description": "Collected by the API so unpublished outbox backlog remains visible while the relay is stopped.",
       "gridPos": {
         "x": 12,
         "y": 27,
@@ -406,6 +400,72 @@
         "defaults": {
           "min": 0,
           "decimals": 0,
+          "custom": {
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 10,
+      "title": "Process resident memory",
+      "type": "timeseries",
+      "description": "Resident process memory, including memory outside the JavaScript heap.",
+      "gridPos": {
+        "x": 0,
+        "y": 35,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hookrelay-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "process_resident_memory_bytes{service=~\"api|worker|relay\"}",
+          "legendFormat": "{{service}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "min": 0,
+          "custom": {
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 11,
+      "title": "Event-loop delay p99",
+      "type": "timeseries",
+      "description": "Per-process p99 event-loop delay over each collection interval; this is not request latency.",
+      "gridPos": {
+        "x": 12,
+        "y": 35,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "hookrelay-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "nodejs_eventloop_lag_p99_seconds{service=~\"api|worker|relay\"}",
+          "legendFormat": "{{service}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
           "custom": {
             "spanNulls": false
           }

@@ -8,7 +8,7 @@ import {
   EVENTS_QUEUE,
   PUBLISH_EVENT_JOB,
   type PublishEventJobData,
-} from '../queue/queue.constants.js';
+} from '@app/queue';
 import {
   OutboxRepository,
   type UnpublishedOutboxEntry,
@@ -18,7 +18,7 @@ const OUTBOX_BATCH_SIZE = 100;
 
 @Injectable()
 export class ScheduleService {
-  private readonly logger = createLogger('worker');
+  private readonly logger = createLogger('relay');
 
   constructor(
     private readonly unitOfWork: UnitOfWork,

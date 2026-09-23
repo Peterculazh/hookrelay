@@ -19,7 +19,9 @@
     "strictPropertyInitialization": false,
     "paths": {
       "@app/database": ["./libs/database/src/index.ts"],
-      "@app/database/*": ["./libs/database/src/*"]
+      "@app/database/*": ["./libs/database/src/*"],
+      "@app/queue": ["./libs/queue/src/index.ts"],
+      "@app/queue/*": ["./libs/queue/src/*"]
     },
     "types": ["vitest/globals", "node"]
   },
@@ -36,6 +38,12 @@
     },
     {
       "path": "./apps/test-receiver/tsconfig.app.json"
+    },
+    {
+      "path": "./libs/queue/tsconfig.lib.json"
+    },
+    {
+      "path": "./apps/relay/tsconfig.app.json"
     }
   ]
 }

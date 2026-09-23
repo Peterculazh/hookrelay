@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   PUBLISH_EVENT_JOB,
   type PublishEventJobData,
-} from '../queue/queue.constants.js';
+} from '@app/queue';
 import type { EventDeliveryRepository } from './event-delivery.repository.js';
 import { EventsProcessor } from './events.processor.js';
 import { workerMetrics } from '../../../../libs/observability/src/metrics.js';

@@ -107,3 +107,5 @@ export class Metrics {
 
 export const apiMetrics = new Metrics('api');
 export const workerMetrics = new Metrics('worker');
+
+export const relayMetrics = new Metrics('relay');

@@ -45,6 +45,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/worker/tsconfig.app.json"
       }
+    },
+    "relay": {
+      "type": "application",
+      "root": "apps/relay",
+      "entryFile": "main",
+      "sourceRoot": "apps/relay/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/relay/tsconfig.app.json"
+      }
+    },
+    "queue": {
+      "type": "library",
+      "root": "libs/queue",
+      "entryFile": "index",
+      "sourceRoot": "libs/queue/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/queue/tsconfig.lib.json"
+      }
     }
   }
 }

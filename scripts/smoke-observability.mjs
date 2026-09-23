@@ -68,8 +68,8 @@ const eventStatus = async (id) => (await json(`${api}/v1/events/${id}`)).status;
 
 try {
   await until(
-    'both Prometheus targets up',
-    async () => (await value('sum(up{job=~"hookrelay-.*"})')) === 2,
+    'all three Prometheus targets up',
+    async () => (await value('sum(up{job=~"hookrelay-.*"})')) === 3,
   );
   const successes = await value(
     'sum(hookrelay_delivery_attempts_total{outcome="succeeded"})',
@@ -105,18 +105,18 @@ try {
     ),
   );
 
-  compose('stop', 'worker');
+  compose('stop', 'relay');
   const backlog = [];
   for (let i = 0; i < 5; i++) backlog.push(await submit());
   await until(
-    'worker down and outbox backlog visible from API',
+    'relay down and outbox backlog visible from API',
     async () =>
-      (await value('up{job="hookrelay-worker"}')) === 0 &&
+      (await value('up{job="hookrelay-relay"}')) === 0 &&
       (await value('hookrelay_outbox_unpublished')) >= 5,
   );
-  compose('start', 'worker');
+  compose('start', 'relay');
   await until(
-    'worker restart drains backlog',
+    'relay restart drains outbox backlog',
     async () =>
       (await value('hookrelay_outbox_unpublished')) === 0 &&
       (await Promise.all(backlog.map(eventStatus))).every(
@@ -130,17 +130,44 @@ try {
       (await value('up{job="hookrelay-worker"}')) === 1,
   );
 
+  compose('stop', 'worker');
+  const queued = [];
+  for (let i = 0; i < 5; i++) queued.push(await submit());
+  await until(
+    'worker down while relay publishes and queue backlog remains visible',
+    async () =>
+      (await value('up{job="hookrelay-worker"}')) === 0 &&
+      (await value('up{job="hookrelay-relay"}')) === 1 &&
+      (await value('hookrelay_outbox_unpublished')) === 0 &&
+      (await value('hookrelay_queue_jobs{service="relay",state="waiting"}')) >=
+        5 &&
+      (await Promise.all(queued.map(eventStatus))).every(
+        (status) => status === 'pending',
+      ),
+  );
+  compose('start', 'worker');
+  await until(
+    'worker restart drains queued deliveries',
+    async () =>
+      (await Promise.all(queued.map(eventStatus))).every(
+        (status) => status === 'delivered',
+      ) &&
+      (await value('sum(hookrelay_queue_jobs{service="relay"})')) === 0 &&
+      (await value('up{job="hookrelay-worker"}')) === 1,
+  );
+
   const lines = compose(
     'logs',
     '--no-color',
     '--no-log-prefix',
     'hookrelay',
     'worker',
+    'relay',
   )
     .split('\n')
     .filter(Boolean)
     .map((line) => JSON.parse(line));
-  for (const id of [normal, ...backlog]) {
+  for (const id of [normal, ...backlog, ...queued]) {
     const logs = lines.filter((line) => line.eventId === id);
     for (const action of [
       'event.accepted',
@@ -150,7 +177,14 @@ try {
       const log = logs.find((line) => line.action === action);
       assert.ok(log, `${id}: missing ${action}`);
       assert.equal(log.jobId, id);
-      assert.ok(log.service);
+      assert.equal(
+        log.service,
+        action === 'event.accepted'
+          ? 'api'
+          : action === 'job.published'
+            ? 'relay'
+            : 'worker',
+      );
       assert.ok(log.durationMs >= 0);
       if (action === 'delivery.succeeded') assert.ok(log.attemptId);
     }
@@ -194,6 +228,6 @@ try {
     `PASS: Grafana dashboard provisioned; every panel query returns data. ${grafana}/d/hookrelay-overview`,
   );
 } finally {
-  compose('start', 'test-receiver', 'worker');
+  compose('start', 'test-receiver', 'relay', 'worker');
   console.log(`Created test events: ${ids.join(', ')}`);
 }

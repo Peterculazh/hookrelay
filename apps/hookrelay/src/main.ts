@@ -9,8 +9,10 @@ import {
 import { apiMetrics } from '../../../libs/observability/src/metrics.js';
 import { AppModule, ObserveInstrument } from './app.module.js';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { collectDefaultMetrics } from 'prom-client';
 
 async function bootstrap() {
+  collectDefaultMetrics({ register: apiMetrics.registry });
   const app = await NestFactory.create(AppModule, {
     instrument: ObserveInstrument,
     logger: new PinoNestLogger(createLogger('api')),

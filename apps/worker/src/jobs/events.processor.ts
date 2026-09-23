@@ -5,7 +5,7 @@ import {
   EVENTS_QUEUE,
   PUBLISH_EVENT_JOB,
   type PublishEventJobData,
-} from '../queue/queue.constants.js';
+} from '@app/queue';
 import { EventDeliveryRepository } from './event-delivery.repository.js';
 import { createLogger } from '../../../../libs/observability/src/logger.js';
 import { workerMetrics } from '../../../../libs/observability/src/metrics.js';

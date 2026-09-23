@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   PUBLISH_EVENT_JOB,
   type PublishEventJobData,
-} from '../queue/queue.constants.js';
+} from '@app/queue';
 import type {
   OutboxRepository,
   UnpublishedOutboxEntry,
