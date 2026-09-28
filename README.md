@@ -23,7 +23,7 @@ Client -> REST API -> PostgreSQL (event + outbox, one transaction)
 | `hookrelay`     | Accept events, return delivery status and attempt history, expose health endpoints. |
 | `worker`        | Run webhook delivery processors independently of the relay.                 |
 | `relay`        | Publish committed outbox records to BullMQ; run exactly one instance. |
-| `test-receiver` | Accept `POST /webhooks` and return HTTP 204.                                        |
+| `test-receiver` | Apply each event once in PostgreSQL; acknowledge committed duplicates with HTTP 204.                                        |
 
 The API returns HTTP 202 after committing the event and outbox record together. Every ten seconds, the relay enqueues unpublished records using the event ID as the BullMQ job ID, then marks them published. Each job contains the delivery snapshot, including the target URL.
 
@@ -80,7 +80,7 @@ docker compose -f docker-compose.yml ps --all
 npm run test:smoke
 ```
 
-This starts PostgreSQL, Redis, the migration service, the API, the relay, the worker, the receiver, Prometheus, and Grafana. The migration service must finish successfully before the API, relay, and worker start. Its `Exited (0)` status is expected.
+This starts PostgreSQL, Redis, the migration service, the API, the relay, the worker, the receiver, Prometheus, and Grafana. The migration service must finish successfully before the API, relay, worker, and receiver start. Its `Exited (0)` status is expected.
 
 The API is available at `http://localhost:3200`. PostgreSQL is exposed on `127.0.0.1:5433`; the applications use `postgres:5432` internally. Redis and the receiver do not need host ports.
 
@@ -132,6 +132,58 @@ This creates twelve test events, verifies a normal delivery, stops the receiver 
 
 For manual inspection, run `docker compose -f docker-compose.yml stop test-receiver`, submit events, and watch failed attempts; restore it with `start test-receiver`. Then `stop relay`, submit events, watch the outbox gauge grow, and `start relay` to drain it. Jobs that have exhausted all retries stay failed; submit a new event to verify receiver recovery.
 
+## Receiver deduplication
+
+The test receiver validates a UUID event ID, a nonempty type (up to 255 characters), and a JSON payload. Invalid requests return HTTP 400. It inserts the ID into its own `received_events` table with `ON CONFLICT DO NOTHING`. Only the transaction that inserts the marker creates a `receiver_effects` row containing the event type and payload. That row is the simulated business effect; the marker and effect commit together before HTTP 204 is returned. Database errors return HTTP 500 so delivery can retry.
+
+Concurrent deliveries of the same ID produce one effect. A repeated ID with a different payload is treated as a duplicate: the first committed effect remains unchanged. Deduplication persists across receiver restarts. These receiver-owned tables have no foreign key to HookRelay's events; sharing the PostgreSQL instance and migration runner is a learning-project convenience. This guarantee covers the database effect, not external side effects such as sending email. Keep the markers for as long as duplicate delivery is possible.
+
+After rebuilding the Compose stack (which applies the new migration), run:
+
+```powershell
+npm run test:receiver
+```
+
+The test sends sequential and concurrent duplicate requests, checks invalid input, forces a commit-time failure with a temporary trigger scoped to one generated event ID, verifies rollback and successful retry, then restarts the receiver and verifies persistent deduplication. It removes its test rows and temporary trigger/function. Run against a local test workload: it briefly restarts the receiver and requires database DDL privileges for fault injection. It does not add a failure endpoint or switch to the application.
+
+CI runs the same test against its disposable Compose stack using `RECEIVER_COMPOSE_FILE=docker-compose.ci.yml` and `RECEIVER_COMPOSE_PROJECT=hookrelay-ci`. Rebuild/import the image and run a new migration Job before deploying the updated receiver to Kubernetes; the Kubernetes changes have not been validated by this local Compose test.
+
+## Worker crash recovery
+
+Run the deterministic crash test against an already running, migrated Compose stack with exactly one delivery worker:
+
+```powershell
+npm run test:worker-crash
+```
+
+It briefly stops the worker, submits one event through the API, and installs a temporary event-scoped PostgreSQL trigger that blocks the attempt's success update on an advisory lock. Once the worker reaches that update, the test verifies the receiver has committed exactly one effect while the event is still pending and its attempt is unfinished. It sends `SIGKILL`, verifies exit code 137, releases the database block, removes the trigger, and restarts the worker.
+
+BullMQ must recover the stalled job naturally after its lock expires; the test does not re-enqueue or manually retry it. It verifies a second execution succeeds with HTTP 204, the queue job completes, and the same single receiver effect remains. Recovery spans lock expiry and periodic stalled-job checks. With the current 30-second defaults, observed recovery approached 90 seconds; the test allows 150 seconds without changing worker settings.
+
+When BullMQ assigns a new execution, starting its attempt also closes earlier unfinished attempts in the same PostgreSQL transaction. These become `failed` with error code `INTERRUPTED` and no HTTP status: the receiver outcome is unknown. Their `finishedAt` is the reconciliation time, not a measured request completion time. A late finalization cannot overwrite an attempt that has already been reconciled. The new successful attempt explains the eventual `delivered` event. The test verifies one durable receiver effect across repeated HTTP deliveries and prints the retained event ID for inspection.
+
+The single relay also reconciles retained terminal queue jobs every ten seconds, scanning up to 100 candidate events per batch with keyset pagination. Failed jobs change still-pending events to `failed` and close unfinished attempts; completed jobs allow cleanup of historical unfinished attempts without changing the event outcome. This covers stalled-job exhaustion and database finalization failures even when no new processor execution occurs. Missing, waiting, delayed, and active jobs are left alone; elapsed time never determines whether an attempt is abandoned. Keep completed/failed jobs retained and do not manually retry or remove them while reconciliation is running. A future replay API will need coordination with reconciliation.
+
+```powershell
+npm run test:worker-exhaustion
+```
+
+This repeats the crash after receiver acceptance twice. With BullMQ's default single stalled recovery, the job eventually fails. The test verifies that the relay reconciles the event and both interrupted attempts while the receiver still has exactly one effect. Event `failed` means delivery could not be confirmed; it does not prove the receiver applied no effect.
+
+The test restores the worker in `finally`; the probe normally removes its temporary trigger/function and releases the lock. Run against a test workload because worker availability is interrupted and fault injection needs database DDL privileges. CI uses `CRASH_COMPOSE_FILE=docker-compose.ci.yml` and `CRASH_COMPOSE_PROJECT=hookrelay-ci` to target its disposable stack.
+
+## Graceful shutdown
+
+Workers close their BullMQ worker during Nest's module-destruction phase. This stops new jobs and waits for active HTTP delivery, database finalization, and the queue acknowledgment. The relay stops starting publication/reconciliation batches and waits for active batches. PostgreSQL pools close in the later application-shutdown phase, after this work drains. Logs include `worker.draining` / `worker.drained` and `relay.draining` / `relay.drained`.
+
+Compose application containers and the Kubernetes worker/relay manifests allow 30 seconds to stop, leaving room beyond the ten-second webhook timeout for database and queue finalization. An unresponsive dependency can still exhaust that grace period; forced termination then uses the crash-recovery path.
+
+```powershell
+npm run test:shutdown
+```
+
+The test blocks success persistence after receiver acceptance, queues another event, sends SIGTERM, and waits for the worker to acknowledge shutdown before releasing the database block. It verifies that the active delivery and queue acknowledgment finish without SIGKILL, the next job remains waiting with no attempt, and that job completes after restart. Relay draining and reconciliation shutdown also have unit coverage.
+
 ## Checks and CI
 
 ```powershell
@@ -143,7 +195,7 @@ npm run build -- --all
 
 GitHub Actions runs on pull requests and pushes to `main`. The workflow installs dependencies with `npm ci`, runs lint, typechecking, and unit tests, then builds the shared `hookrelay:ci` Docker image.
 
-CI starts an isolated stack using `docker-compose.ci.yml` and project name `hookrelay-ci`, runs migrations, and executes `npm run test:smoke`. On failure it prints container status and logs; cleanup always removes the CI containers and volumes. This workflow validates the application but does not publish images or deploy to Kubernetes.
+CI starts an isolated stack using `docker-compose.ci.yml` and project name `hookrelay-ci`, runs migrations, and executes delivery, receiver deduplication, crash recovery, graceful shutdown, and repeated-crash exhaustion checks. On failure it prints container status and logs; cleanup always removes the CI containers and volumes. This workflow validates the application but does not publish images or deploy to Kubernetes. Set `CI_API_HOST_PORT` and the matching `SMOKE_BASE_URL` to use another port when running a separate local CI stack.
 
 The smoke test:
 
@@ -165,6 +217,7 @@ kubectl --context docker-desktop --request-timeout=5s get --raw=/readyz
 kubectl --context docker-desktop get nodes
 kubectl --context docker-desktop get storageclass
 kubectl --context docker-desktop apply -f k8s/namespace.yaml
+kubectl --context docker-desktop apply -f k8s/configmap.yaml
 ```
 
 Expect `ok`, a Ready node, and a `standard` storage class. The verified storage class uses `rancher.io/local-path` with `WaitForFirstConsumer` binding.
@@ -175,18 +228,18 @@ Create the database Secret once in the new namespace. These are local learning c
 kubectl --context docker-desktop -n hookrelay create secret generic postgres-credentials --from-literal=POSTGRES_USER=dbuser --from-literal=POSTGRES_PASSWORD=local-learning-password --from-literal=POSTGRES_DB=db
 ```
 
-The PostgreSQL, API, relay, worker, and migration manifests read this Secret. Changing its values later does not change credentials inside an already initialized PostgreSQL volume.
+The PostgreSQL, API, relay, worker, receiver, and migration manifests read this Secret. Changing its values later does not change credentials inside an already initialized PostgreSQL volume. Application processes and the migration Job load shared non-secret database/Redis settings from `hookrelay-config`. After changing that ConfigMap, roll out the affected application Pods so they receive the new environment.
 
 ### 2. Build and import the application image
 
-All four applications and the migration Job use the same image, with different startup commands. The manifests currently reference `hookrelay:k8s-1` with `imagePullPolicy: Never`.
+All four applications and the migration Job use the same image, with different startup commands. The manifests currently reference `hookrelay:k8s-2` with `imagePullPolicy: Never`.
 
 ```powershell
-docker build --tag hookrelay:k8s-1 .
-$archive = Join-Path $env:TEMP "hookrelay-k8s-1.tar"
-docker image save --output "$archive" hookrelay:k8s-1
-cmd.exe /d /c 'docker exec -i desktop-control-plane ctr --namespace=k8s.io images import --all-platforms --digests - < "%TEMP%\hookrelay-k8s-1.tar"'
-docker exec desktop-control-plane crictl images --name hookrelay
+docker build --tag hookrelay:k8s-2 .
+$archive = Join-Path $env:TEMP "hookrelay-k8s-2.tar"
+docker image save --output "$archive" hookrelay:k8s-2
+cmd.exe /d /c 'docker exec -i desktop-control-plane ctr --namespace=k8s.io images import --all-platforms --digests - < "%TEMP%\hookrelay-k8s-2.tar"'
+docker exec desktop-control-plane crictl images hookrelay
 ```
 
 The Docker host image store and the kind node image store are separate. A successful `docker image inspect` alone does not mean Kubernetes can use the image. The import command streams the archive through `cmd.exe` so binary image data is not passed through a PowerShell text pipeline. The containerd namespace `k8s.io` is separate from the Kubernetes namespace `hookrelay`.
@@ -202,8 +255,8 @@ kubectl --context docker-desktop -n hookrelay rollout status statefulset/postgre
 kubectl --context docker-desktop -n hookrelay get pvc
 
 kubectl --context docker-desktop apply -f k8s/migrate.yaml
-kubectl --context docker-desktop -n hookrelay wait --for=condition=complete job/hookrelay-migrate-v1 --timeout=180s
-kubectl --context docker-desktop -n hookrelay logs job/hookrelay-migrate-v1
+kubectl --context docker-desktop -n hookrelay wait --for=condition=complete job/hookrelay-migrate-v2 --timeout=180s
+kubectl --context docker-desktop -n hookrelay logs job/hookrelay-migrate-v2
 ```
 
 The `postgres-data` claim requests 1 GiB. It can remain Pending until the PostgreSQL Pod is scheduled because the storage class uses `WaitForFirstConsumer`. Once PostgreSQL is running, expect the claim to be Bound.
@@ -237,7 +290,7 @@ kubectl --context docker-desktop -n hookrelay get pods,services,pvc,jobs
 
 Keep exactly one relay replica. Its Deployment uses `Recreate` to avoid overlapping relay Pods during an update. Rebuild/import an image containing the relay before applying its manifest.
 
-The API has startup, liveness, and readiness probes. The worker and relay expose internal metrics listeners but have no Kubernetes health probes, so its rollout status alone does not prove that webhook delivery works. Verify the full path with the smoke test next. The Prometheus/Grafana setup above is currently Compose-only.
+The API has startup, liveness, and PostgreSQL readiness probes. Worker and relay probes call `/health/live` on their internal metrics listeners (9465 and 9466). This endpoint responds without querying dependencies or collecting metrics, so a database or Redis outage does not trigger restart loops. Their readiness means the process can respond; it does not prove delivery capacity. The receiver has startup, liveness, and readiness probes on its root endpoint. Verify the full path with the smoke test next. The Prometheus/Grafana setup above is currently Compose-only.
 
 ### 6. Forward the API and verify delivery
 
@@ -265,11 +318,23 @@ Expect readiness HTTP 200 and `Smoke test passed: event ... delivered with HTTP 
 
 ### Updating code and migrations
 
-For a new application build, use a new image tag, such as `hookrelay:k8s-2`. Repeat the build, save, and import steps with that tag and archive filename. Update the image references in the relevant manifests, apply them, wait for their rollouts, and rerun the smoke test.
+For a new application build, use a new image tag, such as `hookrelay:k8s-3`. Repeat the build, save, and import steps with that tag and archive filename. Update the image references in the relevant manifests, apply them, wait for their rollouts, and rerun the smoke test.
 
 Rebuilding a tag on the Docker host does not update the image already imported into the Kubernetes node. Reapplying an unchanged Deployment also does not trigger a rollout.
 
-When schema changes require another migration, update the migration image and give the Job a new name, such as `hookrelay-migrate-v2`. Apply it and wait for successful completion before deploying code that requires the new schema. Reapplying a completed Job does not rerun it, and its Pod template cannot generally be changed in place.
+When schema changes require another migration, update the migration image and give the Job a new name, such as `hookrelay-migrate-v3`. Apply it and wait for successful completion before deploying code that requires the new schema. Reapplying a completed Job does not rerun it, and its Pod template cannot generally be changed in place.
+
+When upgrading from the original combined worker/relay image, scale the old worker Deployment to zero and wait for its Pods to terminate before starting the dedicated relay. Applying the current worker manifest restores one delivery worker. This prevents overlap between the old embedded outbox cron and the new relay.
+
+### 7. Verify persistence, worker scaling, and Pod replacement
+
+```powershell
+npm run test:k8s
+```
+
+This acceptance test is pinned to the `docker-desktop` context and `hookrelay` namespace. Run it on the local learning workload: it temporarily stops workers, replaces the Redis Pod, scales to two workers, and replaces one worker Pod. It preserves persistent volumes and restores the original worker replica count in `finally`.
+
+The test submits 24 events while workers are stopped, verifies they reach the queue, and checks that waiting jobs survive Redis Pod replacement. It pauses the queue while both workers start, then verifies that both Pods deliver test events, with one successful attempt and one durable receiver effect per event. After replacing a worker Pod, it verifies another 12 deliveries. The relay remains a single replica throughout. Test events remain available for inspection.
 
 ## Troubleshooting
 
@@ -281,7 +346,7 @@ kubectl --context docker-desktop -n hookrelay get events --sort-by=.metadata.cre
 kubectl --context docker-desktop -n hookrelay describe pods -l app=worker
 kubectl --context docker-desktop -n hookrelay logs deployment/worker --tail=100
 kubectl --context docker-desktop -n hookrelay logs deployment/hookrelay --tail=100
-kubectl --context docker-desktop -n hookrelay logs job/hookrelay-migrate-v1
+kubectl --context docker-desktop -n hookrelay logs job/hookrelay-migrate-v2
 ```
 
 | Symptom                                                          | Check or next action                                                                                                  |
@@ -302,4 +367,10 @@ PostgreSQL data was verified to survive deletion and recreation of `postgres-0`:
 
 Implemented and verified: transactional outbox delivery, retry handling, automated CI delivery checks, API health endpoints, and an end-to-end delivery through local Kubernetes.
 
-Observability and the relay/worker separation are implemented. Next are receiver deduplication and crash-recovery testing before scaling. A previously observed attempt had `finishedAt` earlier than `startedAt` by 3.110 seconds. Investigation of attempt creation, schema, response mapping, and clock behavior remains deferred; duration-based assertions are not part of the smoke test.
+Milestone 6 reliability work is implemented and verified: a dedicated single relay, transactional receiver deduplication, graceful shutdown, interrupted-attempt reconciliation, and automated crash/restart checks. Multiple relays are still unsupported.
+
+Milestone 7 is verified on Docker Desktop Kubernetes as of 2026-09-28 with `hookrelay:k8s-2` and the completed `hookrelay-migrate-v2` Job. The cluster now runs separate API, relay, delivery worker, and receiver Deployments with ConfigMap/Secret configuration and health probes. The acceptance test preserved 24 waiting jobs across Redis Pod replacement; two workers delivered 12 events each. After worker Pod replacement, another 12 deliveries succeeded. All 36 test events had one successful attempt and one receiver effect. The test restored one worker replica and kept one relay throughout. PostgreSQL persistence was verified separately as described above.
+
+Next is milestone 8: a low-cost remote deployment, with database backup and a demonstrated restore. The local Kubernetes setup is not a highly available production environment.
+
+A previously observed attempt had `finishedAt` earlier than `startedAt` by 3.110 seconds. Investigation of attempt creation, schema, response mapping, and clock behavior remains deferred; duration-based assertions are not part of the smoke test. `INTERRUPTED` attempt timestamps record reconciliation rather than receiver request duration.

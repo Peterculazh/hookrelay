@@ -3,6 +3,28 @@ import { DatabaseService } from './database.service.ts';
 import type { DrizzleDatabase } from './database.provider.ts';
 
 describe('DatabaseService', () => {
+  it('waits for the PostgreSQL pool to close during application shutdown', async () => {
+    let release!: () => void;
+    const end = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          release = resolve;
+        }),
+    );
+    const database = new DatabaseService(
+      {} as DrizzleDatabase,
+      { end } as unknown as Pool,
+    );
+    let closed = false;
+    const shutdown = database.onApplicationShutdown().then(() => {
+      closed = true;
+    });
+    await Promise.resolve();
+    expect(closed).toBe(false);
+    release();
+    await shutdown;
+    expect(closed).toBe(true);
+  });
   let query: ReturnType<typeof vi.fn>;
   let service: DatabaseService;
 

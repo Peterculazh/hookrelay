@@ -27,6 +27,11 @@ class MetricsServer
   async onApplicationBootstrap() {
     const logger = createLogger(this.options.service);
     this.server = createServer(async (req, res) => {
+      // Process liveness must not depend on PostgreSQL, Redis, or collectors.
+      if (req.method === 'GET' && req.url === '/health/live') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' }).end('ok\n');
+        return;
+      }
       if (req.method !== 'GET' || req.url !== '/metrics') {
         res.writeHead(404).end();
         return;

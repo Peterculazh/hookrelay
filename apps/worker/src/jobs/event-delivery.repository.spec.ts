@@ -43,10 +43,65 @@ function createDatabaseMock() {
 }
 
 describe('EventDeliveryRepository', () => {
+  it('does not change the event when a superseded execution tries to finalize', async () => {
+    const database = createDatabaseMock();
+    const staleAttempt = createUpdateChain([]);
+    const update = vi.fn().mockReturnValue(staleAttempt.builder);
+    database.transaction.mockImplementation(async (operation) =>
+      operation({ update }),
+    );
+    const repository = new EventDeliveryRepository(
+      database as unknown as DatabaseService,
+    );
+
+    await expect(
+      repository.markSucceededAndDelivered(attemptId, eventId, 204, finishedAt),
+    ).rejects.toThrow('was not marked succeeded');
+    expect(update).toHaveBeenCalledOnce();
+    update.mockClear();
+    await expect(
+      repository.markFailed(
+        attemptId,
+        eventId,
+        {
+          httpStatus: null,
+          errorCode: 'NETWORK_ERROR',
+          errorMessage: 'late failure',
+        },
+        finishedAt,
+        'failed',
+      ),
+    ).rejects.toThrow('was not marked failed');
+    expect(update).toHaveBeenCalledOnce();
+  });
+
+  it('propagates an insertion failure through the reconciliation transaction', async () => {
+    const database = createDatabaseMock();
+    const interrupted = createUpdateChain([]);
+    database.db.update.mockReturnValue(interrupted.builder);
+    const insert = createInsertChain([]);
+    insert.returning.mockRejectedValueOnce(new Error('insert failed'));
+    database.db.insert.mockReturnValue(insert.builder);
+    database.transaction.mockImplementation(async (operation) =>
+      operation(database.db),
+    );
+    const repository = new EventDeliveryRepository(
+      database as unknown as DatabaseService,
+    );
+    await expect(repository.startAttempt(eventId, startedAt)).rejects.toThrow(
+      'insert failed',
+    );
+    expect(database.transaction).toHaveBeenCalledOnce();
+  });
   it('creates an in-progress attempt with empty result fields', async () => {
     const database = createDatabaseMock();
     const insert = createInsertChain([{ id: attemptId }]);
     database.db.insert.mockReturnValue(insert.builder);
+    const interrupted = createUpdateChain([]);
+    database.db.update.mockReturnValue(interrupted.builder);
+    database.transaction.mockImplementation(async (operation) =>
+      operation(database.db),
+    );
     const repository = new EventDeliveryRepository(
       database as unknown as DatabaseService,
     );
@@ -56,6 +111,18 @@ describe('EventDeliveryRepository', () => {
     );
 
     expect(database.db.insert).toHaveBeenCalledWith(schema.deliveryAttempts);
+    expect(database.transaction).toHaveBeenCalledOnce();
+    expect(interrupted.set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'failed',
+        errorCode: 'INTERRUPTED',
+        httpStatus: null,
+        finishedAt: startedAt,
+      }),
+    );
+    expect(database.db.update.mock.invocationCallOrder[0]).toBeLessThan(
+      database.db.insert.mock.invocationCallOrder[0],
+    );
     expect(insert.values).toHaveBeenCalledWith({
       eventId,
       status: 'in_progress',

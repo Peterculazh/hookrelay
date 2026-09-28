@@ -2,10 +2,7 @@ import { Logger } from '@nestjs/common';
 import type { TransactionContext, UnitOfWork } from '@app/database';
 import type { Queue } from 'bullmq';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  PUBLISH_EVENT_JOB,
-  type PublishEventJobData,
-} from '@app/queue';
+import { PUBLISH_EVENT_JOB, type PublishEventJobData } from '@app/queue';
 import type {
   OutboxRepository,
   UnpublishedOutboxEntry,
@@ -73,6 +70,32 @@ function createHarness(entries: UnpublishedOutboxEntry[]) {
 }
 
 describe('ScheduleService', () => {
+  it('drains an active publication before shutdown and rejects new batches', async () => {
+    const { service, eventsQueue, outboxRepository } = createHarness([
+      firstEntry,
+    ]);
+    let release!: () => void;
+    eventsQueue.add.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        release = resolve;
+      }),
+    );
+    const batch = service.handleCron();
+    await vi.waitFor(() => expect(eventsQueue.add).toHaveBeenCalledOnce());
+    let drained = false;
+    const shutdown = service.onModuleDestroy().then(() => {
+      drained = true;
+    });
+    await service.handleCron();
+    expect(drained).toBe(false);
+    expect(outboxRepository.markPublished).not.toHaveBeenCalled();
+    release();
+    await Promise.all([batch, shutdown]);
+    expect(drained).toBe(true);
+    expect(outboxRepository.markPublished).toHaveBeenCalledOnce();
+    await service.handleCron();
+    expect(eventsQueue.add).toHaveBeenCalledOnce();
+  });
   beforeEach(() => {
     vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
   });

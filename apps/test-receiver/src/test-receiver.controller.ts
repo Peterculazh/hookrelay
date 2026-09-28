@@ -19,7 +19,7 @@ export class TestReceiverController {
 
   @Post('webhooks')
   @HttpCode(HttpStatus.NO_CONTENT)
-  receiveWebhook(@Body() event: unknown): void {
-    this.testReceiverService.receiveWebhook(event);
+  async receiveWebhook(@Body() event: unknown): Promise<void> {
+    await this.testReceiverService.receiveWebhook(event);
   }
 }

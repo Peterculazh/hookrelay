@@ -15,15 +15,46 @@ spec:
     spec:
       containers:
         - name: test-receiver
-          image: hookrelay:k8s-1
+          image: hookrelay:k8s-2
           imagePullPolicy: Never
           command: ['node', 'dist/apps/test-receiver/main.js']
+          envFrom:
+            - configMapRef:
+                name: hookrelay-config
           env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_PASSWORD
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_DB
             - name: TEST_RECEIVER_PORT
               value: '3001'
           ports:
             - name: http
               containerPort: 3001
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 2
+            timeoutSeconds: 2
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
           readinessProbe:
             httpGet:
               path: /

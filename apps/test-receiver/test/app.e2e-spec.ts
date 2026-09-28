@@ -2,14 +2,24 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import type { Server } from 'node:http';
-import { TestReceiverModule } from './../src/test-receiver.module.js';
+import { TestReceiverController } from '../src/test-receiver.controller.js';
+import { TestReceiverService } from '../src/test-receiver.service.js';
 
 describe('TestReceiverController (e2e)', () => {
   let app: INestApplication<Server>;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [TestReceiverModule],
+      controllers: [TestReceiverController],
+      providers: [
+        {
+          provide: TestReceiverService,
+          useValue: {
+            getHello: () => 'Hello World!',
+            receiveWebhook: vi.fn().mockResolvedValue(undefined),
+          },
+        },
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -26,7 +36,11 @@ describe('TestReceiverController (e2e)', () => {
   it('/webhooks (POST)', () => {
     return request(app.getHttpServer())
       .post('/webhooks')
-      .send({ id: 'event-1', type: 'order.created', payload: {} })
+      .send({
+        id: '87b31430-01b0-4443-995d-e9a780e7a142',
+        type: 'order.created',
+        payload: {},
+      })
       .expect(204);
   });
 

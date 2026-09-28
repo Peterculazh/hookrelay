@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Injectable, type OnModuleDestroy } from '@nestjs/common';
 import { createLogger } from '../../../../libs/observability/src/logger.js';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { type TransactionContext, UnitOfWork } from '@app/database';
@@ -17,8 +17,17 @@ import {
 const OUTBOX_BATCH_SIZE = 100;
 
 @Injectable()
-export class ScheduleService {
+export class ScheduleService implements OnModuleDestroy {
   private readonly logger = createLogger('relay');
+  private stopping = false;
+  private activeBatch?: Promise<void>;
+
+  async onModuleDestroy(): Promise<void> {
+    this.stopping = true;
+    this.logger.info({ action: 'relay.draining' });
+    await this.activeBatch?.catch(() => undefined);
+    this.logger.info({ action: 'relay.drained' });
+  }
 
   constructor(
     private readonly unitOfWork: UnitOfWork,
@@ -32,6 +41,16 @@ export class ScheduleService {
     waitForCompletion: true,
   })
   async handleCron(): Promise<void> {
+    if (this.stopping || this.activeBatch) return;
+    this.activeBatch = this.publishBatch();
+    try {
+      await this.activeBatch;
+    } finally {
+      this.activeBatch = undefined;
+    }
+  }
+
+  private async publishBatch(): Promise<void> {
     await this.unitOfWork.run(async (transaction) => {
       const entries = await this.outboxRepository.findUnpublishedForUpdate(
         transaction,

@@ -15,25 +15,20 @@ spec:
     spec:
       containers:
         - name: hookrelay
-          image: hookrelay:k8s-1
+          image: hookrelay:k8s-2
           imagePullPolicy: Never
           command: ['node', 'dist/apps/hookrelay/main.js']
           ports:
             - name: http
               containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: hookrelay-config
           env:
-            - name: NODE_ENV
-              value: production
             - name: PORT
               value: '3000'
             - name: WEBHOOK_TARGET_URL
               value: http://test-receiver:3001/webhooks
-            - name: DB_HOST
-              value: postgres
-            - name: DB_PORT
-              value: '5432'
-            - name: DB_SSL
-              value: 'false'
             - name: DB_USER
               valueFrom:
                 secretKeyRef:

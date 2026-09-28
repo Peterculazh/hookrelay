@@ -2,6 +2,7 @@ import { defineRelations } from 'drizzle-orm';
 import { events } from './schemas/events.ts';
 import { outbox } from './schemas/outbox.ts';
 import { deliveryAttempts } from './schemas/delivery_attempts.ts';
+import { receivedEvents, receiverEffects } from './schemas/receiver.ts';
 export { pgTable } from './table.ts';
 
 /**
@@ -13,6 +14,8 @@ export const schema = {
   events,
   outbox,
   deliveryAttempts,
+  receivedEvents,
+  receiverEffects,
 };
 
 /**

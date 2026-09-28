@@ -57,7 +57,35 @@ jobs:
               timeout-minutes: 2
               run: npm run test:smoke
 
-            - name: Show logs on failure
+            - name: Verify receiver deduplication
+              timeout-minutes: 3
+              env:
+                  RECEIVER_COMPOSE_FILE: docker-compose.ci.yml
+                  RECEIVER_COMPOSE_PROJECT: hookrelay-ci
+              run: npm run test:receiver
+
+            - name: Verify worker crash recovery
+              timeout-minutes: 6
+              env:
+                  CRASH_COMPOSE_FILE: docker-compose.ci.yml
+                  CRASH_COMPOSE_PROJECT: hookrelay-ci
+              run: npm run test:worker-crash
+
+            - name: Verify graceful shutdown
+              timeout-minutes: 3
+              env:
+                  CRASH_COMPOSE_FILE: docker-compose.ci.yml
+                  CRASH_COMPOSE_PROJECT: hookrelay-ci
+              run: npm run test:shutdown
+
+            - name: Verify repeated crashes exhaust and reconcile the job
+              timeout-minutes: 6
+              env:
+                  CRASH_COMPOSE_FILE: docker-compose.ci.yml
+                  CRASH_COMPOSE_PROJECT: hookrelay-ci
+              run: npm run test:worker-exhaustion
+
+            - name: Show reliability logs on failure
               if: failure()
               run: |
                   docker compose -p hookrelay-ci -f docker-compose.ci.yml ps --all

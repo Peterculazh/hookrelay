@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, type OnApplicationShutdown } from '@nestjs/common';
 import type { Pool, QueryConfig } from 'pg';
 import {
   DRIZZLE_DB,
@@ -16,11 +16,15 @@ interface TimeoutQueryConfig extends QueryConfig {
 }
 
 @Injectable()
-export class DatabaseService {
+export class DatabaseService implements OnApplicationShutdown {
   constructor(
     @Inject(DRIZZLE_DB) public readonly db: DrizzleDatabase,
     @Inject(PG_POOL) private readonly pool: Pool,
   ) {}
+
+  async onApplicationShutdown(): Promise<void> {
+    await this.pool.end();
+  }
 
   async checkConnection(timeoutMs: number): Promise<void> {
     const query: TimeoutQueryConfig = {

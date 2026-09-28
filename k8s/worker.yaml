@@ -13,20 +13,16 @@ spec:
       labels:
         app: worker
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
         - name: worker
-          image: hookrelay:k8s-1
+          image: hookrelay:k8s-2
           imagePullPolicy: Never
           command: ['node', 'dist/apps/worker/main.js']
+          envFrom:
+            - configMapRef:
+                name: hookrelay-config
           env:
-            - name: NODE_ENV
-              value: production
-            - name: DB_HOST
-              value: postgres
-            - name: DB_PORT
-              value: '5432'
-            - name: DB_SSL
-              value: 'false'
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
@@ -42,12 +38,28 @@ spec:
                 secretKeyRef:
                   name: postgres-credentials
                   key: POSTGRES_DB
-            - name: REDIS_HOST
-              value: redis
-            - name: REDIS_PORT
-              value: '6379'
-            - name: REDIS_DB
-              value: '0'
+          ports:
+            - name: internal
+              containerPort: 9465
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: internal
+            periodSeconds: 2
+            timeoutSeconds: 2
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: internal
+            periodSeconds: 10
+            timeoutSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /health/live
+              port: internal
+            periodSeconds: 5
+            timeoutSeconds: 2
           resources:
             requests:
               cpu: 100m

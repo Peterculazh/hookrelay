@@ -1,9 +1,6 @@
-import type { Job } from 'bullmq';
+import type { Job, Worker } from 'bullmq';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  PUBLISH_EVENT_JOB,
-  type PublishEventJobData,
-} from '@app/queue';
+import { PUBLISH_EVENT_JOB, type PublishEventJobData } from '@app/queue';
 import type { EventDeliveryRepository } from './event-delivery.repository.js';
 import { EventsProcessor } from './events.processor.js';
 import { workerMetrics } from '../../../../libs/observability/src/metrics.js';
@@ -105,6 +102,29 @@ describe('EventsProcessor', () => {
       eventDeliveryRepository.markSucceededAndDelivered,
     ).toHaveBeenCalledWith(attemptId, jobData.event.id, 204, now);
     expect(eventDeliveryRepository.markFailed).not.toHaveBeenCalled();
+  });
+
+  it('waits for BullMQ to drain before completing module destruction', async () => {
+    let release!: () => void;
+    const close = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          release = resolve;
+        }),
+    );
+    Object.defineProperty(processor, 'worker', {
+      value: { close } as unknown as Worker,
+    });
+    let drained = false;
+    const shutdown = processor.onModuleDestroy().then(() => {
+      drained = true;
+    });
+    await Promise.resolve();
+    expect(close).toHaveBeenCalledWith();
+    expect(drained).toBe(false);
+    release();
+    await shutdown;
+    expect(drained).toBe(true);
   });
 
   it('keeps the event pending when BullMQ will retry an HTTP failure', async () => {

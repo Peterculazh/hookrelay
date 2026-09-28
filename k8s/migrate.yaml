@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: hookrelay-migrate-v1
+  name: hookrelay-migrate-v2
   namespace: hookrelay
 spec:
   backoffLimit: 0
@@ -11,18 +11,13 @@ spec:
       restartPolicy: Never
       containers:
         - name: migrate
-          image: hookrelay:k8s-1
+          image: hookrelay:k8s-2
           imagePullPolicy: Never
           command: ['npm', 'run', 'db:migrate']
+          envFrom:
+            - configMapRef:
+                name: hookrelay-config
           env:
-            - name: NODE_ENV
-              value: production
-            - name: DB_HOST
-              value: postgres
-            - name: DB_PORT
-              value: '5432'
-            - name: DB_SSL
-              value: 'false'
             - name: DB_USER
               valueFrom:
                 secretKeyRef:

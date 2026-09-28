@@ -1,4 +1,5 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
+import type { OnModuleDestroy } from '@nestjs/common';
 import type { Job } from 'bullmq';
 import { UnrecoverableError } from 'bullmq';
 import {
@@ -36,8 +37,16 @@ function eventStatusAfterFailure(
 }
 
 @Processor(EVENTS_QUEUE)
-export class EventsProcessor extends WorkerHost {
+export class EventsProcessor extends WorkerHost implements OnModuleDestroy {
   private readonly logger = createLogger('worker');
+
+  async onModuleDestroy(): Promise<void> {
+    this.logger.info({ action: 'worker.draining' });
+    // Drain before the application-shutdown phase closes Redis and PostgreSQL.
+    // close() stops taking jobs and waits for active processors and finalization.
+    await this.worker.close();
+    this.logger.info({ action: 'worker.drained' });
+  }
 
   @OnWorkerEvent('failed')
   onFailed(job: Job<PublishEventJobData> | undefined, err: Error) {

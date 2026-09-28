@@ -3,6 +3,7 @@ x-application-image: &application-image
   build:
     context: .
   init: true
+  stop_grace_period: 30s
 
 x-database-environment: &database-environment
   NODE_ENV: production
@@ -70,8 +71,13 @@ services:
     command: ["node", "dist/apps/test-receiver/main.js"]
     restart: unless-stopped
     environment:
-      NODE_ENV: production
+      <<: *database-environment
       TEST_RECEIVER_PORT: "3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     expose:
       - "3001"
     healthcheck:

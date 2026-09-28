@@ -2,6 +2,7 @@ x-application-image: &application-image
   image: hookrelay:ci
   pull_policy: never
   init: true
+  stop_grace_period: 30s
 
 x-database-environment: &database-environment
   NODE_ENV: production
@@ -66,8 +67,13 @@ services:
     command: ["node", "dist/apps/test-receiver/main.js"]
     restart: no
     environment:
-      NODE_ENV: production
+      <<: *database-environment
       TEST_RECEIVER_PORT: "3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     expose:
       - "3001"
     healthcheck:
@@ -93,7 +99,7 @@ services:
       PORT: "3000"
       WEBHOOK_TARGET_URL: http://test-receiver:3001/webhooks
     ports:
-      - "127.0.0.1:3200:3000"
+      - "127.0.0.1:${CI_API_HOST_PORT:-3200}:3000"
     depends_on:
       postgres:
         condition: service_healthy

@@ -16,26 +16,46 @@ export class EventDeliveryRepository {
   constructor(private readonly database: DatabaseService) {}
 
   async startAttempt(eventId: string, startedAt: Date): Promise<string> {
-    const [attempt] = await this.database.db
-      .insert(schema.deliveryAttempts)
-      .values({
-        eventId,
-        status: 'in_progress',
-        startedAt,
-        finishedAt: null,
-        httpStatus: null,
-        errorCode: null,
-        errorMessage: null,
-      })
-      .returning({ id: schema.deliveryAttempts.id });
+    return this.database.transaction(async (transaction) => {
+      // BullMQ has assigned this execution the job lock. Earlier unfinished
+      // executions have an unknown receiver outcome, not a confirmed HTTP failure.
+      await transaction
+        .update(schema.deliveryAttempts)
+        .set({
+          status: 'failed',
+          finishedAt: startedAt,
+          httpStatus: null,
+          errorCode: 'INTERRUPTED',
+          errorMessage:
+            'Previous execution did not persist its outcome; reconciled when a new execution started. Receiver outcome is unknown.',
+        })
+        .where(
+          and(
+            eq(schema.deliveryAttempts.eventId, eventId),
+            eq(schema.deliveryAttempts.status, 'in_progress'),
+          ),
+        );
+      const [attempt] = await transaction
+        .insert(schema.deliveryAttempts)
+        .values({
+          eventId,
+          status: 'in_progress',
+          startedAt,
+          finishedAt: null,
+          httpStatus: null,
+          errorCode: null,
+          errorMessage: null,
+        })
+        .returning({ id: schema.deliveryAttempts.id });
 
-    if (!attempt) {
-      throw new Error(
-        `Failed to start a delivery attempt for event ${eventId}`,
-      );
-    }
+      if (!attempt) {
+        throw new Error(
+          `Failed to start a delivery attempt for event ${eventId}`,
+        );
+      }
 
-    return attempt.id;
+      return attempt.id;
+    });
   }
 
   async markSucceededAndDelivered(
