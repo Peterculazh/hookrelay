@@ -39,8 +39,14 @@ jobs:
             - name: Run unit tests
               run: npm test
 
+            - name: Verify release migration and rollback guards
+              run: npm run test:release
+
             - name: Build Docker image
-              run: docker build --progress=plain --tag hookrelay:ci .
+              run: >
+                  docker build --platform linux/amd64 --progress=plain --tag hookrelay:ci
+                  --label "org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY"
+                  --label "org.opencontainers.image.revision=$GITHUB_SHA" .
 
             - name: Start CI stack
               timeout-minutes: 5
@@ -85,6 +91,20 @@ jobs:
                   CRASH_COMPOSE_PROJECT: hookrelay-ci
               run: npm run test:worker-exhaustion
 
+            - name: Save verified image for publication
+              if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+              run: docker save hookrelay:ci | gzip > verified-image.tar.gz
+
+            - name: Upload verified image
+              if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+              uses: actions/upload-artifact@v7
+              with:
+                  name: verified-image
+                  path: verified-image.tar.gz
+                  if-no-files-found: error
+                  compression-level: 0
+                  retention-days: 1
+
             - name: Show reliability logs on failure
               if: failure()
               run: |
@@ -96,3 +116,54 @@ jobs:
               run: >
                   docker compose -p hookrelay-ci -f docker-compose.ci.yml
                   down --volumes --remove-orphans
+
+    publish:
+        needs: checks
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: Download verified image
+              uses: actions/download-artifact@v8
+              with:
+                  name: verified-image
+
+            - name: Load and validate verified image
+              run: |
+                  docker load --input verified-image.tar.gz
+                  revision=$(docker image inspect hookrelay:ci --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')
+                  test "$revision" = "$GITHUB_SHA"
+
+            - name: Authenticate to GHCR
+              env:
+                  GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+
+            - name: Publish commit-tagged image and record digest
+              run: |
+                  image="ghcr.io/${GITHUB_REPOSITORY,,}"
+                  tag="$image:sha-$GITHUB_SHA"
+                  docker tag hookrelay:ci "$tag"
+                  docker push "$tag"
+                  digest=$(docker image inspect "$tag" --format '{{index .RepoDigests 0}}')
+                  test -n "$digest"
+                  ref="$tag@${digest#*@}"
+                  {
+                    echo '### Verified release image'
+                    echo
+                    echo "Commit: \`$GITHUB_SHA\`"
+                    echo
+                    echo "Image: \`$ref\`"
+                    echo
+                    echo 'Prepare the release bundle from this repository:'
+                    echo '```powershell'
+                    printf "npm run prepare:release -- %s '%s'\n" "$GITHUB_SHA" "$ref"
+                    echo '```'
+                  } >> "$GITHUB_STEP_SUMMARY"
+
+            - name: Log out of GHCR
+              if: always()
+              run: docker logout ghcr.io
