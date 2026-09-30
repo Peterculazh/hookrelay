@@ -1,8 +1,9 @@
 # Commit-tagged releases and application rollback
 
-Milestone 9 tooling is implemented; GHCR publication and the remote
-deploy/rollback acceptance exercise below are still pending. This extends the
-existing single-node K3s installation from [Milestone 8](vps-deployment.md).
+The first GHCR release (A) was deployed and verified on the remote K3s server
+on 2026-09-30. Milestone 9 still requires deployment of a second compatible
+release (B), rollback to A, and delivery checks after rollback. This extends
+the existing single-node K3s installation from [Milestone 8](vps-deployment.md).
 
 CI on `main` runs lint, type checking, unit tests, and the Compose delivery,
 deduplication, crash recovery, shutdown, and exhaustion checks. Only a successful
@@ -75,11 +76,20 @@ Review the manifests before uploading:
 ```powershell
 Get-Content ".tmp/releases/$releaseCommit/image.txt"
 Get-Content ".tmp/releases/$releaseCommit/migrate.yaml"
-$vpsTarget = Read-Host 'SSH destination (user@host)'
-$sshKeyPath = Read-Host 'Existing SSH key path'
-if ([string]::IsNullOrWhiteSpace($vpsTarget) -or !(Test-Path -LiteralPath $sshKeyPath -PathType Leaf)) { throw 'Enter a destination and an existing key path.' }
-scp -i "$sshKeyPath" -o IdentitiesOnly=yes -r ".tmp/releases/$releaseCommit" "${vpsTarget}:~/"
-scp -i "$sshKeyPath" -o IdentitiesOnly=yes scripts/deploy-release.sh "${vpsTarget}:~/"
+& {
+    $ErrorActionPreference = 'Stop'
+    $vpsTarget = (Read-Host 'SSH destination (user@host)').Trim()
+    if ($vpsTarget -notmatch '^[^@\s]+@[^@\s]+$') { throw 'Enter your actual SSH username@host.' }
+    $sshKeyPath = (Read-Host 'Existing SSH private key path, without quotes').Trim()
+    if ([string]::IsNullOrWhiteSpace($sshKeyPath) -or !(Test-Path -LiteralPath $sshKeyPath -PathType Leaf)) { throw 'Enter the path to an existing private key file.' }
+    if (!(Test-Path -LiteralPath ".tmp/releases/$releaseCommit" -PathType Container)) { throw 'Prepare the release bundle first.' }
+    $scpExecutable = (Get-Command scp.exe -CommandType Application).Source
+    & $scpExecutable -i "$sshKeyPath" -o IdentitiesOnly=yes -r ".tmp/releases/$releaseCommit" "${vpsTarget}:~/"
+    if ($LASTEXITCODE -ne 0) { throw 'Release upload failed.' }
+    & $scpExecutable -i "$sshKeyPath" -o IdentitiesOnly=yes scripts/deploy-release.sh "${vpsTarget}:~/"
+    if ($LASTEXITCODE -ne 0) { throw 'Script upload failed.' }
+    Write-Host 'Both uploads succeeded.'
+}
 ```
 
 No image archive/import is needed. The shell script uses LF line endings and
@@ -152,6 +162,21 @@ a fresh event delivers with HTTP 204. Read the saved A/B event IDs through
 digests, completed migration Jobs, rollout results, and smoke-test event IDs.
 Those observations complete Milestone 9. Retain both registry versions and
 bundles; deleting a digest removes the ability to pull that release again.
+
+## 5. Verification record
+
+Release A was verified on 2026-09-30:
+
+- Commit: `34990bac3ad5f74ca4b33b1ae20a65d7f403c52d`.
+- Image digest: `sha256:65484561054fd00b07eb4761086521ee08f62d286e0416f0244bf0f64bb1d5d7`.
+- Migration Job `hookrelay-migrate-34990bac3ad5f74ca4b33b1ae20a65d7f403c52d` completed before application updates.
+- Receiver, API, worker, and relay rollouts succeeded at the selected image.
+- Remote API readiness returned HTTP 200.
+- Event `84cfef07-9881-4568-9ae2-b8f5154d2e7e` delivered with a successful HTTP 204 attempt.
+
+Release B and rollback verification are pending. The next documentation-only
+commit provides a second release with the same application code, database
+schema, manifests, and shared configuration as A. Keep A's bundle for rollback.
 
 References: [GHCR authentication and visibility](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry),
 [publishing from GitHub Actions](https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images),
