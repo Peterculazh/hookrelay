@@ -10,6 +10,7 @@ import {
 import { EventDeliveryRepository } from './event-delivery.repository.js';
 import { createLogger } from '../../../../libs/observability/src/logger.js';
 import { workerMetrics } from '../../../../libs/observability/src/metrics.js';
+import { loadWorkerConcurrency } from './worker.config.js';
 
 const WEBHOOK_TIMEOUT_MS = 10_000;
 const HTTP_ERROR = 'HTTP_ERROR';
@@ -36,7 +37,7 @@ function eventStatusAfterFailure(
   return job.attemptsMade + 1 < totalAttempts ? 'pending' : 'failed';
 }
 
-@Processor(EVENTS_QUEUE)
+@Processor(EVENTS_QUEUE, { concurrency: loadWorkerConcurrency() })
 export class EventsProcessor extends WorkerHost implements OnModuleDestroy {
   private readonly logger = createLogger('worker');
 

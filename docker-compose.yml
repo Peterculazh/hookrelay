@@ -121,6 +121,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_DB: "${REDIS_DB:-0}"
+      WORKER_CONCURRENCY: "${WORKER_CONCURRENCY:-1}"
     expose:
       - "9465"
     depends_on:

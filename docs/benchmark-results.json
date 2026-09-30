@@ -1,0 +1,847 @@
+{
+  "date": "2026-09-30",
+  "metadata": {
+    "startedAt": "2026-09-30T17:59:52.844Z",
+    "commit": "f7d81c606333f528eda4fb7e9961b13c3f0b1cba",
+    "cpu": "AMD Ryzen 7 5700X3D 8-Core Processor           ",
+    "hostCpus": 16,
+    "memoryGiB": "63.91",
+    "platform": "win32",
+    "docker": "29.8.0",
+    "k6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+    "dockerResources": {
+      "cpus": 16,
+      "memoryBytes": 33609551872
+    },
+    "node": "v26.8.1",
+    "applicationImage": "sha256:d59f5f649624f2184df20e0f47fbaf659462f3ea1bf601bcab1555dd7d03a04b"
+  },
+  "runs": [
+    {
+      "scenario": "baseline",
+      "config": {
+        "rate": 5,
+        "seconds": 10,
+        "concurrency": 1,
+        "replicas": 1
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 51,
+      "snapshot": {
+        "total": 51,
+        "pending": 0,
+        "delivered": 51,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 51,
+        "attempts": 51,
+        "reversedTimestamps": 0
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 51
+        }
+      ],
+      "apiMs": {
+        "count": 51,
+        "p50": 20.87800000000061,
+        "p95": 22.24369999999908,
+        "p99": 38.005300000000716,
+        "max": 38.005300000000716
+      },
+      "deliveryMs": {
+        "count": 51,
+        "p50": 5475.375599999999,
+        "p95": 11447.2432,
+        "p99": 11756.9061,
+        "max": 11756.9061
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 17.9987494,
+      "drainSeconds": 6.585006299999997,
+      "recoverySeconds": null,
+      "peakPending": 26,
+      "peakUnpublished": 26,
+      "peakDatabaseConnections": 6,
+      "maxObservationIntervalMs": 519.0462000000007,
+      "telemetryStartupGaps": []
+    },
+    {
+      "scenario": "slow-serial",
+      "config": {
+        "rate": 4,
+        "seconds": 10,
+        "delayMs": 500,
+        "concurrency": 1,
+        "replicas": 1
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 41,
+      "snapshot": {
+        "total": 41,
+        "pending": 0,
+        "delivered": 41,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 41,
+        "attempts": 41,
+        "reversedTimestamps": 0
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 41
+        }
+      ],
+      "apiMs": {
+        "count": 41,
+        "p50": 20.234599999996135,
+        "p95": 21.30340000000433,
+        "p99": 21.828099999998813,
+        "max": 21.828099999998813
+      },
+      "deliveryMs": {
+        "count": 41,
+        "p50": 14983.1979,
+        "p95": 19490.0775,
+        "p99": 20011.636799999993,
+        "max": 20011.636799999993
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 29.94075209999999,
+      "drainSeconds": 18.503666399999993,
+      "recoverySeconds": null,
+      "peakPending": 34,
+      "peakUnpublished": 34,
+      "peakDatabaseConnections": 6,
+      "maxObservationIntervalMs": 547.8974000000017,
+      "telemetryStartupGaps": []
+    },
+    {
+      "scenario": "slow-concurrency",
+      "config": {
+        "rate": 4,
+        "seconds": 10,
+        "delayMs": 500,
+        "concurrency": 4,
+        "replicas": 1
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 41,
+      "snapshot": {
+        "total": 41,
+        "pending": 0,
+        "delivered": 41,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 41,
+        "attempts": 41,
+        "reversedTimestamps": 0
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 41
+        }
+      ],
+      "apiMs": {
+        "count": 41,
+        "p50": 20.21600000000035,
+        "p95": 21.420100000003004,
+        "p99": 89.99300000000221,
+        "max": 89.99300000000221
+      },
+      "deliveryMs": {
+        "count": 41,
+        "p50": 6804.625,
+        "p95": 9514.05170000001,
+        "p99": 10022.021100000013,
+        "max": 10022.021100000013
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 16.5248195,
+      "drainSeconds": 4.991344899999996,
+      "recoverySeconds": null,
+      "peakPending": 28,
+      "peakUnpublished": 28,
+      "peakDatabaseConnections": 12,
+      "maxObservationIntervalMs": 563.6198000000004,
+      "telemetryStartupGaps": []
+    },
+    {
+      "scenario": "slow-replicas",
+      "config": {
+        "rate": 4,
+        "seconds": 10,
+        "delayMs": 500,
+        "replicas": 2,
+        "concurrency": 1
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 41,
+      "snapshot": {
+        "total": 41,
+        "pending": 0,
+        "delivered": 41,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 41,
+        "attempts": 41,
+        "reversedTimestamps": 0
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 41
+        }
+      ],
+      "apiMs": {
+        "count": 41,
+        "p50": 20.008799999995972,
+        "p95": 20.630400000009104,
+        "p99": 20.805500000002212,
+        "max": 20.805500000002212
+      },
+      "deliveryMs": {
+        "count": 41,
+        "p50": 8391.971000000005,
+        "p95": 9876.825500000006,
+        "p99": 10689.993199999997,
+        "max": 10689.993199999997
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 20.53954419999999,
+      "drainSeconds": 9.195937699999995,
+      "recoverySeconds": null,
+      "peakPending": 33,
+      "peakUnpublished": 31,
+      "peakDatabaseConnections": 8,
+      "maxObservationIntervalMs": 568.5618000000104,
+      "telemetryStartupGaps": []
+    },
+    {
+      "scenario": "retry",
+      "config": {
+        "rate": 2,
+        "seconds": 5,
+        "failAttempts": 1,
+        "concurrency": 4,
+        "replicas": 1
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 11,
+      "snapshot": {
+        "total": 11,
+        "pending": 0,
+        "delivered": 11,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 11,
+        "attempts": 22,
+        "reversedTimestamps": 0
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 11
+        },
+        {
+          "status": "failed",
+          "http_status": 503,
+          "error_code": "HTTP_ERROR",
+          "count": 11
+        }
+      ],
+      "apiMs": {
+        "count": 11,
+        "p50": 20.29810000001453,
+        "p95": 24.138299999991432,
+        "p99": 24.138299999991432,
+        "max": 24.138299999991432
+      },
+      "deliveryMs": {
+        "count": 11,
+        "p50": 10267.849499999982,
+        "p95": 12785.590299999982,
+        "p99": 12785.590299999982,
+        "max": 12785.590299999982
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 13.4458303,
+      "drainSeconds": 6.988332200000005,
+      "recoverySeconds": null,
+      "peakPending": 11,
+      "peakUnpublished": 11,
+      "peakDatabaseConnections": 12,
+      "maxObservationIntervalMs": 577.4192000000039,
+      "telemetryStartupGaps": []
+    },
+    {
+      "scenario": "failure",
+      "config": {
+        "rate": 2,
+        "seconds": 5,
+        "failAttempts": 3,
+        "concurrency": 4,
+        "expected": "failed",
+        "replicas": 1
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 11,
+      "snapshot": {
+        "total": 11,
+        "pending": 0,
+        "delivered": 0,
+        "failed": 11,
+        "unpublished": 0,
+        "effects": 0,
+        "attempts": 33,
+        "reversedTimestamps": 0
+      },
+      "attemptOutcomes": [
+        {
+          "status": "failed",
+          "http_status": 503,
+          "error_code": "HTTP_ERROR",
+          "count": 33
+        }
+      ],
+      "apiMs": {
+        "count": 11,
+        "p50": 19.810499999992317,
+        "p95": 21.031300000002375,
+        "p99": 21.031300000002375,
+        "max": 21.031300000002375
+      },
+      "deliveryMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "failureMs": {
+        "count": 11,
+        "p50": 20523.7132,
+        "p95": 23024.988100000017,
+        "p99": 23024.988100000017,
+        "max": 23024.988100000017
+      },
+      "totalSeconds": 23.69891140000001,
+      "drainSeconds": 17.254683300000003,
+      "recoverySeconds": null,
+      "peakPending": 11,
+      "peakUnpublished": 11,
+      "peakDatabaseConnections": 12,
+      "maxObservationIntervalMs": 520.3434000000125,
+      "telemetryStartupGaps": []
+    },
+    {
+      "scenario": "timeout",
+      "config": {
+        "rate": 1,
+        "seconds": 3,
+        "delayMs": 11000,
+        "concurrency": 4,
+        "expected": "failed",
+        "replicas": 1
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 4,
+      "snapshot": {
+        "total": 4,
+        "pending": 0,
+        "delivered": 0,
+        "failed": 4,
+        "unpublished": 0,
+        "effects": 0,
+        "attempts": 12,
+        "reversedTimestamps": 0
+      },
+      "attemptOutcomes": [
+        {
+          "status": "failed",
+          "http_status": null,
+          "error_code": "TIMEOUT",
+          "count": 12
+        }
+      ],
+      "apiMs": {
+        "count": 4,
+        "p50": 19.571300000010524,
+        "p95": 19.708299999998417,
+        "p99": 19.708299999998417,
+        "max": 19.708299999998417
+      },
+      "deliveryMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "failureMs": {
+        "count": 4,
+        "p50": 49354.8713,
+        "p95": 51418.4981,
+        "p99": 51418.4981,
+        "max": 51418.4981
+      },
+      "totalSeconds": 52.1000434,
+      "drainSeconds": 47.67323200000002,
+      "recoverySeconds": null,
+      "peakPending": 4,
+      "peakUnpublished": 4,
+      "peakDatabaseConnections": 8,
+      "maxObservationIntervalMs": 570.4358999999822,
+      "telemetryStartupGaps": []
+    },
+    {
+      "scenario": "backlog-serial",
+      "config": {
+        "rate": 4,
+        "seconds": 10,
+        "delayMs": 500,
+        "paused": true,
+        "concurrency": 1,
+        "replicas": 1
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 41,
+      "snapshot": {
+        "total": 41,
+        "pending": 0,
+        "delivered": 41,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 41,
+        "attempts": 41,
+        "reversedTimestamps": 1
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 41
+        }
+      ],
+      "apiMs": {
+        "count": 41,
+        "p50": 20.09110000001965,
+        "p95": 21.095900000014808,
+        "p99": 85.08679999999003,
+        "max": 85.08679999999003
+      },
+      "deliveryMs": {
+        "count": 41,
+        "p50": 29988.459000000003,
+        "p95": 34200.72989999998,
+        "p99": 34727.49270000003,
+        "max": 34727.49270000003
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 45.41732990000001,
+      "drainSeconds": 33.97623040000003,
+      "recoverySeconds": 25.748534400000032,
+      "peakPending": 41,
+      "peakUnpublished": 35,
+      "peakDatabaseConnections": 6,
+      "maxObservationIntervalMs": 566.8368999999948,
+      "telemetryStartupGaps": []
+    },
+    {
+      "scenario": "backlog-concurrency",
+      "config": {
+        "rate": 4,
+        "seconds": 10,
+        "delayMs": 500,
+        "paused": true,
+        "concurrency": 4,
+        "replicas": 1
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 40,
+      "snapshot": {
+        "total": 40,
+        "pending": 0,
+        "delivered": 40,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 40,
+        "attempts": 40,
+        "reversedTimestamps": 0
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 40
+        }
+      ],
+      "apiMs": {
+        "count": 40,
+        "p50": 20.011100000003353,
+        "p95": 22.152100000006612,
+        "p99": 77.40009999996983,
+        "max": 77.40009999996983
+      },
+      "deliveryMs": {
+        "count": 40,
+        "p50": 21619.147799999977,
+        "p95": 24538.70769999997,
+        "p99": 25030.67910000001,
+        "max": 25030.67910000001
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 29.864116700000015,
+      "drainSeconds": 18.480365099999997,
+      "recoverySeconds": 10.821888500000002,
+      "peakPending": 40,
+      "peakUnpublished": 35,
+      "peakDatabaseConnections": 12,
+      "maxObservationIntervalMs": 547.4750999999815,
+      "telemetryStartupGaps": [
+        {
+          "seconds": 23.122246400000005,
+          "container": "hookrelay-load-worker-1",
+          "error": "TypeError: fetch failed"
+        }
+      ]
+    },
+    {
+      "scenario": "relay-pressure",
+      "config": {
+        "rate": 20,
+        "seconds": 15,
+        "concurrency": 4,
+        "replicas": 1
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 301,
+      "snapshot": {
+        "total": 301,
+        "pending": 0,
+        "delivered": 301,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 301,
+        "attempts": 301,
+        "reversedTimestamps": 0
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 301
+        }
+      ],
+      "apiMs": {
+        "count": 301,
+        "p50": 19.68859999999404,
+        "p95": 21.228100000007544,
+        "p99": 24.041599999996834,
+        "max": 86.18369999999413
+      },
+      "deliveryMs": {
+        "count": 301,
+        "p50": 7821.512400000007,
+        "p95": 19372.848999999987,
+        "p99": 19992.236800000013,
+        "max": 20132.150399999984
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 35.06707760000002,
+      "drainSeconds": 18.5806887,
+      "recoverySeconds": null,
+      "peakPending": 181,
+      "peakUnpublished": 181,
+      "peakDatabaseConnections": 13,
+      "maxObservationIntervalMs": 578.179700000037,
+      "telemetryStartupGaps": []
+    }
+  ],
+  "evidenceDirectory": ".tmp/benchmarks/2026-09-30T17-59-52-842Z-suite",
+  "repeatRuns": [
+    {
+      "scenario": "backlog-serial",
+      "config": {
+        "rate": 4,
+        "seconds": 10,
+        "delayMs": 500,
+        "paused": true,
+        "concurrency": 1,
+        "replicas": 1
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 41,
+      "snapshot": {
+        "total": 41,
+        "pending": 0,
+        "delivered": 41,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 41,
+        "attempts": 41,
+        "reversedTimestamps": 1
+      },
+      "recoverySeconds": 25.6203182,
+      "drainSeconds": 28.6808257,
+      "evidenceDirectory": ".tmp/benchmarks/2026-09-30T18-06-45-905Z-backlog-serial"
+    },
+    {
+      "scenario": "backlog-concurrency",
+      "config": {
+        "rate": 4,
+        "seconds": 10,
+        "delayMs": 500,
+        "paused": true,
+        "concurrency": 4,
+        "replicas": 1
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 41,
+      "snapshot": {
+        "total": 41,
+        "pending": 0,
+        "delivered": 41,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 41,
+        "attempts": 41,
+        "reversedTimestamps": 0
+      },
+      "recoverySeconds": 11.361254700000002,
+      "drainSeconds": 14.877824200000003,
+      "evidenceDirectory": ".tmp/benchmarks/2026-09-30T18-07-45-871Z-backlog-concurrency"
+    },
+    {
+      "scenario": "baseline",
+      "config": {
+        "rate": 2,
+        "seconds": 2,
+        "concurrency": 4,
+        "replicas": 2
+      },
+      "checks": {
+        "k6Passed": true,
+        "allAcknowledgmentsTracked": true,
+        "scheduledEventsAccepted": true,
+        "configuredRateReached": true,
+        "allTerminal": true,
+        "effectCount": true,
+        "attemptCount": true,
+        "attemptOutcomes": true,
+        "noObserverErrors": true,
+        "runtimeMetricsPresent": true
+      },
+      "accepted": 5,
+      "snapshot": {
+        "total": 5,
+        "pending": 0,
+        "delivered": 5,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 5,
+        "attempts": 5,
+        "reversedTimestamps": 0
+      },
+      "recoverySeconds": null,
+      "drainSeconds": 4.358818599999998,
+      "evidenceDirectory": ".tmp/benchmarks/2026-09-30T18-08-30-774Z-baseline"
+    }
+  ]
+}
