@@ -6,6 +6,9 @@
 node_modules
 dist
 coverage
+.tmp
+.temp
+.docker-tmp
 *.log
 npm-debug.log*
 Dockerfile*

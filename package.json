@@ -34,7 +34,8 @@
     "test:worker-crash": "node scripts/smoke-worker-crash.mjs",
     "test:shutdown": "node scripts/smoke-worker-crash.mjs shutdown",
     "test:worker-exhaustion": "node scripts/smoke-worker-crash.mjs exhaustion",
-    "test:k8s": "node scripts/smoke-kubernetes.mjs"
+    "test:k8s": "node scripts/smoke-kubernetes.mjs",
+    "prepare:vps": "node scripts/prepare-vps.mjs"
   },
   "dependencies": {
     "@nestjs/bullmq": "^12.0.0",

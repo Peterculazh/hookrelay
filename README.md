@@ -363,7 +363,7 @@ kubectl --context docker-desktop -n hookrelay logs job/hookrelay-migrate-v2
 
 ## Persistence and current scope
 
-PostgreSQL data was verified to survive deletion and recreation of `postgres-0`: a test row remained after the StatefulSet replaced the Pod. Both PostgreSQL and Redis use persistent volumes, but this local setup has no replication or backup workflow. The storage class uses the `Delete` reclaim policy; deleting claims or resetting the cluster can destroy data. Pod replacement is not the same as deleting storage.
+PostgreSQL data was verified to survive deletion and recreation of `postgres-0`: a test row remained after the StatefulSet replaced the Pod. Both PostgreSQL and Redis use persistent volumes. A manual PostgreSQL backup and restore procedure is verified on the remote deployment; scheduled backups and replication are not configured. The storage class uses the `Delete` reclaim policy; deleting claims or resetting the cluster can destroy data. Pod replacement is not the same as deleting storage.
 
 Implemented and verified: transactional outbox delivery, retry handling, automated CI delivery checks, API health endpoints, and an end-to-end delivery through local Kubernetes.
 
@@ -371,6 +371,10 @@ Milestone 6 reliability work is implemented and verified: a dedicated single rel
 
 Milestone 7 is verified on Docker Desktop Kubernetes as of 2026-09-28 with `hookrelay:k8s-2` and the completed `hookrelay-migrate-v2` Job. The cluster now runs separate API, relay, delivery worker, and receiver Deployments with ConfigMap/Secret configuration and health probes. The acceptance test preserved 24 waiting jobs across Redis Pod replacement; two workers delivered 12 events each. After worker Pod replacement, another 12 deliveries succeeded. All 36 test events had one successful attempt and one receiver effect. The test restored one worker replica and kept one relay throughout. PostgreSQL persistence was verified separately as described above.
 
-Next is milestone 8: a low-cost remote deployment, with database backup and a demonstrated restore. The local Kubernetes setup is not a highly available production environment.
+Milestone 8 is complete as of 2026-09-30. Remote K3s deployment and delivery were verified on 2026-09-29: the migration completed, all four application Deployments became ready, API readiness returned HTTP 200, and the delivery smoke test passed with HTTP 204. A custom-format PostgreSQL backup was copied off the server and its SHA256 checksum verified. Restore into a separate test database retained the delivered event, one successful HTTP 204 attempt, one receiver receipt, and one receiver effect. After a VPS reboot, all workloads recovered, the original database retained those records, readiness returned HTTP 200, and a fresh event delivered with HTTP 204. The [VPS deployment guide](docs/vps-deployment.md) and [backup/restore procedure](docs/database-backup-restore.md) cover these manual operations. The single-node setup is not a highly available production environment.
+
+Next is milestone 9: publish images tagged by commit, deploy a selected version with migrations and rollout verification, and demonstrate rollback to a compatible previous application version.
+
+Keep deployment-specific connection details out of the entire repository: actual server hostnames and public IPs, SSH usernames, key paths, and credentials belong in local configuration or terminal input. Documentation, scripts, manifests, and editor settings should use generic examples or runtime inputs.
 
 A previously observed attempt had `finishedAt` earlier than `startedAt` by 3.110 seconds. Investigation of attempt creation, schema, response mapping, and clock behavior remains deferred; duration-based assertions are not part of the smoke test. `INTERRUPTED` attempt timestamps record reconciliation rather than receiver request duration.
