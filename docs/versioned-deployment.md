@@ -1,9 +1,10 @@
 # Commit-tagged releases and application rollback
 
-The first GHCR release (A) was deployed and verified on the remote K3s server
-on 2026-09-30. Milestone 9 still requires deployment of a second compatible
-release (B), rollback to A, and delivery checks after rollback. This extends
-the existing single-node K3s installation from [Milestone 8](vps-deployment.md).
+Milestone 9 is complete as of 2026-09-30. Two commit-tagged GHCR releases were
+deployed and verified on the remote K3s server, followed by a successful
+application rollback from B to A. Fresh delivery and retained event history
+were verified after rollback. This extends the existing single-node K3s
+installation from [Milestone 8](vps-deployment.md).
 
 CI on `main` runs lint, type checking, unit tests, and the Compose delivery,
 deduplication, crash recovery, shutdown, and exhaustion checks. Only a successful
@@ -53,7 +54,7 @@ this Secret. Existing PostgreSQL credentials and ConfigMap stay in place.
 
 ## 2. Prepare an exact release on Windows
 
-Commit/push the Milestone 9 changes and wait for both CI jobs to succeed.
+Commit/push the selected changes and wait for both CI jobs to succeed.
 Copy the preparation command from the **Verified release image** summary.
 It supplies the full commit and the published image digest:
 
@@ -174,9 +175,27 @@ Release A was verified on 2026-09-30:
 - Remote API readiness returned HTTP 200.
 - Event `84cfef07-9881-4568-9ae2-b8f5154d2e7e` delivered with a successful HTTP 204 attempt.
 
-Release B and rollback verification are pending. The next documentation-only
-commit provides a second release with the same application code, database
-schema, manifests, and shared configuration as A. Keep A's bundle for rollback.
+Release B was verified on 2026-09-30:
+
+- Commit: `d3c7d8620b7d770bb88f825f677d7bc6d391da4a`.
+- Image digest: `sha256:56286149fb023f6d2d63679db8a992887cea85dfa09f0ed5969dca74306c803c`.
+- Migration Job `hookrelay-migrate-d3c7d8620b7d770bb88f825f677d7bc6d391da4a` completed before application updates.
+- Receiver, API, worker, and relay rollouts succeeded at B's selected image.
+- The delivery smoke check passed, including its API readiness check; event `4aa8f820-6688-4d56-9b6e-0caacb7571c7` delivered with a successful HTTP 204 attempt.
+
+Rollback from B to A was verified on the same date:
+
+- All four application rollouts completed at A's selected image, without running or reversing database migrations.
+- After a local PC reboot and reconnection, all four application Pods were ready and referenced A's pinned digest.
+- Remote API readiness returned HTTP 200.
+- A fresh event, `7db544ee-8596-4939-960a-114b8e7662b8`, delivered with a successful HTTP 204 attempt.
+- A's saved event `84cfef07-9881-4568-9ae2-b8f5154d2e7e` and B's saved event `4aa8f820-6688-4d56-9b6e-0caacb7571c7` both remained `delivered` when read through the API after rollback.
+
+B was a documentation-only commit with the same application code, database
+schema, manifests, and shared configuration as A. This exercise verifies
+version selection and application rollback between compatible releases;
+compatibility must still be reviewed for future code or schema changes. The
+remote applications remain on A. Preserve both image digests and release bundles.
 
 References: [GHCR authentication and visibility](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry),
 [publishing from GitHub Actions](https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images),
