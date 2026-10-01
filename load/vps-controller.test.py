@@ -14,6 +14,17 @@ def controller():
 
 
 class ControllerTests(unittest.TestCase):
+    def test_relay_settings_restore_together_before_other_workloads(self):
+        context = controller()
+        settings = {'RELAY_BATCH_SIZE': None, 'RELAY_PUBLISH_INTERVAL_SECONDS': None}
+        context['stop_observer'] = Mock()
+        context['get'] = Mock(return_value={'spec': {'template': {'spec': {'containers': [{'env': [{'name': 'RELAY_BATCH_SIZE', 'value': '100'}, {'name': 'RELAY_PUBLISH_INTERVAL_SECONDS', 'value': '1'}]}]}}}})
+        context['patch_environment'] = Mock()
+        context['patch'] = Mock()
+        context['database_query'] = Mock(return_value=[{'pending': 1}])
+        context['restore']({'relay': settings, 'concurrency': None, 'replicas': 1, 'target': None})
+        context['patch_environment'].assert_called_once_with('relay', settings)
+
     def test_patch_preserves_container_and_removes_only_selected_environment(self):
         context = controller()
         container = {'name': 'worker', 'image': 'pinned-image',

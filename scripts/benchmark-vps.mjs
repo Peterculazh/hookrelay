@@ -8,13 +8,14 @@ import { randomUUID } from 'node:crypto';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as sleep } from 'node:timers/promises';
-import { cases, quantiles } from '../load/profiles.mjs';
+import { cases, tuningCases, quantiles } from '../load/profiles.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const exec = promisify(execFile);
 const profile = process.argv[2] ?? 'baseline';
+const profiles = { ...cases, ...tuningCases };
 assert.ok(
-  profile === 'suite' || Object.hasOwn(cases, profile),
+  profile === 'suite' || Object.hasOwn(profiles, profile),
   'Unknown benchmark profile',
 );
 const target = process.env.VPS_SSH_TARGET;
@@ -41,6 +42,34 @@ const { stdout: commitOutput } = await exec('git', ['rev-parse', 'HEAD'], {
 });
 const commit = process.env.VPS_RELEASE_COMMIT ?? commitOutput.trim();
 assert.match(commit, /^[a-f0-9]{40}$/);
+const relayOverrides = [
+  process.env.BENCH_RELAY_BATCH_SIZE,
+  process.env.BENCH_RELAY_INTERVAL_SECONDS,
+];
+assert.ok(
+  relayOverrides.every((v) => v === undefined) ||
+    relayOverrides.every((v) => v !== undefined),
+  'Set both relay benchmark settings together',
+);
+const relayConfiguration = relayOverrides.every((v) => v !== undefined)
+  ? {
+      batchSize: Number(relayOverrides[0]),
+      publishEverySeconds: Number(relayOverrides[1]),
+    }
+  : undefined;
+if (relayConfiguration) {
+  assert.ok(
+    Number.isInteger(relayConfiguration.batchSize) &&
+      relayConfiguration.batchSize >= 1 &&
+      relayConfiguration.batchSize <= 1000,
+  );
+  assert.ok(
+    Number.isInteger(relayConfiguration.publishEverySeconds) &&
+      relayConfiguration.publishEverySeconds >= 1 &&
+      relayConfiguration.publishEverySeconds <= 60 &&
+      60 % relayConfiguration.publishEverySeconds === 0,
+  );
+}
 const session = randomUUID();
 const output = resolve(
   root,
@@ -51,7 +80,7 @@ const output = resolve(
 const selected =
   profile === 'suite'
     ? Object.entries(cases)
-    : [[profile, { ...cases[profile] }]];
+    : [[profile, { ...profiles[profile] }]];
 if (profile !== 'suite') {
   for (const [key, variable, min, max] of [
     ['rate', 'BENCH_RATE', 1, 500],
@@ -288,6 +317,7 @@ async function runCase(name, config) {
       API_P95_MS: process.env.API_P95_MS ?? '1000',
     },
   });
+  current.ingressStarted = performance.now();
   let log = '';
   for (const stream of [activeK6.stdout, activeK6.stderr])
     stream.on('data', (chunk) => {
@@ -325,6 +355,7 @@ async function runCase(name, config) {
   while (
     (current.snapshot.total < current.accepted.size ||
       current.snapshot.pending ||
+      current.snapshot.unpublished ||
       [...current.accepted.values()].some((e) => !e.observed)) &&
     performance.now() < deadline
   ) {
@@ -383,7 +414,7 @@ async function runCase(name, config) {
   const result = {
     name,
     type: current.type,
-    config: { ...config, replicas, concurrency },
+    config: { ...config, replicas, concurrency, relay: metadata.relaySettings },
     checks,
     snapshot,
     attemptOutcomes: current.outcomes,
@@ -416,6 +447,23 @@ async function runCase(name, config) {
     maxObservationIntervalMs: current.maxInterval,
     errors: current.errors,
   };
+  const steadySamples = current.samples.filter(
+    (s) =>
+      s.seconds >= (current.ingressStarted - current.started) / 1000 + 20 &&
+      s.seconds <= (current.ingressDone - current.started) / 1000,
+  );
+  if (steadySamples.length >= 2) {
+    const first = steadySamples[0];
+    const last = steadySamples.at(-1);
+    result.steadyState = {
+      observationWindowSeconds: last.seconds - first.seconds,
+      deliveredPerSecond:
+        (last.delivered - first.delivered) / (last.seconds - first.seconds),
+      initialUnpublished: first.unpublished,
+      finalUnpublished: last.unpublished,
+      peakUnpublished: Math.max(...steadySamples.map((s) => s.unpublished)),
+    };
+  }
   await writeFile(
     resolve(directory, 'samples.json'),
     JSON.stringify(current.samples, null, 2),
@@ -486,6 +534,12 @@ try {
     commit,
     proxy: proxyCode,
   });
+  if (relayConfiguration) {
+    metadata.relaySettings = await remoteCommand(
+      'configure_relay',
+      relayConfiguration,
+    );
+  }
   metadata = {
     ...metadata,
     session,

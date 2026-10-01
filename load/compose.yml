@@ -75,6 +75,8 @@ services:
       <<: *db
       REDIS_HOST: redis
       REDIS_PORT: '6379'
+      RELAY_BATCH_SIZE: '${BENCH_RELAY_BATCH_SIZE:-100}'
+      RELAY_PUBLISH_INTERVAL_SECONDS: '${BENCH_RELAY_INTERVAL_SECONDS:-10}'
     ports: ['127.0.0.1::9466']
     depends_on:
       migrate: { condition: service_completed_successfully }

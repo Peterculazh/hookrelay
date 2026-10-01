@@ -142,6 +142,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_DB: "${REDIS_DB:-0}"
+      RELAY_BATCH_SIZE: "${RELAY_BATCH_SIZE:-100}"
+      RELAY_PUBLISH_INTERVAL_SECONDS: "${RELAY_PUBLISH_INTERVAL_SECONDS:-10}"
     expose:
       - "9466"
     depends_on:

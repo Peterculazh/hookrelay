@@ -42,6 +42,12 @@ jobs:
             - name: Verify release migration and rollback guards
               run: npm run test:release
 
+            - name: Verify benchmark controller and script syntax
+              run: |
+                  python3 load/vps-controller.test.py
+                  node --check scripts/benchmark-vps.mjs
+                  node --check load/vps-observer.mjs
+
             - name: Build Docker image
               run: >
                   docker build --platform linux/amd64 --progress=plain --tag hookrelay:ci

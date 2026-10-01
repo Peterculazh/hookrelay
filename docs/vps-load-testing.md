@@ -126,7 +126,7 @@ checks are recorded in the linked report/results.
 
 ## Next milestone: relay tuning
 
-Milestone 12 is planned. Add bounded, validated relay batch/schedule settings
+Milestone 12 is in progress; see [relay tuning](relay-tuning.md). Add bounded, validated relay batch/schedule settings
 while retaining one relay and existing delivery/reconciliation guarantees.
 Compare the current baseline with tuned settings on the VPS, using the same
 worker concurrency and resources. Repeat the 20 events/s pressure case and a

@@ -29,6 +29,10 @@ export const cases = {
   'relay-pressure': { rate: 20, seconds: 15, concurrency: 4 },
 };
 
+export const tuningCases = {
+  'relay-steady': { rate: 20, seconds: 60, concurrency: 4 },
+};
+
 export function quantiles(values) {
   const sorted = [...values].sort((a, b) => a - b);
   const percentile = (p) =>

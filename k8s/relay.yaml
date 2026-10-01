@@ -25,6 +25,10 @@ spec:
             - configMapRef:
                 name: hookrelay-config
           env:
+            - name: RELAY_BATCH_SIZE
+              value: '100'
+            - name: RELAY_PUBLISH_INTERVAL_SECONDS
+              value: '1'
             - name: DB_USER
               valueFrom:
                 secretKeyRef:

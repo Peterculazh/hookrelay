@@ -102,6 +102,35 @@ describe('ScheduleService', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+  });
+
+  it('uses the configured bounded batch size', async () => {
+    vi.stubEnv('RELAY_BATCH_SIZE', '250');
+    const { service, outboxRepository, transaction } = createHarness([]);
+    await service.handleCron();
+    expect(outboxRepository.findUnpublishedForUpdate).toHaveBeenCalledWith(
+      transaction,
+      250,
+    );
+  });
+
+  it('does not overlap publication while a queue operation is in flight', async () => {
+    const { service, eventsQueue, unitOfWork } = createHarness([firstEntry]);
+    let release!: () => void;
+    eventsQueue.add.mockReturnValueOnce(
+      new Promise<void>((done) => {
+        release = done;
+      }),
+    );
+    const batch = service.handleCron();
+    await vi.waitFor(() => expect(eventsQueue.add).toHaveBeenCalledOnce());
+    await service.handleCron();
+    expect(unitOfWork.run).toHaveBeenCalledOnce();
+    release();
+    await batch;
+    await service.handleCron();
+    expect(unitOfWork.run).toHaveBeenCalledTimes(2);
   });
 
   it('does nothing when the outbox has no unpublished events', async () => {

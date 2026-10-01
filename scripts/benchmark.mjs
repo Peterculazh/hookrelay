@@ -9,7 +9,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as sleep } from 'node:timers/promises';
 import pg from 'pg';
-import { cases, quantiles } from '../load/profiles.mjs';
+import { cases, tuningCases, quantiles } from '../load/profiles.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const exec = promisify(execFile);
@@ -21,6 +21,7 @@ const composeArgs = [
   'load/compose.yml',
 ];
 const arg = process.argv[2] ?? 'baseline';
+const profiles = { ...cases, ...tuningCases };
 const output = resolve(
   root,
   '.tmp',
@@ -28,10 +29,11 @@ const output = resolve(
   `${new Date().toISOString().replace(/[:.]/g, '-')}-${arg}`,
 );
 assert.ok(
-  arg === 'suite' || arg in cases,
+  arg === 'suite' || arg in profiles,
   `Choose baseline, suite, or ${Object.keys(cases).join(', ')}`,
 );
-const selected = arg === 'suite' ? Object.entries(cases) : [[arg, cases[arg]]];
+const selected =
+  arg === 'suite' ? Object.entries(cases) : [[arg, profiles[arg]]];
 if (arg !== 'suite') {
   const overrides = [
     ['rate', 'BENCH_RATE', 1, 500],
@@ -419,7 +421,17 @@ async function runCase(name, config) {
   const result = {
     name,
     type,
-    config: { ...config, concurrency, replicas },
+    config: {
+      ...config,
+      concurrency,
+      replicas,
+      relay: {
+        batchSize: Number(process.env.BENCH_RELAY_BATCH_SIZE ?? 100),
+        publishEverySeconds: Number(
+          process.env.BENCH_RELAY_INTERVAL_SECONDS ?? 10,
+        ),
+      },
+    },
     checks,
     snapshot,
     attemptOutcomes,
@@ -467,7 +479,7 @@ async function runCase(name, config) {
 
 function report(metadata) {
   const number = (v) => (v == null ? '—' : v.toFixed(2));
-  return `# HookRelay benchmark\n\nGenerated ${metadata.startedAt}. Commit ${metadata.commit}; local modifications included.\n\nHost: ${metadata.cpu}, ${metadata.hostCpus} logical CPUs, ${metadata.memoryGiB} GiB; ${metadata.platform}. Docker: ${metadata.docker}. k6: ${metadata.k6}.\n\nApplication containers: 1 CPU / 512 MiB each; PostgreSQL: 2 CPUs / 512 MiB; Redis and receiver proxy: 1 CPU / 256 MiB. DB pools: 10 per process. One relay, 100 events per ten-second tick.\n\n| Scenario | Accepted | Delivered / failed | API p95 ms | Delivery p95 ms | Drain s | Recovery s | Peak pending | Peak outbox | Pass |\n|---|---:|---:|---:|---:|---:|---:|---:|---:|---|\n${results.map((r) => `| ${r.name} | ${r.accepted} | ${r.snapshot.delivered} / ${r.snapshot.failed} | ${number(r.apiMs.p95)} | ${number(r.acceptanceToObservedDeliveryMs.p95)} | ${number(r.drainAfterIngressSeconds)} | ${number(r.recoverySeconds)} | ${r.peakPending} | ${r.peakUnpublished} | ${Object.values(r.checks).every(Boolean) ? 'PASS' : 'FAIL'} |`).join('\n')}\n\nAPI timings cover forwarding the POST and reading its response; k6 also measures gateway overhead. Delivery timings start at the API acknowledgment and end when a committed terminal state is observed by a host-side database poll on the same monotonic clock. They include polling delay and are upper bounds, not exact receiver latency. Per-scenario maximum observation intervals are in result.json. No persisted wall-clock timestamps are used for latency. Failed events are excluded from delivery percentiles and reported separately.\n\nRecovery measurements start with an entirely published queue and include worker container startup. The observer adds database read load; docker stats and metric collection add overhead. Counts are run-scoped. Throughput over the whole run includes publication and draining. Cron phase varies between runs; repeat runs before drawing small-effect conclusions. This is a short local benchmark, not a VPS capacity claim or saturation proof.\n\nRaw k6 metrics, database/backlog samples, container CPU/memory samples, Node runtime/queue metrics, and results are saved alongside this report.\n`;
+  return `# HookRelay benchmark\n\nGenerated ${metadata.startedAt}. Commit ${metadata.commit}; local modifications included.\n\nHost: ${metadata.cpu}, ${metadata.hostCpus} logical CPUs, ${metadata.memoryGiB} GiB; ${metadata.platform}. Docker: ${metadata.docker}. k6: ${metadata.k6}.\n\nApplication containers: 1 CPU / 512 MiB each; PostgreSQL: 2 CPUs / 512 MiB; Redis and receiver proxy: 1 CPU / 256 MiB. DB pools: 10 per process. One relay, ${metadata.relaySettings.batchSize} events per ${metadata.relaySettings.publishEverySeconds}-second tick.\n\n| Scenario | Accepted | Delivered / failed | API p95 ms | Delivery p95 ms | Drain s | Recovery s | Peak pending | Peak outbox | Pass |\n|---|---:|---:|---:|---:|---:|---:|---:|---:|---|\n${results.map((r) => `| ${r.name} | ${r.accepted} | ${r.snapshot.delivered} / ${r.snapshot.failed} | ${number(r.apiMs.p95)} | ${number(r.acceptanceToObservedDeliveryMs.p95)} | ${number(r.drainAfterIngressSeconds)} | ${number(r.recoverySeconds)} | ${r.peakPending} | ${r.peakUnpublished} | ${Object.values(r.checks).every(Boolean) ? 'PASS' : 'FAIL'} |`).join('\n')}\n\nAPI timings cover forwarding the POST and reading its response; k6 also measures gateway overhead. Delivery timings start at the API acknowledgment and end when a committed terminal state is observed by a host-side database poll on the same monotonic clock. They include polling delay and are upper bounds, not exact receiver latency. Per-scenario maximum observation intervals are in result.json. No persisted wall-clock timestamps are used for latency. Failed events are excluded from delivery percentiles and reported separately.\n\nRecovery measurements start with an entirely published queue and include worker container startup. The observer adds database read load; docker stats and metric collection add overhead. Counts are run-scoped. Throughput over the whole run includes publication and draining. Cron phase varies between runs; repeat runs before drawing small-effect conclusions. This is a short local benchmark, not a VPS capacity claim or saturation proof.\n\nRaw k6 metrics, database/backlog samples, container CPU/memory samples, Node runtime/queue metrics, and results are saved alongside this report.\n`;
 }
 
 await mkdir(output, { recursive: true });
@@ -482,6 +494,12 @@ try {
     docker: await docker('version', '--format', '{{.Server.Version}}'),
     node: process.version,
     k6: await command('k6', ['version']),
+    relaySettings: {
+      batchSize: Number(process.env.BENCH_RELAY_BATCH_SIZE ?? 100),
+      publishEverySeconds: Number(
+        process.env.BENCH_RELAY_INTERVAL_SECONDS ?? 10,
+      ),
+    },
     dockerResources: JSON.parse(
       await docker(
         'info',

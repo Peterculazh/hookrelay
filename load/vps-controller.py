@@ -57,11 +57,14 @@ def deployment_env(deployment, key):
 
 
 def patch(deployment, key, entry, replicas=None):
+    patch_environment(deployment, {key: entry}, replicas)
+
+
+def patch_environment(deployment, entries, replicas=None):
     data = get('deployment', deployment)
     container = data['spec']['template']['spec']['containers'][0]
-    environment = [e for e in container.get('env', []) if e['name'] != key]
-    if entry is not None:
-        environment.append(entry)
+    environment = [e for e in container.get('env', []) if e['name'] not in entries]
+    environment.extend(entry for entry in entries.values() if entry is not None)
     container['env'] = environment
     spec = {'template': {'spec': {'containers': [container]}}}
     if replicas is not None:
@@ -102,10 +105,12 @@ def snapshot():
         'replicas': deployments['worker']['spec']['replicas'],
         'concurrency': deployment_env(deployments['worker'], 'WORKER_CONCURRENCY'),
         'target': deployment_env(deployments['hookrelay'], 'WEBHOOK_TARGET_URL'),
+        'relay': {key: deployment_env(deployments['relay'], key) for key in ['RELAY_BATCH_SIZE', 'RELAY_PUBLISH_INTERVAL_SECONDS']},
     }
     cpu_model = next((line.split(':', 1)[1].strip() for line in pathlib.Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')), 'unknown')
     memory = int(next(line.split()[1] for line in pathlib.Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemTotal:'))) * 1024
-    return {'images': images, 'resources': limits, 'infrastructureResources': infrastructure, 'restore': restore,
+    settings = json.loads(kube('exec', 'deployment/relay', '--', 'node', '-e', 'console.log(JSON.stringify({batchSize:Number(process.env.RELAY_BATCH_SIZE??100),publishEverySeconds:Number(process.env.RELAY_PUBLISH_INTERVAL_SECONDS??10)}))'))
+    return {'images': images, 'resources': limits, 'infrastructureResources': infrastructure, 'relaySettings': settings, 'restore': restore,
             'hardware': {'cpuModel': cpu_model, 'logicalCpus': os.cpu_count(), 'memoryBytes': memory},
             'version': json.loads(kube('version', '-o', 'json'))['serverVersion']['gitVersion']}
 
@@ -180,6 +185,10 @@ def start_observer(type_name, source):
 
 def restore(state):
     stop_observer()
+    if 'relay' in state:
+        data = get('deployment', 'relay')
+        if any(deployment_env(data, key) != entry for key, entry in state['relay'].items()):
+            patch_environment('relay', state['relay'])
     patch('worker', 'WORKER_CONCURRENCY', state['concurrency'], state['replicas'])
     patch('hookrelay', 'WEBHOOK_TARGET_URL', state['target'])
     pending = database_query("SELECT count(*)::int AS pending FROM events WHERE status='pending' AND target_url='http://hookrelay-benchmark-receiver:3002/webhooks'")[0]['pending']
@@ -224,6 +233,17 @@ def dispatch(message):
         stop_observer()
         patch('worker', 'WORKER_CONCURRENCY', {'name': 'WORKER_CONCURRENCY', 'value': str(concurrency)}, replicas)
         return {'configured': True}
+    if action == 'configure_relay':
+        batch, interval = message['batchSize'], message['publishEverySeconds']
+        if not isinstance(batch, int) or not 1 <= batch <= 1000 or not isinstance(interval, int) or not 1 <= interval <= 60 or 60 % interval:
+            raise ValueError('Invalid relay configuration')
+        data = get('deployment', 'relay')
+        if data['spec']['replicas'] != 1 or data['spec']['strategy']['type'] != 'Recreate':
+            raise RuntimeError('Expected one relay with Recreate strategy')
+        stop_observer()
+        patch_environment('relay', {'RELAY_BATCH_SIZE': {'name': 'RELAY_BATCH_SIZE', 'value': str(batch)},
+                                    'RELAY_PUBLISH_INTERVAL_SECONDS': {'name': 'RELAY_PUBLISH_INTERVAL_SECONDS', 'value': str(interval)}})
+        return {'batchSize': batch, 'publishEverySeconds': interval}
     if action == 'observe':
         if not re.fullmatch(r'benchmark\.[a-f0-9-]{36}', message['type']):
             raise ValueError('Invalid event type')
