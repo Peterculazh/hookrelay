@@ -14,6 +14,17 @@ def controller():
 
 
 class ControllerTests(unittest.TestCase):
+    def test_forward_cleanup_signals_only_its_owned_process(self):
+        context = controller()
+        process = Mock(pid=12345)
+        process.poll.return_value = None
+        context['api_forward'] = process
+        context['run'] = Mock()
+        context['stop_api_forward']()
+        context['run'].assert_called_once_with(['sudo', '-n', 'kill', '-TERM', '12345'], timeout=10)
+        process.wait.assert_called_once_with(timeout=15)
+        self.assertIsNone(context['api_forward'])
+
     def test_relay_settings_restore_together_before_other_workloads(self):
         context = controller()
         settings = {'RELAY_BATCH_SIZE': None, 'RELAY_PUBLISH_INTERVAL_SECONDS': None}

@@ -116,7 +116,6 @@ let current;
 let interrupted = false;
 let activeK6;
 let gateway;
-let apiForward;
 let tunnel;
 let remote;
 let setup = false;
@@ -213,35 +212,7 @@ async function freePort() {
 }
 
 async function forwarding() {
-  const remotePort = await new Promise((done, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error('VPS port-forward did not start')),
-      30000,
-    );
-    apiForward = spawn(
-      ssh,
-      [
-        ...sshArgs,
-        target,
-        'sudo -n k3s kubectl -n hookrelay port-forward --address=127.0.0.1 service/hookrelay 0:3000',
-      ],
-      { stdio: ['ignore', 'pipe', 'pipe'] },
-    );
-    apiForward.on('error', reject);
-    apiForward.on('exit', () => {
-      clearTimeout(timer);
-      reject(new Error('VPS API forwarding exited'));
-    });
-    let forwardOutput = '';
-    apiForward.stdout.on('data', (chunk) => {
-      forwardOutput += chunk;
-      const match = forwardOutput.match(/Forwarding from 127\.0\.0\.1:(\d+)\s/);
-      if (match) {
-        clearTimeout(timer);
-        done(Number(match[1]));
-      }
-    });
-  });
+  const { port: remotePort } = await remoteCommand('forward_api');
   const port = await freePort();
   tunnel = spawn(
     ssh,
@@ -629,7 +600,6 @@ try {
   }
   remote?.stdin.end();
   tunnel?.kill();
-  apiForward?.kill();
   await writeFile(
     resolve(output, 'results.json'),
     JSON.stringify(results, null, 2),

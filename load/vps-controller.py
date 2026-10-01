@@ -5,6 +5,7 @@ import json
 import os
 import pathlib
 import re
+import queue as stdlib_queue
 import subprocess
 import sys
 import threading
@@ -18,6 +19,41 @@ observer = None
 observer_thread = None
 resource_stop = threading.Event()
 proxy_name = 'hookrelay-benchmark-receiver'
+api_forward = None
+
+
+def stop_api_forward():
+    global api_forward
+    if api_forward is None:
+        return
+    process = api_forward
+    api_forward = None
+    if process.poll() is None:
+        run(['sudo', '-n', 'kill', '-TERM', str(process.pid)], timeout=10)
+        process.wait(timeout=15)
+
+
+def start_api_forward():
+    global api_forward
+    if api_forward is not None:
+        raise RuntimeError('API forwarding already started')
+    api_forward = subprocess.Popen(KUBE + ['port-forward', '--address=127.0.0.1', 'service/hookrelay', '0:3000'],
+                                   stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+    messages = stdlib_queue.Queue()
+    process = api_forward
+
+    def read_output():
+        for line in process.stdout:
+            match = re.search(r'Forwarding from 127\.0\.0\.1:(\d+)\s', line)
+            if match:
+                messages.put(int(match.group(1)))
+        messages.put(None)
+
+    threading.Thread(target=read_output, daemon=True).start()
+    port = messages.get(timeout=30)
+    if port is None:
+        raise RuntimeError('API forwarding failed')
+    return {'port': port}
 
 
 def run(args, text=None, timeout=190):
@@ -185,6 +221,7 @@ def start_observer(type_name, source):
 
 def restore(state):
     stop_observer()
+    stop_api_forward()
     if 'relay' in state:
         data = get('deployment', 'relay')
         if any(deployment_env(data, key) != entry for key, entry in state['relay'].items()):
@@ -209,6 +246,8 @@ def dispatch(message):
     action = message['action']
     if action == 'inspect':
         return snapshot()
+    if action == 'forward_api':
+        return start_api_forward()
     if action == 'setup':
         session = message['session']
         if not re.fullmatch(r'[a-f0-9-]{36}', session):
@@ -270,6 +309,7 @@ try:
 finally:
     resource_stop.set()
     stop_observer()
+    stop_api_forward()
     if original is not None:
         try:
             restore(original)

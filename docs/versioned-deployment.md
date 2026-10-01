@@ -220,8 +220,27 @@ one receiver effect each. After all VPS benchmark runs, fresh event
 all four applications' running image IDs match the selected digest, all six
 application/storage Pods are ready, zero events are pending, and original
 settings are restored with benchmark fixtures removed. The VPS now remains on
-this release. Details and backup checksum are in the
+this release until the milestone 12 update below. Details and backup checksum are in the
 [VPS benchmark report](vps-benchmark-report.md).
+
+### Milestone 12 release, 2026-10-01
+
+The VPS now runs commit `8290734d2df271206510cffa41ab2558be4277d2`, digest
+`sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921`.
+[CI run 36837371313](https://github.com/Peterculazh/hookrelay/actions/runs/36837371313)
+passed before deployment. The new off-server backup's checksum and archive
+listing were verified; the migration Job completed and all four rollouts
+succeeded. The relay manifest selects batch 100 every second, one replica,
+and `Recreate`, with unchanged resources.
+
+Fresh deployment smoke event `6e8dc4aa-7bcc-4dd5-bcfb-8bd8fa1d8f2e` and final
+post-benchmark event `57bec177-4ec4-4ee1-a681-ee66a7d46c0d` delivered with HTTP 204.
+The three saved historical events still had one successful attempt and one
+receiver effect each. Six VPS comparison runs passed; final inspection found
+zero pending work, all six application/storage Pods ready on the intended
+images, one default-concurrency worker, restored receiver settings, removed
+fixtures, and no remaining forwarding processes. The
+[relay tuning report](relay-tuning-report.md) records the measurements and limits.
 
 References: [GHCR authentication and visibility](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry),
 [publishing from GitHub Actions](https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images),

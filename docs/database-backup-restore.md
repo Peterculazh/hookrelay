@@ -1,7 +1,8 @@
 # PostgreSQL backup and restore
 
-This manual procedure was verified on the remote K3s deployment on
-2026-09-30. It covers the application database's schema and data, including
+Backup creation and off-server verification were checked on 2026-10-01;
+restore was verified on the remote K3s deployment on 2026-09-30.
+This covers the application database's schema and data, including
 receiver records and migration history. Database roles, Kubernetes Secrets,
 the K3s datastore, and Redis queue data are outside this dump. Credentials
 must be provisioned separately when recovering onto another server.
@@ -21,10 +22,6 @@ Scheduled backups and retention policies are not configured.
     sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' \
     > "$backup_dir/hookrelay.dump.partial"
 
-  sudo k3s kubectl -n hookrelay exec -i postgres-0 -- \
-    pg_restore --list < "$backup_dir/hookrelay.dump.partial" \
-    > "$backup_dir/contents.txt"
-
   mv "$backup_dir/hookrelay.dump.partial" "$backup_dir/hookrelay.dump"
   cd "$backup_dir"
   sha256sum hookrelay.dump > hookrelay.dump.sha256
@@ -36,8 +33,8 @@ Scheduled backups and retention policies are not configured.
 
 Record the printed directory and checksum locally. Each run creates a new
 private directory. The archive is compressed and uses a consistent database
-snapshot while the application runs. A readable archive list is only a
-preliminary check; verify recovery by restoring the archive.
+snapshot while the application runs. Verify the copied archive's readable list
+in the next step; verify recovery separately by restoring it.
 
 ## 2. Copy off the server from Windows PowerShell
 
@@ -60,10 +57,17 @@ $backupName = ($remoteBackupDirectory -split '/')[-1]
 $backupFile = Join-Path (Join-Path $backupRoot $backupName) 'hookrelay.dump'
 $actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath "$backupFile").Hash
 if ($actualHash -eq $expectedHash) { 'Backup copy verified: SHA256 matches.' } else { throw 'Backup checksum mismatch.' }
+$copiedBackupDirectory = Split-Path -Parent $backupFile
+docker run --rm --network none --mount "type=bind,source=$copiedBackupDirectory,target=/backup,readonly" postgres:17-alpine pg_restore --list /backup/hookrelay.dump
+if ($LASTEXITCODE -ne 0) { throw 'Backup archive listing failed.' }
 ```
 
 The backup lives outside the project directory. Keep the verified copy and
-the recorded checksum for recovery.
+the recorded checksum for recovery. The listing check runs locally in a
+temporary PostgreSQL 17 container with a read-only mount and no network.
+This avoids a `kubectl exec -i` archive-list stream that stayed open during
+the 2026-10-01 backup verification. A readable list is a preliminary check,
+not a restore test.
 
 ## 3. Restore into a separate test database on the VPS
 

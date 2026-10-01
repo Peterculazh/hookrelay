@@ -121,16 +121,18 @@ Final verification found zero pending events, all six application/storage Pods
 ready, the original one worker/default concurrency and receiver destination
 restored, and no benchmark fixture resources. Fresh post-benchmark event
 `ccaa9d4e-41f9-4f01-b0e1-605d4a0d6c0d` delivered with HTTP 204. The selected
-application release remains deployed. Raw evidence directories and all numeric
+application release remained deployed at milestone 11 verification; milestone
+12 subsequently advanced it to the tuned release below. Raw evidence directories and all numeric
 checks are recorded in the linked report/results.
 
-## Next milestone: relay tuning
+## Following milestone: relay tuning
 
-Milestone 12 is in progress; see [relay tuning](relay-tuning.md). Add bounded, validated relay batch/schedule settings
+Milestone 12 is complete; see [relay tuning](relay-tuning.md) and its
+[comparison report](relay-tuning-report.md). It added bounded, validated relay batch/schedule settings
 while retaining one relay and existing delivery/reconciliation guarantees.
-Compare the current baseline with tuned settings on the VPS, using the same
-worker concurrency and resources. Repeat the 20 events/s pressure case and a
-longer steady-ingress run; record outbox growth, delivery p95/p99, CPU/memory,
-database activity, and recovery. Require zero dropped requests, expected
-attempt/effect counts, and complete draining before accepting a tuning change.
+The VPS comparison used the same worker concurrency and resources for the
+legacy and tuned schedules. The repeated 20 events/s pressure case and longer
+steady-ingress runs recorded outbox growth, delivery p95/p99, CPU/memory,
+database activity, and recovery. All acceptance, attempt/effect, and draining
+checks passed. Future tuning should preserve those comparison conditions.
 Do not infer a production capacity limit from the short milestone 11 runs.
