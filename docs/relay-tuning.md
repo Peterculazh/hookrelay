@@ -92,3 +92,7 @@ container fields, restoring relay settings, fixture ownership/pending-work
 cleanup, and explicit ownership/termination of API forwarding. The controller
 and observer are transmitted over SSH at runtime; the final cleanup fix does
 not require another application image.
+
+Milestone 13 subsequently measures higher offered rates with this deployed
+configuration; see the [capacity guide](vps-capacity.md) and
+[capacity report](vps-capacity-report.md).

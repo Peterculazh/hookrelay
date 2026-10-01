@@ -117,6 +117,9 @@ reduce offered ingress load. Dropped iterations fail the run; they can indicate
 insufficient k6 VUs or rising system latency. See the [k6 arrival-rate and dropped
 iteration documentation](https://grafana.com/docs/k6/latest/using-k6/scenarios/concepts/dropped-iterations/).
 
+The generator preallocates 10–100 virtual users according to the offered rate,
+with a maximum of 100, to reduce allocation during higher-rate measurements.
+
 A loopback forwarding observer submits the POST once and timestamps its API
 acknowledgment using `performance.now()`. It polls committed event states every
 500 ms through a separate, two-connection PostgreSQL pool. Acceptance-to-delivery

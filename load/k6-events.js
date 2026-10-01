@@ -12,7 +12,8 @@ export const options = {
       rate: Number(__ENV.RATE || 5),
       timeUnit: '1s',
       duration: __ENV.DURATION || '20s',
-      preAllocatedVUs: 10,
+      // Avoid allocating VUs during higher-rate capacity measurements.
+      preAllocatedVUs: Math.min(100, Math.max(10, Number(__ENV.RATE || 5))),
       maxVUs: 100,
       gracefulStop: '10s',
     },

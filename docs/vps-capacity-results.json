@@ -1,0 +1,2182 @@
+{
+  "verifiedOn": "2026-10-01",
+  "applicationCommit": "8290734d2df271206510cffa41ab2558be4277d2",
+  "harnessChanges": [
+    "rate-based k6 VU preallocation",
+    "saved ingress bounds and pending/queue steady-window counts"
+  ],
+  "conclusions": {
+    "highestBoundedOfferedRate": 75,
+    "confirmationSeconds": 120,
+    "confirmationDeliveredPerSecond": 74.9004856138416,
+    "backlogObservedAtOfferedRates": [80, 85, 100],
+    "scope": "Healthy controlled receiver, default payload, one worker with concurrency one; finite tests, not a production maximum"
+  },
+  "totals": {
+    "total": 42006,
+    "delivered": 42006,
+    "failed": 0,
+    "effects": 42006,
+    "attempts": 42006,
+    "droppedIterations": 1
+  },
+  "runs": [
+    {
+      "rate": 30,
+      "seconds": 60,
+      "concurrency": 1,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T09-21-03-732Z-relay-steady",
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.7c578aaf-21b2-41c9-b03d-488e7e9877e6",
+        "config": {
+          "rate": 30,
+          "seconds": 60,
+          "concurrency": 1,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true
+        },
+        "snapshot": {
+          "total": 1801,
+          "pending": 0,
+          "delivered": 1801,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 1801,
+          "attempts": 1801
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 1801
+          }
+        ],
+        "acceptedPerSecond": 30.016666666666666,
+        "deliveredPerSecondOverWholeRun": 29.056257968408516,
+        "apiMs": {
+          "count": 1801,
+          "p50": 44.13170000000173,
+          "p95": 51.319900000002235,
+          "p99": 62.03410000000076,
+          "max": 157.6900999999998
+        },
+        "deliveryMs": {
+          "count": 1801,
+          "p50": 1059.0565999999963,
+          "p95": 1474.1597000000038,
+          "p99": 1581.124100000001,
+          "max": 1651.565499999997
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 61.98320519999999,
+        "drainSeconds": 0.1499875000000029,
+        "recoverySeconds": null,
+        "peakPending": 31,
+        "peakUnpublished": 32,
+        "peakDatabaseConnections": 9,
+        "maxObservationIntervalMs": 1253.0384000000013,
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 40.820584499999995,
+          "deliveredPerSecond": 30.131856637182647,
+          "initialUnpublished": 30,
+          "finalUnpublished": 17,
+          "peakUnpublished": 32
+        }
+      },
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "name": "30 RPS",
+      "classification": "bounded",
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          }
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "session": "3d560d74-f76e-42e4-8a29-1f3a4838fe62",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T09:21:14.754Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000
+      },
+      "generatorSummary": {
+        "accepted": 1801,
+        "iterations": 1801,
+        "droppedIterations": 0,
+        "failedRequestRate": 0,
+        "virtualUsersMax": 10
+      },
+      "sampleAnalysis": {
+        "windowSource": "approximate 22 seconds through nominal duration; first run predates saved ingress bounds",
+        "firstSeconds": 22.192060800000004,
+        "lastSeconds": 59.78661589999999,
+        "initialPending": 17,
+        "finalPending": 21,
+        "pendingLeastSquaresSlopePerSecond": 0.019079792785938604,
+        "unpublishedLeastSquaresSlopePerSecond": 0.04564150601977069,
+        "peakLockWaits": 0,
+        "databaseDeadlocksDelta": 0
+      },
+      "resourcePeaks": {
+        "postgres": {
+          "cpuMillicores": 129,
+          "memoryMiB": 66
+        },
+        "redis": {
+          "cpuMillicores": 22,
+          "memoryMiB": 21
+        },
+        "relay": {
+          "cpuMillicores": 59,
+          "memoryMiB": 90
+        },
+        "test-receiver": {
+          "cpuMillicores": 56,
+          "memoryMiB": 50
+        },
+        "worker": {
+          "cpuMillicores": 420,
+          "memoryMiB": 58
+        },
+        "hookrelay": {
+          "cpuMillicores": 107,
+          "memoryMiB": 57
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 53,
+          "memoryMiB": 30
+        }
+      }
+    },
+    {
+      "rate": 50,
+      "seconds": 60,
+      "concurrency": 1,
+      "exitCode": 1,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T09-23-00-743Z-relay-steady",
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.a7be44db-76c5-4642-82c0-155b8854d914",
+        "config": {
+          "rate": 50,
+          "seconds": 60,
+          "concurrency": 1,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "checks": {
+          "k6": false,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true
+        },
+        "snapshot": {
+          "total": 3000,
+          "pending": 0,
+          "delivered": 3000,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 3000,
+          "attempts": 3000
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 3000
+          }
+        ],
+        "acceptedPerSecond": 50,
+        "deliveredPerSecondOverWholeRun": 48.04144493177793,
+        "apiMs": {
+          "count": 3000,
+          "p50": 41.25720000000001,
+          "p95": 53.07540000000154,
+          "p99": 83.80950000000303,
+          "max": 365.66109999999753
+        },
+        "deliveryMs": {
+          "count": 3000,
+          "p50": 1224.876400000001,
+          "p95": 1593.6498999999967,
+          "p99": 1761.3083999999944,
+          "max": 2199.1984000000084
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 62.4460818,
+        "ingressWindow": {
+          "startedSeconds": 0.5731235000000016,
+          "endedSeconds": 61.903058699999995
+        },
+        "drainSeconds": 0.5430231000000058,
+        "recoverySeconds": null,
+        "peakPending": 57,
+        "peakUnpublished": 60,
+        "peakDatabaseConnections": 14,
+        "maxObservationIntervalMs": 1399.7092000000011,
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 40.435126199999985,
+          "deliveredPerSecond": 50.12968155395545,
+          "initialUnpublished": 13,
+          "finalUnpublished": 26,
+          "peakUnpublished": 60,
+          "initialPending": 42,
+          "finalPending": 27,
+          "peakPending": 57,
+          "pendingGrowthPerSecond": -0.3709645896937996,
+          "initialQueueWaiting": 27,
+          "finalQueueWaiting": 0,
+          "peakQueueWaiting": 48
+        }
+      },
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "name": "50 RPS initial",
+      "classification": "generator rejected",
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          }
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "session": "87be856b-91db-4c5b-bd60-6707dfe5c67f",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T09:23:11.119Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000
+      },
+      "generatorSummary": {
+        "accepted": 3000,
+        "iterations": 3000,
+        "droppedIterations": 1,
+        "failedRequestRate": 0,
+        "virtualUsersMax": 11
+      },
+      "sampleAnalysis": {
+        "windowSource": "recorded ingress bounds, excluding first 20 seconds",
+        "firstSeconds": 20.974506300000005,
+        "lastSeconds": 61.409632499999994,
+        "initialPending": 42,
+        "finalPending": 27,
+        "pendingLeastSquaresSlopePerSecond": 0.010580209501437753,
+        "unpublishedLeastSquaresSlopePerSecond": 0.12355503221761709,
+        "peakLockWaits": 0,
+        "databaseDeadlocksDelta": 0
+      },
+      "resourcePeaks": {
+        "postgres": {
+          "cpuMillicores": 209,
+          "memoryMiB": 82
+        },
+        "redis": {
+          "cpuMillicores": 38,
+          "memoryMiB": 26
+        },
+        "relay": {
+          "cpuMillicores": 81,
+          "memoryMiB": 92
+        },
+        "test-receiver": {
+          "cpuMillicores": 85,
+          "memoryMiB": 54
+        },
+        "worker": {
+          "cpuMillicores": 430,
+          "memoryMiB": 60
+        },
+        "hookrelay": {
+          "cpuMillicores": 323,
+          "memoryMiB": 60
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 82,
+          "memoryMiB": 31
+        }
+      }
+    },
+    {
+      "rate": 50,
+      "seconds": 60,
+      "concurrency": 1,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T09-25-34-718Z-relay-steady",
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.ffba27ed-e14b-486a-8593-fa421d0f36d6",
+        "config": {
+          "rate": 50,
+          "seconds": 60,
+          "concurrency": 1,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 50,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true
+        },
+        "snapshot": {
+          "total": 3001,
+          "pending": 0,
+          "delivered": 3001,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 3001,
+          "attempts": 3001
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 3001
+          }
+        ],
+        "acceptedPerSecond": 50.016666666666666,
+        "deliveredPerSecondOverWholeRun": 48.41033267753222,
+        "apiMs": {
+          "count": 3001,
+          "p50": 41.13930000000255,
+          "p95": 53.50430000000051,
+          "p99": 79.83009999999194,
+          "max": 287.01460000000225
+        },
+        "deliveryMs": {
+          "count": 3001,
+          "p50": 1227.6201,
+          "p95": 1574.2249999999913,
+          "p99": 1698.2949999999983,
+          "max": 1844.6514000000025
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 61.9908981,
+        "ingressWindow": {
+          "startedSeconds": 0.4308797999999988,
+          "endedSeconds": 61.8024157
+        },
+        "drainSeconds": 0.18848240000000804,
+        "recoverySeconds": null,
+        "peakPending": 55,
+        "peakUnpublished": 55,
+        "peakDatabaseConnections": 13,
+        "maxObservationIntervalMs": 1182.6303000000007,
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 40.48134050000001,
+          "deliveredPerSecond": 49.8501278632312,
+          "initialUnpublished": 19,
+          "finalUnpublished": 29,
+          "peakUnpublished": 55,
+          "initialPending": 37,
+          "finalPending": 29,
+          "peakPending": 51,
+          "pendingGrowthPerSecond": -0.1976219142249007,
+          "initialQueueWaiting": 13,
+          "finalQueueWaiting": 0,
+          "peakQueueWaiting": 44
+        }
+      },
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "name": "50 RPS repeat",
+      "classification": "bounded",
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          }
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "session": "7b4dc244-b7b9-49b0-b118-3aa919ccbba6",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T09:25:47.683Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000
+      },
+      "generatorSummary": {
+        "accepted": 3001,
+        "iterations": 3001,
+        "droppedIterations": 0,
+        "failedRequestRate": 0,
+        "virtualUsersMax": 50
+      },
+      "sampleAnalysis": {
+        "windowSource": "recorded ingress bounds, excluding first 20 seconds",
+        "firstSeconds": 20.9624697,
+        "lastSeconds": 61.44381020000001,
+        "initialPending": 37,
+        "finalPending": 29,
+        "pendingLeastSquaresSlopePerSecond": -0.05714528461616002,
+        "unpublishedLeastSquaresSlopePerSecond": 0.02085289687922381,
+        "peakLockWaits": 0,
+        "databaseDeadlocksDelta": 0
+      },
+      "resourcePeaks": {
+        "postgres": {
+          "cpuMillicores": 238,
+          "memoryMiB": 81
+        },
+        "redis": {
+          "cpuMillicores": 41,
+          "memoryMiB": 30
+        },
+        "relay": {
+          "cpuMillicores": 96,
+          "memoryMiB": 92
+        },
+        "test-receiver": {
+          "cpuMillicores": 89,
+          "memoryMiB": 54
+        },
+        "worker": {
+          "cpuMillicores": 463,
+          "memoryMiB": 58
+        },
+        "hookrelay": {
+          "cpuMillicores": 329,
+          "memoryMiB": 59
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 94,
+          "memoryMiB": 31
+        }
+      }
+    },
+    {
+      "rate": 75,
+      "seconds": 60,
+      "concurrency": 1,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T09-27-16-638Z-relay-steady",
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.4ea79153-ffea-4bf4-b53f-bbf45e01c9e3",
+        "config": {
+          "rate": 75,
+          "seconds": 60,
+          "concurrency": 1,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 75,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true
+        },
+        "snapshot": {
+          "total": 4501,
+          "pending": 0,
+          "delivered": 4501,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 4501,
+          "attempts": 4501
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 4501
+          }
+        ],
+        "acceptedPerSecond": 75.01666666666667,
+        "deliveredPerSecondOverWholeRun": 71.81689564286894,
+        "apiMs": {
+          "count": 4501,
+          "p50": 39.88810000000012,
+          "p95": 59.21269999998913,
+          "p99": 156.44830000000366,
+          "max": 376.63200000000506
+        },
+        "deliveryMs": {
+          "count": 4501,
+          "p50": 1622.1251999999986,
+          "p95": 2090.741100000003,
+          "p99": 2271.2618,
+          "max": 2451.087599999999
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 62.673274299999996,
+        "ingressWindow": {
+          "startedSeconds": 0.4266547000000028,
+          "endedSeconds": 61.8503482
+        },
+        "drainSeconds": 0.822926099999997,
+        "recoverySeconds": null,
+        "peakPending": 136,
+        "peakUnpublished": 90,
+        "peakDatabaseConnections": 15,
+        "maxObservationIntervalMs": 1212.944599999999,
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 41.07582629999999,
+          "deliveredPerSecond": 74.81285896858515,
+          "initialUnpublished": 52,
+          "finalUnpublished": 35,
+          "peakUnpublished": 85,
+          "initialPending": 69,
+          "finalPending": 54,
+          "peakPending": 93,
+          "pendingGrowthPerSecond": -0.3651782897913366,
+          "initialQueueWaiting": 13,
+          "finalQueueWaiting": 12,
+          "peakQueueWaiting": 77
+        }
+      },
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "name": "75 RPS short",
+      "classification": "bounded",
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          }
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "session": "0fd10863-95c6-4607-ace3-387f020e9d21",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T09:27:26.170Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000
+      },
+      "generatorSummary": {
+        "accepted": 4501,
+        "iterations": 4501,
+        "droppedIterations": 0,
+        "failedRequestRate": 0,
+        "virtualUsersMax": 75
+      },
+      "sampleAnalysis": {
+        "windowSource": "recorded ingress bounds, excluding first 20 seconds",
+        "firstSeconds": 20.505633000000003,
+        "lastSeconds": 61.58145929999999,
+        "initialPending": 69,
+        "finalPending": 54,
+        "pendingLeastSquaresSlopePerSecond": -0.040310478251618875,
+        "unpublishedLeastSquaresSlopePerSecond": -0.04107778464714977,
+        "peakLockWaits": 0,
+        "databaseDeadlocksDelta": 0
+      },
+      "resourcePeaks": {
+        "postgres": {
+          "cpuMillicores": 318,
+          "memoryMiB": 91
+        },
+        "redis": {
+          "cpuMillicores": 54,
+          "memoryMiB": 36
+        },
+        "relay": {
+          "cpuMillicores": 104,
+          "memoryMiB": 95
+        },
+        "test-receiver": {
+          "cpuMillicores": 107,
+          "memoryMiB": 54
+        },
+        "worker": {
+          "cpuMillicores": 509,
+          "memoryMiB": 59
+        },
+        "hookrelay": {
+          "cpuMillicores": 332,
+          "memoryMiB": 60
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 118,
+          "memoryMiB": 31
+        }
+      }
+    },
+    {
+      "rate": 100,
+      "seconds": 60,
+      "concurrency": 1,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T09-29-19-261Z-relay-steady",
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.438a5a90-c032-4555-b22b-062e22c56f0c",
+        "config": {
+          "rate": 100,
+          "seconds": 60,
+          "concurrency": 1,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 100,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true
+        },
+        "snapshot": {
+          "total": 6001,
+          "pending": 0,
+          "delivered": 6001,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 6001,
+          "attempts": 6001
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 6001
+          }
+        ],
+        "acceptedPerSecond": 100.01666666666667,
+        "deliveredPerSecondOverWholeRun": 74.75742812248002,
+        "apiMs": {
+          "count": 6001,
+          "p50": 40.4997000000003,
+          "p95": 68.26530000000275,
+          "p99": 165.03519999999844,
+          "max": 349.04339999999866
+        },
+        "deliveryMs": {
+          "count": 6001,
+          "p50": 14961.339500000002,
+          "p95": 20042.1578,
+          "p99": 20331.894199999995,
+          "max": 20507.089500000002
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 80.2729595,
+        "ingressWindow": {
+          "startedSeconds": 0.594507700000002,
+          "endedSeconds": 61.9868134
+        },
+        "drainSeconds": 18.2861461,
+        "recoverySeconds": null,
+        "peakPending": 1923,
+        "peakUnpublished": 139,
+        "peakDatabaseConnections": 15,
+        "maxObservationIntervalMs": 1464.7504999999983,
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 41.052231600000006,
+          "deliveredPerSecond": 69.64298622927967,
+          "initialUnpublished": 108,
+          "finalUnpublished": 70,
+          "peakUnpublished": 133,
+          "initialPending": 710,
+          "finalPending": 1913,
+          "peakPending": 1923,
+          "pendingGrowthPerSecond": 29.304131666255138,
+          "initialQueueWaiting": 597,
+          "finalQueueWaiting": 1834,
+          "peakQueueWaiting": 1889
+        }
+      },
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "name": "100 RPS",
+      "classification": "backlog growth",
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          }
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "session": "d1e82936-5349-4636-b64a-8eef66ca45f3",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T09:29:29.459Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000
+      },
+      "generatorSummary": {
+        "accepted": 6001,
+        "iterations": 6001,
+        "droppedIterations": 0,
+        "failedRequestRate": 0,
+        "virtualUsersMax": 100
+      },
+      "sampleAnalysis": {
+        "windowSource": "recorded ingress bounds, excluding first 20 seconds",
+        "firstSeconds": 20.7637226,
+        "lastSeconds": 61.81595420000001,
+        "initialPending": 710,
+        "finalPending": 1913,
+        "pendingLeastSquaresSlopePerSecond": 30.30141904129231,
+        "unpublishedLeastSquaresSlopePerSecond": -0.07651974713266671,
+        "peakLockWaits": 0,
+        "databaseDeadlocksDelta": 0
+      },
+      "resourcePeaks": {
+        "postgres": {
+          "cpuMillicores": 345,
+          "memoryMiB": 96
+        },
+        "redis": {
+          "cpuMillicores": 64,
+          "memoryMiB": 47
+        },
+        "relay": {
+          "cpuMillicores": 140,
+          "memoryMiB": 98
+        },
+        "test-receiver": {
+          "cpuMillicores": 113,
+          "memoryMiB": 55
+        },
+        "worker": {
+          "cpuMillicores": 512,
+          "memoryMiB": 58
+        },
+        "hookrelay": {
+          "cpuMillicores": 355,
+          "memoryMiB": 60
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 112,
+          "memoryMiB": 31
+        }
+      }
+    },
+    {
+      "rate": 85,
+      "seconds": 60,
+      "concurrency": 1,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T09-31-46-390Z-relay-steady",
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.9ac7cb92-43e5-432e-a9c7-6d0c13b92110",
+        "config": {
+          "rate": 85,
+          "seconds": 60,
+          "concurrency": 1,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 85,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true
+        },
+        "snapshot": {
+          "total": 5101,
+          "pending": 0,
+          "delivered": 5101,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 5101,
+          "attempts": 5101
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 5101
+          }
+        ],
+        "acceptedPerSecond": 85.01666666666667,
+        "deliveredPerSecondOverWholeRun": 75.75470626112649,
+        "apiMs": {
+          "count": 5101,
+          "p50": 39.74369999999908,
+          "p95": 57.098900000004505,
+          "p99": 90.3101999999999,
+          "max": 317.28349999999773
+        },
+        "deliveryMs": {
+          "count": 5101,
+          "p50": 6023.317800000004,
+          "p95": 7614.311600000001,
+          "p99": 7857.240300000005,
+          "max": 8022.741500000004
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 67.33575049999999,
+        "ingressWindow": {
+          "startedSeconds": 0.37611800000000223,
+          "endedSeconds": 61.755405100000004
+        },
+        "drainSeconds": 5.580345399999991,
+        "recoverySeconds": null,
+        "peakPending": 593,
+        "peakUnpublished": 111,
+        "peakDatabaseConnections": 15,
+        "maxObservationIntervalMs": 1391.3727,
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 40.6645554,
+          "deliveredPerSecond": 78.5450613828671,
+          "initialUnpublished": 74,
+          "finalUnpublished": 25,
+          "peakUnpublished": 96,
+          "initialPending": 351,
+          "finalPending": 593,
+          "peakPending": 593,
+          "pendingGrowthPerSecond": 5.9511286332667,
+          "initialQueueWaiting": 273,
+          "finalQueueWaiting": 561,
+          "peakQueueWaiting": 574
+        }
+      },
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "name": "85 RPS",
+      "classification": "backlog growth",
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          }
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "session": "81da6b36-91ba-48fc-ac47-739aaeb2deca",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T09:31:57.145Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000
+      },
+      "generatorSummary": {
+        "accepted": 5101,
+        "iterations": 5101,
+        "droppedIterations": 0,
+        "failedRequestRate": 0,
+        "virtualUsersMax": 85
+      },
+      "sampleAnalysis": {
+        "windowSource": "recorded ingress bounds, excluding first 20 seconds",
+        "firstSeconds": 20.647566800000003,
+        "lastSeconds": 61.3121222,
+        "initialPending": 351,
+        "finalPending": 593,
+        "pendingLeastSquaresSlopePerSecond": 5.567384055417892,
+        "unpublishedLeastSquaresSlopePerSecond": -0.1205448927729437,
+        "peakLockWaits": 0,
+        "databaseDeadlocksDelta": 0
+      },
+      "resourcePeaks": {
+        "postgres": {
+          "cpuMillicores": 341,
+          "memoryMiB": 108
+        },
+        "redis": {
+          "cpuMillicores": 65,
+          "memoryMiB": 53
+        },
+        "relay": {
+          "cpuMillicores": 109,
+          "memoryMiB": 98
+        },
+        "test-receiver": {
+          "cpuMillicores": 110,
+          "memoryMiB": 53
+        },
+        "worker": {
+          "cpuMillicores": 488,
+          "memoryMiB": 59
+        },
+        "hookrelay": {
+          "cpuMillicores": 340,
+          "memoryMiB": 61
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 111,
+          "memoryMiB": 31
+        }
+      }
+    },
+    {
+      "rate": 80,
+      "seconds": 120,
+      "concurrency": 1,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T09-33-52-522Z-relay-steady",
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.288a8593-1ac6-4b4d-a4ae-504b1e7269de",
+        "config": {
+          "rate": 80,
+          "seconds": 120,
+          "concurrency": 1,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 80,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true
+        },
+        "snapshot": {
+          "total": 9600,
+          "pending": 0,
+          "delivered": 9600,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 9600,
+          "attempts": 9600
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 9600
+          }
+        ],
+        "acceptedPerSecond": 80,
+        "deliveredPerSecondOverWholeRun": 76.56695792793292,
+        "apiMs": {
+          "count": 9600,
+          "p50": 39.561699999991106,
+          "p95": 59.73790000000008,
+          "p99": 127.86789999999746,
+          "max": 416.6919999999991
+        },
+        "deliveryMs": {
+          "count": 9600,
+          "p50": 4548.502200000003,
+          "p95": 5923.819999999992,
+          "p99": 6162.910700000008,
+          "max": 6397.2051000000065
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 125.3804547,
+        "ingressWindow": {
+          "startedSeconds": 0.4245344000000005,
+          "endedSeconds": 121.75326560000002
+        },
+        "drainSeconds": 3.6271890999999887,
+        "recoverySeconds": null,
+        "peakPending": 407,
+        "peakUnpublished": 95,
+        "peakDatabaseConnections": 15,
+        "maxObservationIntervalMs": 1414.3194000000021,
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 100.84860230000001,
+          "deliveredPerSecond": 78.3848245757988,
+          "initialUnpublished": 79,
+          "finalUnpublished": 32,
+          "peakUnpublished": 95,
+          "initialPending": 279,
+          "finalPending": 407,
+          "peakPending": 407,
+          "pendingGrowthPerSecond": 1.2692292910439273,
+          "initialQueueWaiting": 222,
+          "finalQueueWaiting": 362,
+          "peakQueueWaiting": 370
+        }
+      },
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "name": "80 RPS extended",
+      "classification": "near boundary; backlog growth",
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          }
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "session": "b4d755c3-a193-4c69-a396-0240a49d6107",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T09:34:02.546Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000
+      },
+      "generatorSummary": {
+        "accepted": 9600,
+        "iterations": 9600,
+        "droppedIterations": 0,
+        "failedRequestRate": 0,
+        "virtualUsersMax": 80
+      },
+      "sampleAnalysis": {
+        "windowSource": "recorded ingress bounds, excluding first 20 seconds",
+        "firstSeconds": 20.638592799999998,
+        "lastSeconds": 121.48719510000001,
+        "initialPending": 279,
+        "finalPending": 407,
+        "pendingLeastSquaresSlopePerSecond": 0.9099586656763436,
+        "unpublishedLeastSquaresSlopePerSecond": 0.05111643315852284,
+        "peakLockWaits": 0,
+        "databaseDeadlocksDelta": 0
+      },
+      "resourcePeaks": {
+        "postgres": {
+          "cpuMillicores": 443,
+          "memoryMiB": 276
+        },
+        "redis": {
+          "cpuMillicores": 75,
+          "memoryMiB": 70
+        },
+        "relay": {
+          "cpuMillicores": 132,
+          "memoryMiB": 98
+        },
+        "test-receiver": {
+          "cpuMillicores": 108,
+          "memoryMiB": 56
+        },
+        "worker": {
+          "cpuMillicores": 352,
+          "memoryMiB": 60
+        },
+        "hookrelay": {
+          "cpuMillicores": 352,
+          "memoryMiB": 63
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 115,
+          "memoryMiB": 31
+        }
+      }
+    },
+    {
+      "rate": 75,
+      "seconds": 120,
+      "concurrency": 1,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T09-36-53-915Z-relay-steady",
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.68d6ddfc-4379-4126-af21-67c68781f85d",
+        "config": {
+          "rate": 75,
+          "seconds": 120,
+          "concurrency": 1,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 75,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true
+        },
+        "snapshot": {
+          "total": 9001,
+          "pending": 0,
+          "delivered": 9001,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 9001,
+          "attempts": 9001
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 9001
+          }
+        ],
+        "acceptedPerSecond": 75.00833333333334,
+        "deliveredPerSecondOverWholeRun": 73.39070285907586,
+        "apiMs": {
+          "count": 9001,
+          "p50": 40.193499999993946,
+          "p95": 62.62630000000354,
+          "p99": 220.48399999999674,
+          "max": 656.0357000000076
+        },
+        "deliveryMs": {
+          "count": 9001,
+          "p50": 1981.0977999999886,
+          "p95": 3274.940300000002,
+          "p99": 3701.514500000005,
+          "max": 4237.092199999999
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 122.64496249999999,
+        "ingressWindow": {
+          "startedSeconds": 0.5763291000000027,
+          "endedSeconds": 122.0616568
+        },
+        "drainSeconds": 0.5833056999999972,
+        "recoverySeconds": null,
+        "peakPending": 193,
+        "peakUnpublished": 88,
+        "peakDatabaseConnections": 16,
+        "maxObservationIntervalMs": 1528.0148999999983,
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 100.81376560000001,
+          "deliveredPerSecond": 74.9004856138416,
+          "initialUnpublished": 26,
+          "finalUnpublished": 42,
+          "peakUnpublished": 88,
+          "initialPending": 101,
+          "finalPending": 65,
+          "peakPending": 193,
+          "pendingGrowthPerSecond": -0.3570940911267776,
+          "initialQueueWaiting": 68,
+          "finalQueueWaiting": 38,
+          "peakQueueWaiting": 170
+        }
+      },
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "name": "75 RPS confirmation",
+      "classification": "bounded",
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          }
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "session": "7f8bd5f4-6dd5-4d6c-af4e-c59eb03bf995",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T09:37:04.160Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000
+      },
+      "generatorSummary": {
+        "accepted": 9001,
+        "iterations": 9001,
+        "droppedIterations": 0,
+        "failedRequestRate": 0,
+        "virtualUsersMax": 75
+      },
+      "sampleAnalysis": {
+        "windowSource": "recorded ingress bounds, excluding first 20 seconds",
+        "firstSeconds": 21.237523699999997,
+        "lastSeconds": 122.05128930000001,
+        "initialPending": 101,
+        "finalPending": 65,
+        "pendingLeastSquaresSlopePerSecond": 0.29348628543449967,
+        "unpublishedLeastSquaresSlopePerSecond": 0.07784616970117669,
+        "peakLockWaits": 0,
+        "databaseDeadlocksDelta": 0
+      },
+      "resourcePeaks": {
+        "postgres": {
+          "cpuMillicores": 501,
+          "memoryMiB": 290
+        },
+        "redis": {
+          "cpuMillicores": 101,
+          "memoryMiB": 81
+        },
+        "relay": {
+          "cpuMillicores": 122,
+          "memoryMiB": 99
+        },
+        "test-receiver": {
+          "cpuMillicores": 112,
+          "memoryMiB": 55
+        },
+        "worker": {
+          "cpuMillicores": 368,
+          "memoryMiB": 59
+        },
+        "hookrelay": {
+          "cpuMillicores": 352,
+          "memoryMiB": 61
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 116,
+          "memoryMiB": 31
+        }
+      }
+    }
+  ],
+  "verification": {
+    "images": {
+      "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+      "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+      "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+      "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+    },
+    "restore": {
+      "replicas": 1,
+      "concurrency": null,
+      "target": {
+        "name": "WEBHOOK_TARGET_URL",
+        "value": "http://test-receiver:3001/webhooks"
+      },
+      "relay": {
+        "RELAY_BATCH_SIZE": {
+          "name": "RELAY_BATCH_SIZE",
+          "value": "100"
+        },
+        "RELAY_PUBLISH_INTERVAL_SECONDS": {
+          "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+          "value": "1"
+        }
+      }
+    },
+    "relaySettings": {
+      "batchSize": 100,
+      "publishEverySeconds": 1
+    },
+    "relayReplicas": 1,
+    "relayStrategy": "Recreate",
+    "pending": 0,
+    "unpublished": 0,
+    "fixturesRemoved": true,
+    "remainingKubectlProcesses": 0,
+    "pods": [
+      {
+        "app": "hookrelay",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "ghcr.io/peterculazh/hookrelay@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        ]
+      },
+      {
+        "app": "postgres",
+        "ready": true,
+        "restarts": 1,
+        "imageIds": [
+          "docker.io/library/postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24"
+        ]
+      },
+      {
+        "app": "redis",
+        "ready": true,
+        "restarts": 1,
+        "imageIds": [
+          "docker.io/library/redis@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0"
+        ]
+      },
+      {
+        "app": "relay",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "ghcr.io/peterculazh/hookrelay@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        ]
+      },
+      {
+        "app": "test-receiver",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "ghcr.io/peterculazh/hookrelay@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        ]
+      },
+      {
+        "app": "worker",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "ghcr.io/peterculazh/hookrelay@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        ]
+      }
+    ]
+  },
+  "history": [
+    {
+      "id": "84cfef07-9881-4568-9ae2-b8f5154d2e7e",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    },
+    {
+      "id": "4aa8f820-6688-4d56-9b6e-0caacb7571c7",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    },
+    {
+      "id": "7db544ee-8596-4939-960a-114b8e7662b8",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    },
+    {
+      "id": "f7384a28-e855-488a-b63c-e109dafa3425",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    }
+  ]
+}

@@ -4,7 +4,8 @@ Status: complete, verified on 2026-10-01. Milestone 10 remains the completed loc
 baseline. The committed release is deployed on the existing K3s VPS, and all ten
 remote scenarios passed with the local PC generating traffic. See the
 [VPS benchmark report](vps-benchmark-report.md) and
-[numeric results](vps-benchmark-results.json). Relay tuning is the next milestone.
+[numeric results](vps-benchmark-results.json). Subsequent work is recorded in
+[relay tuning](relay-tuning.md) and [VPS capacity measurements](vps-capacity.md).
 
 ## Acceptance
 
@@ -136,3 +137,8 @@ steady-ingress runs recorded outbox growth, delivery p95/p99, CPU/memory,
 database activity, and recovery. All acceptance, attempt/effect, and draining
 checks passed. Future tuning should preserve those comparison conditions.
 Do not infer a production capacity limit from the short milestone 11 runs.
+
+Milestone 13 tests higher rates with the deployed relay schedule and default
+worker concurrency. See the [capacity guide](vps-capacity.md) and
+[capacity report](vps-capacity-report.md). A successful drain check alone does
+not establish that delivery kept pace while traffic was arriving.

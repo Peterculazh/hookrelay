@@ -386,6 +386,10 @@ async function runCase(name, config) {
     name,
     type: current.type,
     config: { ...config, replicas, concurrency, relay: metadata.relaySettings },
+    generator: {
+      preAllocatedVUs: Math.min(100, Math.max(10, config.rate)),
+      maxVUs: 100,
+    },
     checks,
     snapshot,
     attemptOutcomes: current.outcomes,
@@ -403,6 +407,10 @@ async function runCase(name, config) {
         .map((e) => e.observed - e.ack),
     ),
     totalSeconds: elapsed,
+    ingressWindow: {
+      startedSeconds: (current.ingressStarted - current.started) / 1000,
+      endedSeconds: (current.ingressDone - current.started) / 1000,
+    },
     drainSeconds: Math.max(
       0,
       (current.lastCompletion - current.ingressDone) / 1000,
@@ -433,6 +441,14 @@ async function runCase(name, config) {
       initialUnpublished: first.unpublished,
       finalUnpublished: last.unpublished,
       peakUnpublished: Math.max(...steadySamples.map((s) => s.unpublished)),
+      initialPending: first.pending,
+      finalPending: last.pending,
+      peakPending: Math.max(...steadySamples.map((s) => s.pending)),
+      pendingGrowthPerSecond:
+        (last.pending - first.pending) / (last.seconds - first.seconds),
+      initialQueueWaiting: first.queue.waiting,
+      finalQueueWaiting: last.queue.waiting,
+      peakQueueWaiting: Math.max(...steadySamples.map((s) => s.queue.waiting)),
     };
   }
   await writeFile(

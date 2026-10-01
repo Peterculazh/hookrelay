@@ -105,3 +105,6 @@ including database polling and return-network delay. Polling may miss short
 outbox peaks. Individual maximum observation intervals are retained. Sixty
 seconds is enough to expose the previous publication limit at 20 events/s;
 longer endurance and higher-rate saturation tests remain future work.
+
+Subsequent higher-rate tests are recorded in the
+[Milestone 13 capacity report](vps-capacity-report.md).
