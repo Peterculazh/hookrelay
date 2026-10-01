@@ -47,6 +47,8 @@ jobs:
                   python3 load/vps-controller.test.py
                   node --check scripts/benchmark-vps.mjs
                   node --check load/vps-observer.mjs
+                  node --test load/observation-state.test.mjs
+                  node --test load/worker-timings.test.mjs
 
             - name: Build Docker image
               run: >

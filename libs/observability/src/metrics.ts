@@ -2,6 +2,9 @@ import { Counter, Gauge, Histogram, Registry } from 'prom-client';
 import type { Request, Response, NextFunction } from 'express';
 
 const buckets = [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 15];
+const processingBuckets = [0.001, 0.0025, ...buckets, 30];
+export type DeliveryDatabasePhase = 'attempt_start' | 'finalize';
+export type DeliveryOperationOutcome = 'completed' | 'error';
 const methods = new Set([
   'GET',
   'HEAD',
@@ -18,6 +21,8 @@ export class Metrics {
   readonly webhookDuration: Histogram<'outcome'>;
   readonly requests: Counter<'method' | 'route' | 'status'>;
   readonly requestDuration: Histogram<'method' | 'route' | 'status'>;
+  readonly databaseDuration: Histogram<'phase' | 'outcome'>;
+  readonly processingDuration: Histogram<'outcome'>;
 
   constructor(service: string) {
     this.registry.setDefaultLabels({ service });
@@ -48,6 +53,20 @@ export class Metrics {
       buckets,
       registers,
     });
+    this.databaseDuration = new Histogram({
+      name: 'hookrelay_delivery_database_duration_seconds',
+      help: 'Delivery database operation duration including transaction commit',
+      labelNames: ['phase', 'outcome'],
+      buckets: processingBuckets,
+      registers,
+    });
+    this.processingDuration = new Histogram({
+      name: 'hookrelay_delivery_processing_duration_seconds',
+      help: 'Processor invocation duration, excluding queue wait and BullMQ acknowledgment',
+      labelNames: ['outcome'],
+      buckets: processingBuckets,
+      registers,
+    });
     if (service === 'worker') {
       for (const outcome of ['succeeded', 'failed']) {
         this.attempts.inc({ outcome }, 0);
@@ -59,6 +78,18 @@ export class Metrics {
   observeDelivery(outcome: 'succeeded' | 'failed', seconds: number) {
     this.attempts.inc({ outcome });
     this.webhookDuration.observe({ outcome }, seconds);
+  }
+
+  observeDatabase(
+    phase: DeliveryDatabasePhase,
+    outcome: DeliveryOperationOutcome,
+    seconds: number,
+  ) {
+    this.databaseDuration.observe({ phase, outcome }, seconds);
+  }
+
+  observeProcessing(outcome: DeliveryOperationOutcome, seconds: number) {
+    this.processingDuration.observe({ outcome }, seconds);
   }
 
   collectOutbox(count: () => Promise<number>) {

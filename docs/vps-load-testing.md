@@ -142,3 +142,8 @@ Milestone 13 tests higher rates with the deployed relay schedule and default
 worker concurrency. See the [capacity guide](vps-capacity.md) and
 [capacity report](vps-capacity-report.md). A successful drain check alone does
 not establish that delivery kept pace while traffic was arriving.
+
+Milestone 14 adds delivery phase timings, aggregate observations with terminal
+deltas, and optional Redis isolation for longer comparisons. See the
+[worker concurrency guide](worker-concurrency.md) for safeguards, updated remote
+duration bounds, and paired-test conditions.

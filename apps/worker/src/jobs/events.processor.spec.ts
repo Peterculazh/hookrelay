@@ -228,11 +228,14 @@ describe('EventsProcessor', () => {
   ] as const)(
     'counts a %s receiver outcome once (status %s)',
     async (outcome, status, error) => {
-      vi.spyOn(performance, 'now')
-        .mockReturnValueOnce(100)
-        .mockReturnValueOnce(350);
-      if (error) fetchMock.mockRejectedValueOnce(error);
-      else fetchMock.mockResolvedValueOnce(new Response(null, { status }));
+      let elapsed = 100;
+      vi.spyOn(performance, 'now').mockImplementation(() => elapsed);
+      fetchMock.mockImplementationOnce(() => {
+        elapsed = 350;
+        return error
+          ? Promise.reject(error)
+          : Promise.resolve(new Response(null, { status }));
+      });
       await processor.process(createJob()).catch(() => undefined);
       const counter = await workerMetrics.attempts.get();
       expect(counter.values).toEqual([
@@ -258,6 +261,70 @@ describe('EventsProcessor', () => {
     expect((await workerMetrics.attempts.get()).values).toEqual([
       expect.objectContaining({ labels: { outcome: 'succeeded' }, value: 1 }),
     ]);
+    expect((await workerMetrics.databaseDuration.get()).values).toContainEqual(
+      expect.objectContaining({
+        metricName: 'hookrelay_delivery_database_duration_seconds_count',
+        labels: { phase: 'finalize', outcome: 'error' },
+        value: 1,
+      }),
+    );
+    expect(
+      (await workerMetrics.processingDuration.get()).values,
+    ).toContainEqual(
+      expect.objectContaining({
+        metricName: 'hookrelay_delivery_processing_duration_seconds_count',
+        labels: { outcome: 'error' },
+        value: 1,
+      }),
+    );
+  });
+
+  it('measures database phases and total processing separately from HTTP time', async () => {
+    let elapsed = 0;
+    vi.spyOn(performance, 'now').mockImplementation(() => elapsed);
+    eventDeliveryRepository.startAttempt.mockImplementationOnce(async () => {
+      elapsed += 11;
+      return attemptId;
+    });
+    fetchMock.mockImplementationOnce(async () => {
+      elapsed += 17;
+      return new Response(null, { status: 204 });
+    });
+    eventDeliveryRepository.markSucceededAndDelivered.mockImplementationOnce(
+      async () => {
+        elapsed += 23;
+      },
+    );
+    await processor.process(createJob());
+    const database = (await workerMetrics.databaseDuration.get()).values;
+    for (const [phase, seconds] of [
+      ['attempt_start', 0.011],
+      ['finalize', 0.023],
+    ]) {
+      expect(database).toContainEqual(
+        expect.objectContaining({
+          metricName: 'hookrelay_delivery_database_duration_seconds_sum',
+          labels: { phase, outcome: 'completed' },
+          value: seconds,
+        }),
+      );
+    }
+    expect((await workerMetrics.webhookDuration.get()).values).toContainEqual(
+      expect.objectContaining({
+        metricName: 'hookrelay_webhook_request_duration_seconds_sum',
+        labels: { outcome: 'succeeded' },
+        value: 0.017,
+      }),
+    );
+    expect(
+      (await workerMetrics.processingDuration.get()).values,
+    ).toContainEqual(
+      expect.objectContaining({
+        metricName: 'hookrelay_delivery_processing_duration_seconds_sum',
+        labels: { outcome: 'completed' },
+        value: 0.051,
+      }),
+    );
   });
 
   it('rejects legacy jobs that do not contain an event snapshot', async () => {

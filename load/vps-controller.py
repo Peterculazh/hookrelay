@@ -19,6 +19,7 @@ observer = None
 observer_thread = None
 resource_stop = threading.Event()
 proxy_name = 'hookrelay-benchmark-receiver'
+redis_name = 'hookrelay-benchmark-redis'
 api_forward = None
 
 
@@ -142,6 +143,7 @@ def snapshot():
         'concurrency': deployment_env(deployments['worker'], 'WORKER_CONCURRENCY'),
         'target': deployment_env(deployments['hookrelay'], 'WEBHOOK_TARGET_URL'),
         'relay': {key: deployment_env(deployments['relay'], key) for key in ['RELAY_BATCH_SIZE', 'RELAY_PUBLISH_INTERVAL_SECONDS']},
+        'redis': {name: deployment_env(deployments[name], 'REDIS_HOST') for name in ['worker', 'relay']},
     }
     cpu_model = next((line.split(':', 1)[1].strip() for line in pathlib.Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')), 'unknown')
     memory = int(next(line.split()[1] for line in pathlib.Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemTotal:'))) * 1024
@@ -175,6 +177,41 @@ def install_proxy(image, source):
         kube('create', '-f', '-', text=json.dumps(item))
     kube('rollout', 'status', 'deployment/' + proxy_name, '--timeout=180s')
     patch('hookrelay', 'WEBHOOK_TARGET_URL', {'name': 'WEBHOOK_TARGET_URL', 'value': 'http://' + proxy_name + ':3002/webhooks'})
+
+
+def install_redis():
+    for kind in ['deployment', 'service', 'pvc']:
+        if kube('get', kind, redis_name, '--ignore-not-found', '-o', 'name'):
+            raise RuntimeError('Benchmark Redis already exists; restore the previous session first')
+    data = get('statefulset', 'redis')
+    pod_spec = data['spec']['template']['spec']
+    if len(pod_spec['containers']) != 1:
+        raise RuntimeError('Expected one Redis container')
+    container = pod_spec['containers'][0]
+    # Match the existing Redis image, arguments, probes, and allocations.
+    container['volumeMounts'] = [{'name': 'data', 'mountPath': '/data'}]
+    claim = data['spec']['volumeClaimTemplates'][0]['spec']
+    if 'storageClassName' not in claim:
+        claim['storageClassName'] = get('pvc', 'data-redis-0')['spec']['storageClassName']
+    labels = {'app': redis_name, 'hookrelay-benchmark-session': session}
+    metadata = {'name': redis_name, 'namespace': 'hookrelay', 'labels': labels}
+    objects = [
+        {'apiVersion': 'v1', 'kind': 'PersistentVolumeClaim', 'metadata': metadata, 'spec': claim},
+        {'apiVersion': 'v1', 'kind': 'Service', 'metadata': metadata,
+         'spec': {'selector': {'app': redis_name}, 'ports': [{'port': 6379, 'targetPort': 6379}]}},
+        {'apiVersion': 'apps/v1', 'kind': 'Deployment', 'metadata': metadata,
+         'spec': {'replicas': 1, 'strategy': {'type': 'Recreate'}, 'selector': {'matchLabels': {'app': redis_name}},
+                  'template': {'metadata': {'labels': labels}, 'spec': {'containers': [container],
+                      'volumes': [{'name': 'data', 'persistentVolumeClaim': {'claimName': redis_name}}]}}}},
+    ]
+    for item in objects:
+        kube('create', '-f', '-', text=json.dumps(item))
+    kube('rollout', 'status', 'deployment/' + redis_name, '--timeout=180s')
+    for name in ['relay', 'worker']:
+        patch(name, 'REDIS_HOST', {'name': 'REDIS_HOST', 'value': redis_name})
+    return {'image': container['image'], 'arguments': container.get('args', []),
+            'resources': container.get('resources', {}), 'storage': claim,
+            'productionQueuePreserved': True}
 
 
 def resource_samples():
@@ -223,21 +260,30 @@ def restore(state):
     stop_observer()
     stop_api_forward()
     if 'relay' in state:
+        entries = dict(state['relay'])
+        if 'redis' in state:
+            entries['REDIS_HOST'] = state['redis']['relay']
         data = get('deployment', 'relay')
-        if any(deployment_env(data, key) != entry for key, entry in state['relay'].items()):
-            patch_environment('relay', state['relay'])
-    patch('worker', 'WORKER_CONCURRENCY', state['concurrency'], state['replicas'])
+        if any(deployment_env(data, key) != entry for key, entry in entries.items()):
+            patch_environment('relay', entries)
+    if 'redis' in state:
+        patch_environment('worker', {'WORKER_CONCURRENCY': state['concurrency'], 'REDIS_HOST': state['redis']['worker']}, state['replicas'])
+    else:
+        patch('worker', 'WORKER_CONCURRENCY', state['concurrency'], state['replicas'])
     patch('hookrelay', 'WEBHOOK_TARGET_URL', state['target'])
     pending = database_query("SELECT count(*)::int AS pending FROM events WHERE status='pending' AND target_url='http://hookrelay-benchmark-receiver:3002/webhooks'")[0]['pending']
     if pending:
         return {'restored': True, 'fixtureRetained': True, 'pending': pending}
-    for kind in ['deployment', 'service', 'configmap']:
-        name = kube('get', kind, proxy_name, '--ignore-not-found', '-o', 'name')
+    resources = [(kind, proxy_name) for kind in ['deployment', 'service', 'configmap']]
+    if 'isolatedRedis' in state:
+        resources += [(kind, redis_name) for kind in ['deployment', 'service', 'pvc']]
+    for kind, fixture in resources:
+        name = kube('get', kind, fixture, '--ignore-not-found', '-o', 'name')
         if name:
-            item = get(kind, proxy_name)
+            item = get(kind, fixture)
             if item['metadata'].get('labels', {}).get('hookrelay-benchmark-session') != session:
                 raise RuntimeError('Refusing to remove resources owned by another benchmark')
-            kube('delete', kind, proxy_name, '--wait=true', '--timeout=60s')
+            kube('delete', kind, fixture, '--wait=true', '--timeout=60s')
     return {'restored': True, 'fixtureRetained': False}
 
 
@@ -262,6 +308,9 @@ def dispatch(message):
         if database_query("SELECT count(*)::int AS pending FROM events WHERE status='pending'")[0]['pending']:
             raise RuntimeError('Drain existing work before benchmarking')
         original = state['restore']
+        if message.get('isolateRedis'):
+            original['isolatedRedis'] = True  # Restore even after partially failed creation.
+            state['isolatedRedis'] = install_redis()
         install_proxy(image, message['proxy'])
         threading.Thread(target=resource_samples, daemon=True).start()
         return state
@@ -288,6 +337,12 @@ def dispatch(message):
             raise ValueError('Invalid event type')
         start_observer(message['type'], message['source'])
         return {'observing': True}
+    if action == 'sample_metrics':
+        if observer is None or observer.poll() is not None:
+            raise RuntimeError('Observer is not running')
+        observer.stdin.write('metrics\n')
+        observer.stdin.flush()
+        return {'requested': True}
     if action == 'restore':
         resource_stop.set()
         result = restore(original)

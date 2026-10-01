@@ -9,6 +9,11 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { cases, tuningCases, quantiles } from '../load/profiles.mjs';
+import {
+  recordAcceptance,
+  recordCompletions,
+} from '../load/observation-state.mjs';
+import { workerTimings } from '../load/worker-timings.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const exec = promisify(execFile);
@@ -84,7 +89,7 @@ const selected =
 if (profile !== 'suite') {
   for (const [key, variable, min, max] of [
     ['rate', 'BENCH_RATE', 1, 500],
-    ['seconds', 'BENCH_SECONDS', 1, 120],
+    ['seconds', 'BENCH_SECONDS', 1, 600],
     ['concurrency', 'BENCH_CONCURRENCY', 1, 100],
     ['replicas', 'BENCH_REPLICAS', 1, 4],
   ]) {
@@ -97,14 +102,32 @@ if (profile !== 'suite') {
     selected[0][1][key] = value;
   }
 }
+const isolateRedis = process.env.BENCH_ISOLATE_REDIS === '1';
+for (const [, config] of selected) {
+  assert.ok(
+    config.seconds <= 120 || isolateRedis,
+    'Runs longer than 120 seconds require BENCH_ISOLATE_REDIS=1',
+  );
+  if (isolateRedis)
+    assert.ok(
+      config.rate * config.seconds <= 50000,
+      'Isolated runs are limited to 50000 offered events',
+    );
+}
 await mkdir(output, { recursive: true });
 const controllerCode = await readFile(
   resolve(root, 'load/vps-controller.py'),
   'utf8',
 );
-const observerCode = await readFile(
-  resolve(root, 'load/vps-observer.mjs'),
+const observationStateCode = await readFile(
+  resolve(root, 'load/observation-state.mjs'),
   'utf8',
+);
+const observerCode = (
+  await readFile(resolve(root, 'load/vps-observer.mjs'), 'utf8')
+).replace(
+  "'./observation-state.mjs'",
+  `'data:text/javascript;base64,${Buffer.from(observationStateCode).toString('base64')}'`,
 );
 const proxyCode = await readFile(
   resolve(root, 'load/receiver-proxy.mjs'),
@@ -161,27 +184,8 @@ function observe(message) {
   }
   if (message.kind !== 'observation') return;
   const now = performance.now();
-  const snapshot = {
-    total: message.rows.length,
-    pending: 0,
-    delivered: 0,
-    failed: 0,
-    unpublished: 0,
-    effects: 0,
-    attempts: 0,
-  };
-  for (const row of message.rows) {
-    snapshot[row.status]++;
-    snapshot.unpublished += Number(row.unpublished);
-    snapshot.effects += Number(row.effect);
-    snapshot.attempts += row.attempts;
-    const entry = current.accepted.get(row.id);
-    if (entry && !entry.observed && row.status !== 'pending') {
-      entry.observed = now;
-      entry.status = row.status;
-      current.lastCompletion = now;
-    }
-  }
+  const snapshot = message.snapshot;
+  recordCompletions(current, message.completions, now);
   current.maxInterval = Math.max(
     current.maxInterval,
     now - current.lastObservation,
@@ -194,12 +198,19 @@ function observe(message) {
     else if (metricsSeen.has(entry.name))
       current.errors.push(`${entry.name}: metrics unavailable after startup`);
   }
+  if (message.metrics) {
+    current.lastMetricsAt = now;
+    current.lastMetrics = message.metrics;
+    if (!current.ingressStarted) current.baselineMetrics = message.metrics;
+    if (message.metricsForced) current.forcedMetricsAt = now;
+  }
   current.samples.push({
     seconds: (now - current.started) / 1000,
     ...snapshot,
     database: message.database,
     queue: message.queue,
     metrics: message.metrics,
+    completionsReceived: message.completions.length,
   });
 }
 
@@ -261,6 +272,8 @@ async function runCase(name, config) {
     type: `benchmark.${randomUUID()}`,
     started: performance.now(),
     accepted: new Map(),
+    earlyCompletions: new Map(),
+    preAckCompletions: 0,
     samples: [],
     resources: [],
     errors: [],
@@ -270,6 +283,17 @@ async function runCase(name, config) {
     outcomes: [],
   };
   await remoteCommand('observe', { type: current.type, source: observerCode });
+  const metricsDeadline = performance.now() + 15000;
+  while (
+    (!current.baselineMetrics ||
+      current.baselineMetrics.some((m) => m.error)) &&
+    performance.now() < metricsDeadline
+  )
+    await sleep(100);
+  assert.ok(
+    current.baselineMetrics && current.baselineMetrics.every((m) => !m.error),
+    'Observer did not provide initial metrics',
+  );
   console.log(
     `VPS ${name}: ${config.rate}/s × ${config.seconds}s; workers=${config.paused ? 0 : replicas}, concurrency=${concurrency}`,
   );
@@ -336,6 +360,17 @@ async function runCase(name, config) {
   const summary = JSON.parse(
     await readFile(resolve(directory, 'k6.json'), 'utf8'),
   );
+  const finalMetricsRequested = performance.now();
+  await remoteCommand('sample_metrics');
+  while (
+    (current.forcedMetricsAt ?? 0) < finalMetricsRequested &&
+    performance.now() < finalMetricsRequested + 15000
+  )
+    await sleep(100);
+  assert.ok(
+    (current.forcedMetricsAt ?? 0) >= finalMetricsRequested,
+    'Final metrics unavailable',
+  );
   const entries = [...current.accepted.values()];
   const expected = config.expected ?? 'delivered';
   const failures = current.outcomes
@@ -350,6 +385,7 @@ async function runCase(name, config) {
     .filter((a) => a.status === 'succeeded' && a.http_status === 204)
     .reduce((sum, a) => sum + a.count, 0);
   const snapshot = current.snapshot;
+  const timings = workerTimings(current.baselineMetrics, current.lastMetrics);
   const checks = {
     k6: exitCode === 0,
     tracked:
@@ -380,6 +416,16 @@ async function runCase(name, config) {
       [...metricsSeen].some((n) => n.startsWith('hookrelay/')) &&
       [...metricsSeen].filter((n) => n.startsWith('worker/')).length >=
         replicas,
+    timingPhases:
+      process.env.BENCH_REQUIRE_TIMINGS !== '1' ||
+      (timings.available &&
+        timings.attemptStart.count === snapshot.attempts &&
+        timings.attemptStartErrors.count === 0 &&
+        timings.finalize.count === snapshot.attempts &&
+        timings.finalizeErrors.count === 0 &&
+        timings.processing.count === snapshot.delivered &&
+        timings.processingErrors.count ===
+          snapshot.attempts - snapshot.delivered),
   };
   const elapsed = (current.lastCompletion - current.started) / 1000;
   const result = {
@@ -424,6 +470,11 @@ async function runCase(name, config) {
       ...current.samples.map((s) => s.database.connections),
     ),
     maxObservationIntervalMs: current.maxInterval,
+    preAckCompletions: current.preAckCompletions,
+    observerProtocol: 'aggregate-snapshot-and-terminal-deltas',
+    metricBaseline: current.baselineMetrics,
+    metricFinal: current.lastMetrics,
+    workerTimings: timings,
     errors: current.errors,
   };
   const steadySamples = current.samples.filter(
@@ -520,6 +571,7 @@ try {
     session,
     commit,
     proxy: proxyCode,
+    isolateRedis,
   });
   if (relayConfiguration) {
     metadata.relaySettings = await remoteCommand(
@@ -536,6 +588,8 @@ try {
     generatorNode: process.version,
     generatorK6: (await exec('k6', ['version'])).stdout.trim(),
     apiP95GuardMs: Number(process.env.API_P95_MS ?? 1000),
+    observerProtocol: 'aggregate-snapshot-and-terminal-deltas',
+    requireTimingPhases: process.env.BENCH_REQUIRE_TIMINGS === '1',
   };
   await writeFile(
     resolve(output, 'metadata.json'),
@@ -562,7 +616,7 @@ try {
       const ack = performance.now();
       if (response.status === 202) {
         const { id } = JSON.parse(text);
-        current.accepted.set(id, { ack, apiMs: ack - sent });
+        recordAcceptance(current, id, { ack, apiMs: ack - sent });
       }
       res
         .writeHead(response.status, {

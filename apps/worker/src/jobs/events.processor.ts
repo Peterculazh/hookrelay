@@ -9,7 +9,11 @@ import {
 } from '@app/queue';
 import { EventDeliveryRepository } from './event-delivery.repository.js';
 import { createLogger } from '../../../../libs/observability/src/logger.js';
-import { workerMetrics } from '../../../../libs/observability/src/metrics.js';
+import {
+  workerMetrics,
+  type DeliveryDatabasePhase,
+  type DeliveryOperationOutcome,
+} from '../../../../libs/observability/src/metrics.js';
 import { loadWorkerConcurrency } from './worker.config.js';
 
 const WEBHOOK_TIMEOUT_MS = 10_000;
@@ -80,6 +84,41 @@ export class EventsProcessor extends WorkerHost implements OnModuleDestroy {
   override async process(
     job: Job<PublishEventJobData, void, string>,
   ): Promise<void> {
+    const started = performance.now();
+    let outcome: DeliveryOperationOutcome = 'error';
+    try {
+      await this.deliver(job);
+      outcome = 'completed';
+    } finally {
+      workerMetrics.observeProcessing(
+        outcome,
+        (performance.now() - started) / 1000,
+      );
+    }
+  }
+
+  private async measureDatabase<T>(
+    phase: DeliveryDatabasePhase,
+    operation: () => Promise<T>,
+  ): Promise<T> {
+    const started = performance.now();
+    let outcome: DeliveryOperationOutcome = 'error';
+    try {
+      const result = await operation();
+      outcome = 'completed';
+      return result;
+    } finally {
+      workerMetrics.observeDatabase(
+        phase,
+        outcome,
+        (performance.now() - started) / 1000,
+      );
+    }
+  }
+
+  private async deliver(
+    job: Job<PublishEventJobData, void, string>,
+  ): Promise<void> {
     if (job.name !== PUBLISH_EVENT_JOB) {
       throw new UnrecoverableError(`Unsupported events job: ${job.name}`);
     }
@@ -92,9 +131,8 @@ export class EventsProcessor extends WorkerHost implements OnModuleDestroy {
     }
 
     const { targetUrl, ...event } = queuedEvent;
-    const attemptId = await this.eventDeliveryRepository.startAttempt(
-      event.id,
-      new Date(),
+    const attemptId = await this.measureDatabase('attempt_start', () =>
+      this.eventDeliveryRepository.startAttempt(event.id, new Date()),
     );
 
     this.logger.info({
@@ -122,16 +160,18 @@ export class EventsProcessor extends WorkerHost implements OnModuleDestroy {
       const eventStatus = eventStatusAfterFailure(job);
       const errorCode = isTimeoutError(error) ? TIMEOUT : NETWORK_ERROR;
 
-      await this.eventDeliveryRepository.markFailed(
-        attemptId,
-        event.id,
-        {
-          httpStatus: null,
-          errorCode: errorCode,
-          errorMessage: errorMessage(error),
-        },
-        new Date(),
-        eventStatus,
+      await this.measureDatabase('finalize', () =>
+        this.eventDeliveryRepository.markFailed(
+          attemptId,
+          event.id,
+          {
+            httpStatus: null,
+            errorCode: errorCode,
+            errorMessage: errorMessage(error),
+          },
+          new Date(),
+          eventStatus,
+        ),
       );
 
       const failureLog = {
@@ -171,16 +211,18 @@ export class EventsProcessor extends WorkerHost implements OnModuleDestroy {
       const eventStatus = eventStatusAfterFailure(job);
       const errorCode = HTTP_ERROR;
 
-      await this.eventDeliveryRepository.markFailed(
-        attemptId,
-        event.id,
-        {
-          httpStatus: response.status,
-          errorCode: errorCode,
-          errorMessage: error.message,
-        },
-        new Date(),
-        eventStatus,
+      await this.measureDatabase('finalize', () =>
+        this.eventDeliveryRepository.markFailed(
+          attemptId,
+          event.id,
+          {
+            httpStatus: response.status,
+            errorCode: errorCode,
+            errorMessage: error.message,
+          },
+          new Date(),
+          eventStatus,
+        ),
       );
 
       const failureLog = {
@@ -204,11 +246,13 @@ export class EventsProcessor extends WorkerHost implements OnModuleDestroy {
       throw error;
     }
 
-    await this.eventDeliveryRepository.markSucceededAndDelivered(
-      attemptId,
-      event.id,
-      response.status,
-      new Date(),
+    await this.measureDatabase('finalize', () =>
+      this.eventDeliveryRepository.markSucceededAndDelivered(
+        attemptId,
+        event.id,
+        response.status,
+        new Date(),
+      ),
     );
 
     this.logger.info({

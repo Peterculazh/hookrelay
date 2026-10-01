@@ -14,6 +14,38 @@ def controller():
 
 
 class ControllerTests(unittest.TestCase):
+    def test_isolated_redis_restores_hosts_and_removes_only_owned_fixtures(self):
+        context = controller()
+        context['session'] = 'this-session'
+        context['stop_observer'] = Mock()
+        context['stop_api_forward'] = Mock()
+        context['patch_environment'] = Mock()
+        context['patch'] = Mock()
+        context['database_query'] = Mock(return_value=[{'pending': 0}])
+        deployment = {'spec': {'template': {'spec': {'containers': [{'env': [{'name': 'REDIS_HOST', 'value': 'benchmark'}]}]}}}, 'metadata': {'labels': {'hookrelay-benchmark-session': 'this-session'}}}
+        context['get'] = Mock(return_value=deployment)
+        context['kube'] = Mock(return_value='fixture')
+        relay = {'RELAY_BATCH_SIZE': None, 'RELAY_PUBLISH_INTERVAL_SECONDS': None}
+        state = {'relay': relay, 'redis': {'worker': None, 'relay': None}, 'isolatedRedis': True, 'concurrency': None, 'replicas': 1, 'target': None}
+        self.assertEqual(context['restore'](state), {'restored': True, 'fixtureRetained': False})
+        calls = context['patch_environment'].call_args_list
+        self.assertEqual(calls[0].args, ('relay', {**relay, 'REDIS_HOST': None}))
+        self.assertEqual(calls[1].args, ('worker', {'WORKER_CONCURRENCY': None, 'REDIS_HOST': None}, 1))
+        deleted = [(call.args[1], call.args[2]) for call in context['kube'].call_args_list if call.args[0] == 'delete']
+        self.assertEqual(deleted, [('deployment', context['proxy_name']), ('service', context['proxy_name']), ('configmap', context['proxy_name']),
+                                   ('deployment', context['redis_name']), ('service', context['redis_name']), ('pvc', context['redis_name'])])
+
+    def test_pending_work_retains_isolated_redis_and_receiver(self):
+        context = controller()
+        context['stop_observer'] = Mock()
+        context['patch'] = Mock()
+        context['patch_environment'] = Mock()
+        context['database_query'] = Mock(return_value=[{'pending': 2}])
+        context['kube'] = Mock()
+        result = context['restore']({'redis': {'worker': None}, 'isolatedRedis': True, 'concurrency': None, 'replicas': 1, 'target': None})
+        self.assertTrue(result['fixtureRetained'])
+        context['kube'].assert_not_called()
+
     def test_forward_cleanup_signals_only_its_owned_process(self):
         context = controller()
         process = Mock(pid=12345)

@@ -28,7 +28,10 @@ $env:BENCH_REPLICAS = '1'
 npm run benchmark:vps -- relay-steady
 ```
 
-Rate accepts 1–500 events/s and duration accepts 1–120 seconds. Remove any
+Rate accepts 1–500 events/s. The current remote harness accepts 1–600 seconds;
+durations above 120 seconds require the isolated Redis mode described in the
+[worker concurrency guide](worker-concurrency.md), with at most 50,000 offered
+events per isolated case. Milestone 13 used the earlier 120-second bound. Remove any
 previous `BENCH_RELAY_BATCH_SIZE` and `BENCH_RELAY_INTERVAL_SECONDS` overrides
 when measuring the deployed settings. If comparing relay settings, set both
 explicitly and keep the other variables constant.
@@ -63,7 +66,9 @@ API latency includes the local gateway, network, SSH, Kubernetes forwarding,
 and response-body time. Delivery latency includes database polling and the
 return network path on the same PC monotonic clock as acknowledgment. The
 observer sends run-scoped rows every poll and adds VPS work that increases
-with the run's retained event count. Resource samples can miss bursts.
+with the run's retained event count. Milestone 14 subsequently replaces repeated
+row transmission with aggregate snapshots and terminal deltas; its aggregate
+queries still scan run-scoped data. Resource samples can miss bursts.
 
 All test events and durable receiver effects remain available afterward.
 The controller restores the API destination and worker/relay settings, removes
