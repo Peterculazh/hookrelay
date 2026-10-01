@@ -4,6 +4,22 @@ Prometheus and Grafana are deployed on the VPS as of 2026-10-01. Open [HookRelay
 
 Sign in as `admin`. The generated password is saved outside the repository in `$env:USERPROFILE\HookRelayMonitoring\grafana-login.txt`. The current PC connection is already running in the background.
 
+## Save the SSH connection once
+
+The current PC has a `hookrelay-vps` alias configured in `$env:USERPROFILE\.ssh\config`, outside the repository. The monitoring and VPS benchmark scripts use this alias by default. It remembers the server, SSH user, and existing private key; no connection prompts are needed on each run.
+
+On another PC, add an entry to its user SSH config with that PC's existing connection values:
+
+```text
+Host hookrelay-vps
+    HostName your-vps-host
+    User your-ssh-user
+    IdentityFile ~/.ssh/your-existing-key
+    IdentitiesOnly yes
+```
+
+Check it with `ssh hookrelay-vps`. Keep real connection values in the user SSH config. `VPS_SSH_TARGET` and `VPS_SSH_KEY` remain optional terminal overrides.
+
 ## Reconnect from the PC
 
 After restarting the PC or losing the connection, open PowerShell in the repository and run:
@@ -12,7 +28,7 @@ After restarting the PC or losing the connection, open PowerShell in the reposit
 .\scripts\connect-monitoring.ps1
 ```
 
-Enter your existing SSH destination (`user@host` or an SSH alias) and private key path when prompted. These inputs are used only for the connection. Keep that terminal open while viewing Grafana; Ctrl+C closes the tunnel. The script also accepts `VPS_SSH_TARGET` and `VPS_SSH_KEY` from the terminal environment.
+The script connects using `hookrelay-vps`. Keep that terminal open while viewing Grafana; Ctrl+C closes the tunnel. It also accepts `VPS_SSH_TARGET` and `VPS_SSH_KEY` from the terminal environment.
 
 The default PC port is **18083**, leaving the local Compose Grafana port 18082 available. To select another local port:
 
@@ -46,8 +62,6 @@ The current live application release remains `8290734d2df271206510cffa41ab2558be
 From the repository root, with Node.js installed and existing SSH access that permits `sudo -n k3s kubectl`:
 
 ```powershell
-$env:VPS_SSH_TARGET = Read-Host 'Existing SSH destination'
-$env:VPS_SSH_KEY = Read-Host 'Existing SSH private key path'
 node scripts/prepare-monitoring.mjs
 node scripts/deploy-monitoring.mjs
 ```

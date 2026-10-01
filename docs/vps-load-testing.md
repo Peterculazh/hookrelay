@@ -49,12 +49,16 @@ Its configuration-preservation and cleanup checks run locally without Kubernetes
 `python load/vps-controller.test.py`.
 
 ```powershell
-$env:VPS_SSH_TARGET = Read-Host 'Existing SSH destination (user@host or alias)'
-$env:VPS_SSH_KEY = Read-Host 'Existing SSH private key path'
 $env:VPS_RELEASE_COMMIT = Read-Host 'Full deployed commit SHA'
 npm run benchmark:vps -- baseline
 npm run benchmark:vps -- suite
 ```
+
+The runner uses the `hookrelay-vps` SSH alias by default. Configure it once in
+your user SSH config using the [connection guide](vps-monitoring.md#save-the-ssh-connection-once).
+The current PC's alias is already configured. `VPS_SSH_TARGET` and `VPS_SSH_KEY`
+remain optional environment overrides; the key is otherwise selected by SSH
+configuration. Actual connection values stay outside the repository.
 
 The harness starts its own loopback Kubernetes API port-forward on the VPS and
 SSH tunnel on the PC. No application or metrics listener is published publicly.

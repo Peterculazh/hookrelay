@@ -23,11 +23,11 @@ assert.ok(
   profile === 'suite' || Object.hasOwn(profiles, profile),
   'Unknown benchmark profile',
 );
-const target = process.env.VPS_SSH_TARGET;
+const target = process.env.VPS_SSH_TARGET ?? 'hookrelay-vps';
 assert.match(
   target ?? '',
   /^[a-zA-Z0-9][a-zA-Z0-9_.@:-]*$/,
-  'Set VPS_SSH_TARGET to the existing SSH destination',
+  'Use the hookrelay-vps SSH alias or set VPS_SSH_TARGET',
 );
 const ssh = process.env.SSH_EXECUTABLE ?? 'ssh';
 const sshArgs = [

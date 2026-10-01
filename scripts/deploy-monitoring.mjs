@@ -4,9 +4,8 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const root = new URL('../', import.meta.url);
-const target = process.env.VPS_SSH_TARGET;
+const target = process.env.VPS_SSH_TARGET ?? 'hookrelay-vps';
 assert.match(target ?? '', /^[a-zA-Z0-9][a-zA-Z0-9_.@:-]*$/);
-assert.ok(process.env.VPS_SSH_KEY, 'Set VPS_SSH_KEY');
 assert.ok(
   process.env.USERPROFILE ?? process.env.HOME,
   'A user home is required for the login file',
@@ -101,8 +100,7 @@ const child = spawn(
     'ConnectTimeout=10',
     '-o',
     'ServerAliveInterval=15',
-    '-i',
-    process.env.VPS_SSH_KEY,
+    ...(process.env.VPS_SSH_KEY ? ['-i', process.env.VPS_SSH_KEY] : []),
     target,
     'python3 -',
   ],
