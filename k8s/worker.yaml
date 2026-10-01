@@ -23,6 +23,8 @@ spec:
             - configMapRef:
                 name: hookrelay-config
           env:
+            - name: WORKER_CONCURRENCY
+              value: '4'
             - name: DB_USER
               valueFrom:
                 secretKeyRef:

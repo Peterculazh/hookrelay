@@ -655,6 +655,8 @@ try {
       resolve(output, 'failed-observation.json'),
       JSON.stringify(
         {
+          type: current.type,
+          accepted: current.accepted.size,
           snapshot: current.snapshot,
           errors: current.errors,
           samples: current.samples,

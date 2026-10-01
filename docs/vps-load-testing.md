@@ -146,4 +146,7 @@ not establish that delivery kept pace while traffic was arriving.
 Milestone 14 adds delivery phase timings, aggregate observations with terminal
 deltas, and optional Redis isolation for longer comparisons. See the
 [worker concurrency guide](worker-concurrency.md) for safeguards, updated remote
-duration bounds, and paired-test conditions.
+duration bounds, and paired-test conditions. The
+[preliminary comparison report](worker-concurrency-report.md) records tests on
+the existing deployed release; instrumented-release validation is tracked
+separately in the guide.

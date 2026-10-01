@@ -32,6 +32,7 @@ let tick = 0;
 let forceMetrics = false;
 const completed = new Map();
 let phase = 'snapshot';
+let phaseStarted = performance.now();
 createInterface({ input: process.stdin }).on('line', (line) => {
   if (line === 'metrics') forceMetrics = true;
 });
@@ -46,6 +47,7 @@ for (const signal of ['SIGTERM', 'SIGINT'])
 try {
   while (!stopping) {
     phase = 'snapshot';
+    phaseStarted = performance.now();
     const {
       rows: [observation],
     } = await pool.query(
@@ -73,6 +75,7 @@ try {
       [config.type],
     );
     phase = 'database_stats';
+    phaseStarted = performance.now();
     const {
       rows: [database],
     } = await pool.query(`SELECT
@@ -81,6 +84,7 @@ try {
       xact_commit, xact_rollback, blks_read, blks_hit, deadlocks
       FROM pg_stat_database WHERE datname=current_database()`);
     phase = 'queue_counts';
+    phaseStarted = performance.now();
     const counts = await queue.getJobCounts('waiting', 'active', 'delayed');
     const sample = {
       kind: 'observation',
@@ -114,11 +118,15 @@ try {
   // Names/codes diagnose failures without exporting SQL or connection details.
   const safeCode = /^[A-Za-z0-9_]+$/.test(error.code ?? '')
     ? error.code
-    : 'unspecified';
+    : error.message === 'Query read timeout'
+      ? 'QUERY_READ_TIMEOUT'
+      : error.message === 'Connection terminated unexpectedly'
+        ? 'CONNECTION_TERMINATED'
+        : 'unspecified';
   console.log(
     JSON.stringify({
       kind: 'observerError',
-      error: `Observer ${phase} failed (${error.name}: ${safeCode})`,
+      error: `Observer ${phase} failed (${safeCode}, ${Math.round(performance.now() - phaseStarted)} ms)`,
     }),
   );
   process.exitCode = 1;

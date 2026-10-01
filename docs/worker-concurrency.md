@@ -1,8 +1,18 @@
 # Milestone 14: worker concurrency and delivery timings
 
-Status: implementation and local checks complete; preliminary harness checks
-are running against the existing release. Instrumented-release deployment,
-paired phase-timing comparisons, and longer confirmation are pending.
+Status: implementation/local checks and preliminary VPS comparisons are
+complete. Concurrency four sustained 100 incoming events/s for five minutes on
+the existing release: 30,001 deliveries, one attempt/effect each, delivery p95
+3.82 seconds, and final drain 1.45 seconds. Instrumented-release deployment
+and paired phase-timing comparisons are pending publication.
+
+The [comparison report](worker-concurrency-report.md) and
+[numeric evidence](worker-concurrency-results.json) include every run and the
+observer failures excluded from performance conclusions. `k8s/worker.yaml`
+now explicitly selects concurrency four with one replica and existing resource
+allocations. The processor's fallback remains one when the variable is absent.
+The VPS is restored to its original concurrency-one release until the new
+versioned deployment is published and applied.
 
 Milestone 13 verified 75 incoming events/s for two minutes with one worker at
 concurrency one. At 80–100 events/s, deliveries accumulated after publication.

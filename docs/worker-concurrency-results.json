@@ -1,0 +1,5228 @@
+{
+  "verifiedOn": "2026-10-01",
+  "status": "Preliminary comparison complete; instrumented CI deployment and phase-timing comparison pending",
+  "applicationCommit": "8290734d2df271206510cffa41ab2558be4277d2",
+  "localInstrumentationCommit": "0c779a7c0c5d7ac8594219b5acb6d6e986713966",
+  "selectedWorkerConcurrency": 4,
+  "localValidation": {
+    "unitTests": 83,
+    "releaseGuardTests": 9,
+    "controllerTests": 8,
+    "observerTimingTests": 6,
+    "typecheck": true,
+    "lint": true,
+    "allApplicationsBuild": true
+  },
+  "timingPhasesAvailable": false,
+  "conditions": "Same deployed image/resources, one worker replica, relay batch 100 each second, isolated fresh Redis per run, controlled healthy receiver/default payload; traffic generated locally",
+  "runs": [
+    {
+      "label": "preflight-baseline",
+      "profile": "baseline",
+      "rate": 5,
+      "seconds": 10,
+      "concurrency": 1,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T10-22-58-285Z-baseline",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "result": {
+        "name": "baseline",
+        "type": "benchmark.629ad0be-5402-46fb-981a-6cbbc471b81d",
+        "config": {
+          "rate": 5,
+          "seconds": 10,
+          "concurrency": 1,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 10,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true,
+          "timingPhases": true
+        },
+        "snapshot": {
+          "total": 51,
+          "pending": 0,
+          "delivered": 51,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 51,
+          "attempts": 51
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 51
+          }
+        ],
+        "acceptedPerSecond": 5.1,
+        "deliveredPerSecondOverWholeRun": 4.02718867202048,
+        "apiMs": {
+          "count": 51,
+          "p50": 49.85489999999845,
+          "p95": 54.738499999999476,
+          "p99": 92.6655000000028,
+          "max": 92.6655000000028
+        },
+        "deliveryMs": {
+          "count": 51,
+          "p50": 925.4272999999957,
+          "p95": 1346.281799999997,
+          "p99": 1466.7864999999947,
+          "max": 1466.7864999999947
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 12.6639212,
+        "ingressWindow": {
+          "startedSeconds": 1.212008399999995,
+          "endedSeconds": 12.639034299999995
+        },
+        "drainSeconds": 0.02488690000000497,
+        "recoverySeconds": null,
+        "peakPending": 5,
+        "peakUnpublished": 5,
+        "peakDatabaseConnections": 6,
+        "maxObservationIntervalMs": 1147.6692000000003,
+        "preAckCompletions": 0,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "workerTimings": {
+          "available": false,
+          "attemptStart": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "attemptStartErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalize": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalizeErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "webhook": {
+            "count": 51,
+            "totalSeconds": 0.4569251589999994,
+            "meanMs": 8.959316843137245,
+            "p95UpperBoundMs": 25
+          },
+          "webhookErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processing": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processingErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          }
+        },
+        "errors": []
+      },
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          },
+          "redis": {
+            "worker": null,
+            "relay": null
+          },
+          "isolatedRedis": true
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "isolatedRedis": {
+          "image": "redis:8-alpine",
+          "arguments": [
+            "redis-server",
+            "--appendonly",
+            "yes",
+            "--appendfsync",
+            "everysec",
+            "--maxmemory",
+            "128mb",
+            "--maxmemory-policy",
+            "noeviction"
+          ],
+          "resources": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          },
+          "storage": {
+            "accessModes": ["ReadWriteOnce"],
+            "resources": {
+              "requests": {
+                "storage": "1Gi"
+              }
+            },
+            "storageClassName": "local-path",
+            "volumeMode": "Filesystem"
+          },
+          "productionQueuePreserved": true
+        },
+        "session": "cb4b08b0-a046-4e97-8ef3-b65ef56e1708",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T10:23:24.416Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000
+      },
+      "resourcePeaks": {
+        "hookrelay-benchmark-redis": {
+          "cpuMillicores": 4,
+          "memoryMiB": 6
+        },
+        "postgres": {
+          "cpuMillicores": 15,
+          "memoryMiB": 269
+        },
+        "redis": {
+          "cpuMillicores": 5,
+          "memoryMiB": 84
+        },
+        "relay": {
+          "cpuMillicores": 252,
+          "memoryMiB": 50
+        },
+        "test-receiver": {
+          "cpuMillicores": 1,
+          "memoryMiB": 49
+        },
+        "worker": {
+          "cpuMillicores": 251,
+          "memoryMiB": 51
+        }
+      }
+    },
+    {
+      "label": "preflight-suite",
+      "profile": "suite",
+      "rate": 85,
+      "seconds": 60,
+      "concurrency": 1,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T10-32-11-067Z-suite",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "result": {
+        "name": "baseline",
+        "type": "benchmark.d9614aeb-ab28-4c7f-9858-2b07c7a8da3c",
+        "config": {
+          "rate": 5,
+          "seconds": 10,
+          "replicas": 1,
+          "concurrency": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 10,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true,
+          "timingPhases": true
+        },
+        "snapshot": {
+          "total": 51,
+          "pending": 0,
+          "delivered": 51,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 51,
+          "attempts": 51
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 51
+          }
+        ],
+        "acceptedPerSecond": 5.1,
+        "deliveredPerSecondOverWholeRun": 3.9700759340854983,
+        "apiMs": {
+          "count": 51,
+          "p50": 52.154700000006414,
+          "p95": 67.80810000000201,
+          "p99": 91.95709999999963,
+          "max": 91.95709999999963
+        },
+        "deliveryMs": {
+          "count": 51,
+          "p50": 921.6290000000008,
+          "p95": 1404.148699999998,
+          "p99": 1527.8413999999975,
+          "max": 1527.8413999999975
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 12.8461019,
+        "ingressWindow": {
+          "startedSeconds": 1.3555340999999972,
+          "endedSeconds": 12.7441164
+        },
+        "drainSeconds": 0.1019855000000025,
+        "recoverySeconds": null,
+        "peakPending": 5,
+        "peakUnpublished": 5,
+        "peakDatabaseConnections": 6,
+        "maxObservationIntervalMs": 1313.792100000006,
+        "preAckCompletions": 0,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "workerTimings": {
+          "available": false,
+          "attemptStart": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "attemptStartErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalize": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalizeErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "webhook": {
+            "count": 51,
+            "totalSeconds": 0.5052071120000046,
+            "meanMs": 9.906021803921657,
+            "p95UpperBoundMs": 25
+          },
+          "webhookErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processing": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processingErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          }
+        },
+        "errors": []
+      },
+      "results": [
+        {
+          "name": "baseline",
+          "type": "benchmark.d9614aeb-ab28-4c7f-9858-2b07c7a8da3c",
+          "config": {
+            "rate": 5,
+            "seconds": 10,
+            "replicas": 1,
+            "concurrency": 1,
+            "relay": {
+              "batchSize": 100,
+              "publishEverySeconds": 1
+            }
+          },
+          "generator": {
+            "preAllocatedVUs": 10,
+            "maxVUs": 100
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true,
+            "timingPhases": true
+          },
+          "snapshot": {
+            "total": 51,
+            "pending": 0,
+            "delivered": 51,
+            "failed": 0,
+            "unpublished": 0,
+            "effects": 51,
+            "attempts": 51
+          },
+          "attemptOutcomes": [
+            {
+              "status": "succeeded",
+              "http_status": 204,
+              "error_code": null,
+              "count": 51
+            }
+          ],
+          "acceptedPerSecond": 5.1,
+          "deliveredPerSecondOverWholeRun": 3.9700759340854983,
+          "apiMs": {
+            "count": 51,
+            "p50": 52.154700000006414,
+            "p95": 67.80810000000201,
+            "p99": 91.95709999999963,
+            "max": 91.95709999999963
+          },
+          "deliveryMs": {
+            "count": 51,
+            "p50": 921.6290000000008,
+            "p95": 1404.148699999998,
+            "p99": 1527.8413999999975,
+            "max": 1527.8413999999975
+          },
+          "failureMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "totalSeconds": 12.8461019,
+          "ingressWindow": {
+            "startedSeconds": 1.3555340999999972,
+            "endedSeconds": 12.7441164
+          },
+          "drainSeconds": 0.1019855000000025,
+          "recoverySeconds": null,
+          "peakPending": 5,
+          "peakUnpublished": 5,
+          "peakDatabaseConnections": 6,
+          "maxObservationIntervalMs": 1313.792100000006,
+          "preAckCompletions": 0,
+          "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+          "workerTimings": {
+            "available": false,
+            "attemptStart": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "attemptStartErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalize": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalizeErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "webhook": {
+              "count": 51,
+              "totalSeconds": 0.5052071120000046,
+              "meanMs": 9.906021803921657,
+              "p95UpperBoundMs": 25
+            },
+            "webhookErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processing": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processingErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            }
+          },
+          "errors": []
+        },
+        {
+          "name": "slow-serial",
+          "type": "benchmark.8c52ecc2-900d-49a9-99d0-d8248e35100f",
+          "config": {
+            "rate": 4,
+            "seconds": 10,
+            "delayMs": 500,
+            "replicas": 1,
+            "concurrency": 1,
+            "relay": {
+              "batchSize": 100,
+              "publishEverySeconds": 1
+            }
+          },
+          "generator": {
+            "preAllocatedVUs": 10,
+            "maxVUs": 100
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true,
+            "timingPhases": true
+          },
+          "snapshot": {
+            "total": 41,
+            "pending": 0,
+            "delivered": 41,
+            "failed": 0,
+            "unpublished": 0,
+            "effects": 41,
+            "attempts": 41
+          },
+          "attemptOutcomes": [
+            {
+              "status": "succeeded",
+              "http_status": 204,
+              "error_code": null,
+              "count": 41
+            }
+          ],
+          "acceptedPerSecond": 4.1,
+          "deliveredPerSecondOverWholeRun": 1.6646200095981174,
+          "apiMs": {
+            "count": 41,
+            "p50": 49.92299999999523,
+            "p95": 57.30550000000221,
+            "p99": 70.41309999999794,
+            "max": 70.41309999999794
+          },
+          "deliveryMs": {
+            "count": 41,
+            "p50": 6838.503700000001,
+            "p95": 11802.011599999998,
+            "p99": 12346.693500000001,
+            "max": 12346.693500000001
+          },
+          "failureMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "totalSeconds": 24.630245800000004,
+          "ingressWindow": {
+            "startedSeconds": 1.6345737999999983,
+            "endedSeconds": 12.986657800000001
+          },
+          "drainSeconds": 11.643588000000003,
+          "recoverySeconds": null,
+          "peakPending": 23,
+          "peakUnpublished": 4,
+          "peakDatabaseConnections": 7,
+          "maxObservationIntervalMs": 1564.0872000000018,
+          "preAckCompletions": 0,
+          "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+          "workerTimings": {
+            "available": false,
+            "attemptStart": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "attemptStartErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalize": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalizeErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "webhook": {
+              "count": 41,
+              "totalSeconds": 20.803362704999994,
+              "meanMs": 507.3990903658535,
+              "p95UpperBoundMs": 1000
+            },
+            "webhookErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processing": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processingErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            }
+          },
+          "errors": []
+        },
+        {
+          "name": "slow-concurrency",
+          "type": "benchmark.9f540b30-86b3-4f5f-89f9-85e85cb7f0fe",
+          "config": {
+            "rate": 4,
+            "seconds": 10,
+            "delayMs": 500,
+            "concurrency": 4,
+            "replicas": 1,
+            "relay": {
+              "batchSize": 100,
+              "publishEverySeconds": 1
+            }
+          },
+          "generator": {
+            "preAllocatedVUs": 10,
+            "maxVUs": 100
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true,
+            "timingPhases": true
+          },
+          "snapshot": {
+            "total": 40,
+            "pending": 0,
+            "delivered": 40,
+            "failed": 0,
+            "unpublished": 0,
+            "effects": 40,
+            "attempts": 40
+          },
+          "attemptOutcomes": [
+            {
+              "status": "succeeded",
+              "http_status": 204,
+              "error_code": null,
+              "count": 40
+            }
+          ],
+          "acceptedPerSecond": 4,
+          "deliveredPerSecondOverWholeRun": 3.1160334919069785,
+          "apiMs": {
+            "count": 40,
+            "p50": 48.99600000001374,
+            "p95": 52.977799999993294,
+            "p99": 62.05939999999828,
+            "max": 62.05939999999828
+          },
+          "deliveryMs": {
+            "count": 40,
+            "p50": 1316.9040999999997,
+            "p95": 1847.1959999999963,
+            "p99": 1884.1523000000016,
+            "max": 1884.1523000000016
+          },
+          "failureMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "totalSeconds": 12.836832500000003,
+          "ingressWindow": {
+            "startedSeconds": 1.3820167000000074,
+            "endedSeconds": 12.63435190000001
+          },
+          "drainSeconds": 0.20248059999999532,
+          "recoverySeconds": null,
+          "peakPending": 6,
+          "peakUnpublished": 4,
+          "peakDatabaseConnections": 12,
+          "maxObservationIntervalMs": 1277.262699999992,
+          "preAckCompletions": 0,
+          "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+          "workerTimings": {
+            "available": false,
+            "attemptStart": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "attemptStartErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalize": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalizeErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "webhook": {
+              "count": 40,
+              "totalSeconds": 20.757479531000005,
+              "meanMs": 518.9369882750001,
+              "p95UpperBoundMs": 1000
+            },
+            "webhookErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processing": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processingErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            }
+          },
+          "errors": []
+        },
+        {
+          "name": "slow-replicas",
+          "type": "benchmark.848b61b8-cef5-4366-8f72-792fd75abfb5",
+          "config": {
+            "rate": 4,
+            "seconds": 10,
+            "delayMs": 500,
+            "replicas": 2,
+            "concurrency": 1,
+            "relay": {
+              "batchSize": 100,
+              "publishEverySeconds": 1
+            }
+          },
+          "generator": {
+            "preAllocatedVUs": 10,
+            "maxVUs": 100
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true,
+            "timingPhases": true
+          },
+          "snapshot": {
+            "total": 41,
+            "pending": 0,
+            "delivered": 41,
+            "failed": 0,
+            "unpublished": 0,
+            "effects": 41,
+            "attempts": 41
+          },
+          "attemptOutcomes": [
+            {
+              "status": "succeeded",
+              "http_status": 204,
+              "error_code": null,
+              "count": 41
+            }
+          ],
+          "acceptedPerSecond": 4.1,
+          "deliveredPerSecondOverWholeRun": 2.8510092931012174,
+          "apiMs": {
+            "count": 41,
+            "p50": 48.70769999999902,
+            "p95": 51.353900000001886,
+            "p99": 63.193599999998696,
+            "max": 63.193599999998696
+          },
+          "deliveryMs": {
+            "count": 41,
+            "p50": 1965.216499999995,
+            "p95": 2258.034400000004,
+            "p99": 2292.068399999989,
+            "max": 2292.068399999989
+          },
+          "failureMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "totalSeconds": 14.380872099999992,
+          "ingressWindow": {
+            "startedSeconds": 1.4255705000000016,
+            "endedSeconds": 12.831546900000001
+          },
+          "drainSeconds": 1.549325199999992,
+          "recoverySeconds": null,
+          "peakPending": 7,
+          "peakUnpublished": 4,
+          "peakDatabaseConnections": 8,
+          "maxObservationIntervalMs": 1342.5152999999991,
+          "preAckCompletions": 0,
+          "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+          "workerTimings": {
+            "available": false,
+            "attemptStart": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "attemptStartErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalize": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalizeErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "webhook": {
+              "count": 41,
+              "totalSeconds": 20.996430423,
+              "meanMs": 512.108059097561,
+              "p95UpperBoundMs": 1000
+            },
+            "webhookErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processing": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processingErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            }
+          },
+          "errors": []
+        },
+        {
+          "name": "retry",
+          "type": "benchmark.5bf267c5-e8d5-484d-9da6-20e7b95170fc",
+          "config": {
+            "rate": 2,
+            "seconds": 5,
+            "failAttempts": 1,
+            "concurrency": 4,
+            "replicas": 1,
+            "relay": {
+              "batchSize": 100,
+              "publishEverySeconds": 1
+            }
+          },
+          "generator": {
+            "preAllocatedVUs": 10,
+            "maxVUs": 100
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true,
+            "timingPhases": true
+          },
+          "snapshot": {
+            "total": 10,
+            "pending": 0,
+            "delivered": 10,
+            "failed": 0,
+            "unpublished": 0,
+            "effects": 10,
+            "attempts": 20
+          },
+          "attemptOutcomes": [
+            {
+              "status": "succeeded",
+              "http_status": 204,
+              "error_code": null,
+              "count": 10
+            },
+            {
+              "status": "failed",
+              "http_status": 503,
+              "error_code": "HTTP_ERROR",
+              "count": 10
+            }
+          ],
+          "acceptedPerSecond": 2,
+          "deliveredPerSecondOverWholeRun": 0.8364879384712935,
+          "apiMs": {
+            "count": 10,
+            "p50": 48.902900000000955,
+            "p95": 65.36179999998421,
+            "p99": 65.36179999998421,
+            "max": 65.36179999998421
+          },
+          "deliveryMs": {
+            "count": 10,
+            "p50": 5737.501299999974,
+            "p95": 6246.97199999998,
+            "p99": 6246.97199999998,
+            "max": 6246.97199999998
+          },
+          "failureMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "totalSeconds": 11.954744999999996,
+          "ingressWindow": {
+            "startedSeconds": 1.502249399999986,
+            "endedSeconds": 7.746758799999982
+          },
+          "drainSeconds": 4.207986200000014,
+          "recoverySeconds": null,
+          "peakPending": 10,
+          "peakUnpublished": 1,
+          "peakDatabaseConnections": 9,
+          "maxObservationIntervalMs": 1430.0962,
+          "preAckCompletions": 0,
+          "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+          "workerTimings": {
+            "available": false,
+            "attemptStart": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "attemptStartErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalize": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalizeErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "webhook": {
+              "count": 10,
+              "totalSeconds": 0.15730014900000608,
+              "meanMs": 15.73001490000061,
+              "p95UpperBoundMs": 50
+            },
+            "webhookErrors": {
+              "count": 10,
+              "totalSeconds": 0.12118283599999906,
+              "meanMs": 12.118283599999906,
+              "p95UpperBoundMs": 100
+            },
+            "processing": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processingErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            }
+          },
+          "errors": []
+        },
+        {
+          "name": "failure",
+          "type": "benchmark.4fed2702-0014-4369-99b3-9b302f822aba",
+          "config": {
+            "rate": 2,
+            "seconds": 5,
+            "failAttempts": 3,
+            "concurrency": 4,
+            "expected": "failed",
+            "replicas": 1,
+            "relay": {
+              "batchSize": 100,
+              "publishEverySeconds": 1
+            }
+          },
+          "generator": {
+            "preAllocatedVUs": 10,
+            "maxVUs": 100
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true,
+            "timingPhases": true
+          },
+          "snapshot": {
+            "total": 11,
+            "pending": 0,
+            "delivered": 0,
+            "failed": 11,
+            "unpublished": 0,
+            "effects": 0,
+            "attempts": 33
+          },
+          "attemptOutcomes": [
+            {
+              "status": "failed",
+              "http_status": 503,
+              "error_code": "HTTP_ERROR",
+              "count": 33
+            }
+          ],
+          "acceptedPerSecond": 2.2,
+          "deliveredPerSecondOverWholeRun": 0,
+          "apiMs": {
+            "count": 11,
+            "p50": 49.44130000000587,
+            "p95": 71.6317000000272,
+            "p99": 71.6317000000272,
+            "max": 71.6317000000272
+          },
+          "deliveryMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "failureMs": {
+            "count": 11,
+            "p50": 15748.141000000003,
+            "p95": 16245.11499999999,
+            "p99": 16245.11499999999,
+            "max": 16245.11499999999
+          },
+          "totalSeconds": 22.51301430000001,
+          "ingressWindow": {
+            "startedSeconds": 1.1475907000000007,
+            "endedSeconds": 7.461378400000016
+          },
+          "drainSeconds": 15.051635899999994,
+          "recoverySeconds": null,
+          "peakPending": 11,
+          "peakUnpublished": 2,
+          "peakDatabaseConnections": 9,
+          "maxObservationIntervalMs": 1061.6684999999998,
+          "preAckCompletions": 0,
+          "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+          "workerTimings": {
+            "available": false,
+            "attemptStart": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "attemptStartErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalize": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalizeErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "webhook": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "webhookErrors": {
+              "count": 33,
+              "totalSeconds": 0.11460641300000503,
+              "meanMs": 3.4729216060607584,
+              "p95UpperBoundMs": 10
+            },
+            "processing": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processingErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            }
+          },
+          "errors": []
+        },
+        {
+          "name": "timeout",
+          "type": "benchmark.c3437f46-1cf0-4f1f-b45a-7c0b919ca90c",
+          "config": {
+            "rate": 1,
+            "seconds": 3,
+            "delayMs": 11000,
+            "concurrency": 4,
+            "expected": "failed",
+            "replicas": 1,
+            "relay": {
+              "batchSize": 100,
+              "publishEverySeconds": 1
+            }
+          },
+          "generator": {
+            "preAllocatedVUs": 10,
+            "maxVUs": 100
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true,
+            "timingPhases": true
+          },
+          "snapshot": {
+            "total": 3,
+            "pending": 0,
+            "delivered": 0,
+            "failed": 3,
+            "unpublished": 0,
+            "effects": 0,
+            "attempts": 9
+          },
+          "attemptOutcomes": [
+            {
+              "status": "failed",
+              "http_status": null,
+              "error_code": "TIMEOUT",
+              "count": 9
+            }
+          ],
+          "acceptedPerSecond": 1,
+          "deliveredPerSecondOverWholeRun": 0,
+          "apiMs": {
+            "count": 3,
+            "p50": 61.261599999998,
+            "p95": 63.82679999998072,
+            "p99": 63.82679999998072,
+            "max": 63.82679999998072
+          },
+          "deliveryMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "failureMs": {
+            "count": 3,
+            "p50": 45425.9504,
+            "p95": 45832.572000000015,
+            "p99": 45832.572000000015,
+            "max": 45832.572000000015
+          },
+          "totalSeconds": 49.213895199999996,
+          "ingressWindow": {
+            "startedSeconds": 1.1873845999999904,
+            "endedSeconds": 5.427553899999999
+          },
+          "drainSeconds": 43.7863413,
+          "recoverySeconds": null,
+          "peakPending": 3,
+          "peakUnpublished": 0,
+          "peakDatabaseConnections": 6,
+          "maxObservationIntervalMs": 1122.0299000000232,
+          "preAckCompletions": 0,
+          "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+          "workerTimings": {
+            "available": false,
+            "attemptStart": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "attemptStartErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalize": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalizeErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "webhook": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "webhookErrors": {
+              "count": 9,
+              "totalSeconds": 90.00705588599997,
+              "meanMs": 10000.78398733333,
+              "p95UpperBoundMs": 15000
+            },
+            "processing": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processingErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            }
+          },
+          "errors": []
+        },
+        {
+          "name": "backlog-serial",
+          "type": "benchmark.f16f6e90-3606-4a9d-a7a1-253c920a96d5",
+          "config": {
+            "rate": 4,
+            "seconds": 10,
+            "delayMs": 500,
+            "paused": true,
+            "replicas": 1,
+            "concurrency": 1,
+            "relay": {
+              "batchSize": 100,
+              "publishEverySeconds": 1
+            }
+          },
+          "generator": {
+            "preAllocatedVUs": 10,
+            "maxVUs": 100
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true,
+            "timingPhases": true
+          },
+          "snapshot": {
+            "total": 41,
+            "pending": 0,
+            "delivered": 41,
+            "failed": 0,
+            "unpublished": 0,
+            "effects": 41,
+            "attempts": 41
+          },
+          "attemptOutcomes": [
+            {
+              "status": "succeeded",
+              "http_status": 204,
+              "error_code": null,
+              "count": 41
+            }
+          ],
+          "acceptedPerSecond": 4.1,
+          "deliveredPerSecondOverWholeRun": 1.0253914329256049,
+          "apiMs": {
+            "count": 41,
+            "p50": 49.54170000000158,
+            "p95": 53.869699999981094,
+            "p99": 65.22240000002785,
+            "max": 65.22240000002785
+          },
+          "deliveryMs": {
+            "count": 41,
+            "p50": 22368.367599999998,
+            "p95": 27302.864899999986,
+            "p99": 27846.08500000002,
+            "max": 27846.08500000002
+          },
+          "failureMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "totalSeconds": 39.984730400000004,
+          "ingressWindow": {
+            "startedSeconds": 1.5386470999999728,
+            "endedSeconds": 12.895643799999991
+          },
+          "drainSeconds": 27.08908660000001,
+          "recoverySeconds": 26.833371800000023,
+          "peakPending": 41,
+          "peakUnpublished": 4,
+          "peakDatabaseConnections": 6,
+          "maxObservationIntervalMs": 7726.2033999999985,
+          "preAckCompletions": 0,
+          "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+          "workerTimings": {
+            "available": false,
+            "attemptStart": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "attemptStartErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalize": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalizeErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "webhook": {
+              "count": 41,
+              "totalSeconds": 20.879557934999994,
+              "meanMs": 509.25751060975597,
+              "p95UpperBoundMs": 1000
+            },
+            "webhookErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processing": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processingErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            }
+          },
+          "errors": []
+        },
+        {
+          "name": "backlog-concurrency",
+          "type": "benchmark.741424ea-9099-4130-a9d3-2c908edbd861",
+          "config": {
+            "rate": 4,
+            "seconds": 10,
+            "delayMs": 500,
+            "paused": true,
+            "concurrency": 4,
+            "replicas": 1,
+            "relay": {
+              "batchSize": 100,
+              "publishEverySeconds": 1
+            }
+          },
+          "generator": {
+            "preAllocatedVUs": 10,
+            "maxVUs": 100
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true,
+            "timingPhases": true
+          },
+          "snapshot": {
+            "total": 41,
+            "pending": 0,
+            "delivered": 41,
+            "failed": 0,
+            "unpublished": 0,
+            "effects": 41,
+            "attempts": 41
+          },
+          "attemptOutcomes": [
+            {
+              "status": "succeeded",
+              "http_status": 204,
+              "error_code": null,
+              "count": 41
+            }
+          ],
+          "acceptedPerSecond": 4.1,
+          "deliveredPerSecondOverWholeRun": 1.7429990350034619,
+          "apiMs": {
+            "count": 41,
+            "p50": 48.867399999988265,
+            "p95": 52.875,
+            "p99": 63.72829999998794,
+            "max": 63.72829999998794
+          },
+          "deliveryMs": {
+            "count": 41,
+            "p50": 14433.83600000001,
+            "p95": 17660.022999999986,
+            "p99": 18155.405700000003,
+            "max": 18155.405700000003
+          },
+          "failureMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "totalSeconds": 23.522675100000022,
+          "ingressWindow": {
+            "startedSeconds": 1.1342406000000191,
+            "endedSeconds": 12.444101700000028
+          },
+          "drainSeconds": 11.078573399999994,
+          "recoverySeconds": 10.825993000000016,
+          "peakPending": 41,
+          "peakUnpublished": 4,
+          "peakDatabaseConnections": 12,
+          "maxObservationIntervalMs": 7378.473100000003,
+          "preAckCompletions": 0,
+          "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+          "workerTimings": {
+            "available": false,
+            "attemptStart": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "attemptStartErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalize": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalizeErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "webhook": {
+              "count": 41,
+              "totalSeconds": 21.584536934999996,
+              "meanMs": 526.4521203658535,
+              "p95UpperBoundMs": 1000
+            },
+            "webhookErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processing": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processingErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            }
+          },
+          "errors": []
+        },
+        {
+          "name": "relay-pressure",
+          "type": "benchmark.0c39a50f-39a6-497c-bf40-c8e9993cf416",
+          "config": {
+            "rate": 20,
+            "seconds": 15,
+            "concurrency": 4,
+            "replicas": 1,
+            "relay": {
+              "batchSize": 100,
+              "publishEverySeconds": 1
+            }
+          },
+          "generator": {
+            "preAllocatedVUs": 20,
+            "maxVUs": 100
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true,
+            "timingPhases": true
+          },
+          "snapshot": {
+            "total": 301,
+            "pending": 0,
+            "delivered": 301,
+            "failed": 0,
+            "unpublished": 0,
+            "effects": 301,
+            "attempts": 301
+          },
+          "attemptOutcomes": [
+            {
+              "status": "succeeded",
+              "http_status": 204,
+              "error_code": null,
+              "count": 301
+            }
+          ],
+          "acceptedPerSecond": 20.066666666666666,
+          "deliveredPerSecondOverWholeRun": 16.404109090900576,
+          "apiMs": {
+            "count": 301,
+            "p50": 47.161800000001676,
+            "p95": 55.78199999994831,
+            "p99": 62.135499999974854,
+            "max": 68.10710000002291
+          },
+          "deliveryMs": {
+            "count": 301,
+            "p50": 930.0725999999559,
+            "p95": 1375.1154000000097,
+            "p99": 1471.5470000000205,
+            "max": 1565.7898999999743
+          },
+          "failureMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "totalSeconds": 18.349061099999993,
+          "ingressWindow": {
+            "startedSeconds": 1.4859360000000452,
+            "endedSeconds": 17.785545400000004
+          },
+          "drainSeconds": 0.563515699999989,
+          "recoverySeconds": null,
+          "peakPending": 20,
+          "peakUnpublished": 19,
+          "peakDatabaseConnections": 13,
+          "maxObservationIntervalMs": 1392.588000000047,
+          "preAckCompletions": 0,
+          "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+          "workerTimings": {
+            "available": false,
+            "attemptStart": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "attemptStartErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalize": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "finalizeErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "webhook": {
+              "count": 301,
+              "totalSeconds": 4.820188426000016,
+              "meanMs": 16.0139150365449,
+              "p95UpperBoundMs": 50
+            },
+            "webhookErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processing": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            },
+            "processingErrors": {
+              "count": 0,
+              "totalSeconds": 0,
+              "meanMs": null,
+              "p95UpperBoundMs": null
+            }
+          },
+          "errors": []
+        }
+      ],
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          },
+          "redis": {
+            "worker": null,
+            "relay": null
+          },
+          "isolatedRedis": true
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "isolatedRedis": {
+          "image": "redis:8-alpine",
+          "arguments": [
+            "redis-server",
+            "--appendonly",
+            "yes",
+            "--appendfsync",
+            "everysec",
+            "--maxmemory",
+            "128mb",
+            "--maxmemory-policy",
+            "noeviction"
+          ],
+          "resources": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          },
+          "storage": {
+            "accessModes": ["ReadWriteOnce"],
+            "resources": {
+              "requests": {
+                "storage": "1Gi"
+              }
+            },
+            "storageClassName": "local-path",
+            "volumeMode": "Filesystem"
+          },
+          "productionQueuePreserved": true
+        },
+        "session": "9d759427-d51a-49e9-8fbe-f2c679f42e29",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T10:32:40.196Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "requireTimingPhases": false
+      },
+      "resourcePeaks": {
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 19,
+          "memoryMiB": 25
+        },
+        "hookrelay-benchmark-redis": {
+          "cpuMillicores": 8,
+          "memoryMiB": 7
+        },
+        "postgres": {
+          "cpuMillicores": 63,
+          "memoryMiB": 288
+        },
+        "redis": {
+          "cpuMillicores": 6,
+          "memoryMiB": 84
+        },
+        "relay": {
+          "cpuMillicores": 360,
+          "memoryMiB": 83
+        },
+        "test-receiver": {
+          "cpuMillicores": 8,
+          "memoryMiB": 50
+        },
+        "worker": {
+          "cpuMillicores": 362,
+          "memoryMiB": 54
+        },
+        "hookrelay": {
+          "cpuMillicores": 277,
+          "memoryMiB": 54
+        }
+      }
+    },
+    {
+      "label": "preliminary-85-serial",
+      "profile": "relay-steady",
+      "rate": 85,
+      "seconds": 60,
+      "concurrency": 1,
+      "exitCode": 1,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T10-42-02-649Z-relay-steady",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          },
+          "redis": {
+            "worker": null,
+            "relay": null
+          },
+          "isolatedRedis": true
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "isolatedRedis": {
+          "image": "redis:8-alpine",
+          "arguments": [
+            "redis-server",
+            "--appendonly",
+            "yes",
+            "--appendfsync",
+            "everysec",
+            "--maxmemory",
+            "128mb",
+            "--maxmemory-policy",
+            "noeviction"
+          ],
+          "resources": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          },
+          "storage": {
+            "accessModes": ["ReadWriteOnce"],
+            "resources": {
+              "requests": {
+                "storage": "1Gi"
+              }
+            },
+            "storageClassName": "local-path",
+            "volumeMode": "Filesystem"
+          },
+          "productionQueuePreserved": true
+        },
+        "session": "3b8866e0-377e-4bba-9b93-57697569aff8",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T10:42:29.215Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "requireTimingPhases": false
+      },
+      "failure": "Observer is not running",
+      "resourcePeaks": {
+        "hookrelay-benchmark-redis": {
+          "cpuMillicores": 53,
+          "memoryMiB": 15
+        },
+        "postgres": {
+          "cpuMillicores": 855,
+          "memoryMiB": 292
+        },
+        "redis": {
+          "cpuMillicores": 6,
+          "memoryMiB": 84
+        },
+        "relay": {
+          "cpuMillicores": 327,
+          "memoryMiB": 91
+        },
+        "test-receiver": {
+          "cpuMillicores": 109,
+          "memoryMiB": 55
+        },
+        "worker": {
+          "cpuMillicores": 478,
+          "memoryMiB": 59
+        },
+        "hookrelay": {
+          "cpuMillicores": 238,
+          "memoryMiB": 61
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 111,
+          "memoryMiB": 31
+        }
+      }
+    },
+    {
+      "label": "diagnostic-85-serial",
+      "profile": "relay-steady",
+      "rate": 85,
+      "seconds": 60,
+      "concurrency": 1,
+      "exitCode": 1,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T10-52-27-876Z-relay-steady",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          },
+          "redis": {
+            "worker": null,
+            "relay": null
+          },
+          "isolatedRedis": true
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "isolatedRedis": {
+          "image": "redis:8-alpine",
+          "arguments": [
+            "redis-server",
+            "--appendonly",
+            "yes",
+            "--appendfsync",
+            "everysec",
+            "--maxmemory",
+            "128mb",
+            "--maxmemory-policy",
+            "noeviction"
+          ],
+          "resources": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          },
+          "storage": {
+            "accessModes": ["ReadWriteOnce"],
+            "resources": {
+              "requests": {
+                "storage": "1Gi"
+              }
+            },
+            "storageClassName": "local-path",
+            "volumeMode": "Filesystem"
+          },
+          "productionQueuePreserved": true
+        },
+        "session": "7827cde9-fa66-4592-bf00-16dc090b9256",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T10:52:54.311Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "requireTimingPhases": false
+      },
+      "failure": "Final metrics unavailable",
+      "resourcePeaks": {
+        "hookrelay-benchmark-redis": {
+          "cpuMillicores": 51,
+          "memoryMiB": 15
+        },
+        "postgres": {
+          "cpuMillicores": 541,
+          "memoryMiB": 295
+        },
+        "redis": {
+          "cpuMillicores": 6,
+          "memoryMiB": 84
+        },
+        "relay": {
+          "cpuMillicores": 269,
+          "memoryMiB": 85
+        },
+        "test-receiver": {
+          "cpuMillicores": 112,
+          "memoryMiB": 56
+        },
+        "worker": {
+          "cpuMillicores": 430,
+          "memoryMiB": 61
+        },
+        "hookrelay": {
+          "cpuMillicores": 361,
+          "memoryMiB": 60
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 99,
+          "memoryMiB": 32
+        }
+      }
+    },
+    {
+      "label": "diagnostic-observer-final",
+      "profile": "relay-steady",
+      "rate": 85,
+      "seconds": 60,
+      "concurrency": 1,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T10-58-19-180Z-relay-steady",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.3c113a78-be0c-4f55-a74f-4562c5312bd4",
+        "config": {
+          "rate": 85,
+          "seconds": 60,
+          "concurrency": 1,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 85,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true,
+          "timingPhases": true
+        },
+        "snapshot": {
+          "total": 5100,
+          "pending": 0,
+          "delivered": 5100,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 5100,
+          "attempts": 5100
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 5100
+          }
+        ],
+        "acceptedPerSecond": 85,
+        "deliveredPerSecondOverWholeRun": 69.6101297283177,
+        "apiMs": {
+          "count": 5100,
+          "p50": 40.9887000000017,
+          "p95": 65.96080000000075,
+          "p99": 213.19430000000284,
+          "max": 640.5732999999964
+        },
+        "deliveryMs": {
+          "count": 5100,
+          "p50": 12669.320899999999,
+          "p95": 14791.481899999999,
+          "p99": 15086.160700000008,
+          "max": 15297.05200000001
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 73.2651989,
+        "ingressWindow": {
+          "startedSeconds": 1.138391499999998,
+          "endedSeconds": 62.58359790000001
+        },
+        "drainSeconds": 10.681600999999995,
+        "recoverySeconds": null,
+        "peakPending": 1226,
+        "peakUnpublished": 109,
+        "peakDatabaseConnections": 15,
+        "maxObservationIntervalMs": 1100.9371000000028,
+        "preAckCompletions": 0,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "workerTimings": {
+          "available": false,
+          "attemptStart": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "attemptStartErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalize": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalizeErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "webhook": {
+            "count": 5100,
+            "totalSeconds": 32.63964409300028,
+            "meanMs": 6.39993021431378,
+            "p95UpperBoundMs": 25
+          },
+          "webhookErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processing": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processingErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          }
+        },
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 40.215213399999996,
+          "deliveredPerSecond": 72.73366849770342,
+          "initialUnpublished": 104,
+          "finalUnpublished": 25,
+          "peakUnpublished": 104,
+          "initialPending": 733,
+          "finalPending": 1226,
+          "peakPending": 1226,
+          "pendingGrowthPerSecond": 12.259042245937703,
+          "initialQueueWaiting": 684,
+          "finalQueueWaiting": 1192,
+          "peakQueueWaiting": 1192
+        }
+      },
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          },
+          "redis": {
+            "worker": null,
+            "relay": null
+          },
+          "isolatedRedis": true
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "isolatedRedis": {
+          "image": "redis:8-alpine",
+          "arguments": [
+            "redis-server",
+            "--appendonly",
+            "yes",
+            "--appendfsync",
+            "everysec",
+            "--maxmemory",
+            "128mb",
+            "--maxmemory-policy",
+            "noeviction"
+          ],
+          "resources": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          },
+          "storage": {
+            "accessModes": ["ReadWriteOnce"],
+            "resources": {
+              "requests": {
+                "storage": "1Gi"
+              }
+            },
+            "storageClassName": "local-path",
+            "volumeMode": "Filesystem"
+          },
+          "productionQueuePreserved": true
+        },
+        "session": "accf9a62-8482-4b48-9b4b-a36a6a2c1758",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T10:58:47.557Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "requireTimingPhases": false
+      },
+      "generatorSummary": {
+        "accepted": 5100,
+        "droppedIterations": 0,
+        "failedRequestRate": 0
+      },
+      "sampleAnalysis": {
+        "pendingSlopePerSecond": 10.987007683837524,
+        "outboxSlopePerSecond": 0.01838298110662515,
+        "peakLockWaits": 0,
+        "deadlocksDelta": 0,
+        "minuteWindows": [
+          {
+            "minute": 1,
+            "meanPending": 803.0520833333334,
+            "meanUnpublished": 63.239583333333336,
+            "peakPending": 1205,
+            "deliveredPerSecond": 64.06110174914835
+          }
+        ]
+      },
+      "resourcePeaks": {
+        "hookrelay-benchmark-redis": {
+          "cpuMillicores": 53,
+          "memoryMiB": 14
+        },
+        "postgres": {
+          "cpuMillicores": 359,
+          "memoryMiB": 313
+        },
+        "redis": {
+          "cpuMillicores": 6,
+          "memoryMiB": 84
+        },
+        "relay": {
+          "cpuMillicores": 267,
+          "memoryMiB": 91
+        },
+        "test-receiver": {
+          "cpuMillicores": 103,
+          "memoryMiB": 55
+        },
+        "hookrelay": {
+          "cpuMillicores": 333,
+          "memoryMiB": 61
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 117,
+          "memoryMiB": 32
+        },
+        "worker": {
+          "cpuMillicores": 469,
+          "memoryMiB": 59
+        }
+      }
+    },
+    {
+      "label": "preliminary-85-concurrent",
+      "profile": "relay-steady",
+      "rate": 85,
+      "seconds": 60,
+      "concurrency": 4,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T11-01-16-703Z-relay-steady",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.73c36d36-0425-4530-ad9e-ec5a3d5b9c41",
+        "config": {
+          "rate": 85,
+          "seconds": 60,
+          "concurrency": 4,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 85,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true,
+          "timingPhases": true
+        },
+        "snapshot": {
+          "total": 5101,
+          "pending": 0,
+          "delivered": 5101,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 5101,
+          "attempts": 5101
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 5101
+          }
+        ],
+        "acceptedPerSecond": 85.01666666666667,
+        "deliveredPerSecondOverWholeRun": 80.6206957175976,
+        "apiMs": {
+          "count": 5101,
+          "p50": 41.89400000000023,
+          "p95": 74.10130000000208,
+          "p99": 220.27539999999863,
+          "max": 438.6339999999982
+        },
+        "deliveryMs": {
+          "count": 5101,
+          "p50": 1471.5231000000058,
+          "p95": 2010.5671000000002,
+          "p99": 2254.2701000000015,
+          "max": 2428.3205000000016
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 63.2715949,
+        "ingressWindow": {
+          "startedSeconds": 1.3533826999999947,
+          "endedSeconds": 62.76227839999999
+        },
+        "drainSeconds": 0.5093165000000008,
+        "recoverySeconds": null,
+        "peakPending": 144,
+        "peakUnpublished": 122,
+        "peakDatabaseConnections": 21,
+        "maxObservationIntervalMs": 1301.3254000000015,
+        "preAckCompletions": 0,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "workerTimings": {
+          "available": false,
+          "attemptStart": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "attemptStartErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalize": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalizeErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "webhook": {
+            "count": 5101,
+            "totalSeconds": 84.84171047799987,
+            "meanMs": 16.632368256812363,
+            "p95UpperBoundMs": 50
+          },
+          "webhookErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processing": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processingErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          }
+        },
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 41.2180986,
+          "deliveredPerSecond": 84.55023687094582,
+          "initialUnpublished": 75,
+          "finalUnpublished": 36,
+          "peakUnpublished": 117,
+          "initialPending": 75,
+          "finalPending": 36,
+          "peakPending": 94,
+          "pendingGrowthPerSecond": -0.9461862949689775,
+          "initialQueueWaiting": 0,
+          "finalQueueWaiting": 16,
+          "peakQueueWaiting": 61
+        }
+      },
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          },
+          "redis": {
+            "worker": null,
+            "relay": null
+          },
+          "isolatedRedis": true
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "isolatedRedis": {
+          "image": "redis:8-alpine",
+          "arguments": [
+            "redis-server",
+            "--appendonly",
+            "yes",
+            "--appendfsync",
+            "everysec",
+            "--maxmemory",
+            "128mb",
+            "--maxmemory-policy",
+            "noeviction"
+          ],
+          "resources": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          },
+          "storage": {
+            "accessModes": ["ReadWriteOnce"],
+            "resources": {
+              "requests": {
+                "storage": "1Gi"
+              }
+            },
+            "storageClassName": "local-path",
+            "volumeMode": "Filesystem"
+          },
+          "productionQueuePreserved": true
+        },
+        "session": "132670d0-a079-406c-a6fe-27b6a3a853aa",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T11:01:44.415Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "requireTimingPhases": false
+      },
+      "generatorSummary": {
+        "accepted": 5101,
+        "droppedIterations": 0,
+        "failedRequestRate": 0
+      },
+      "sampleAnalysis": {
+        "pendingSlopePerSecond": -0.097096542254772,
+        "outboxSlopePerSecond": 0.24994647779660928,
+        "peakLockWaits": 0,
+        "deadlocksDelta": 0,
+        "minuteWindows": [
+          {
+            "minute": 1,
+            "meanPending": 83.32967032967034,
+            "meanUnpublished": 63.472527472527474,
+            "peakPending": 144,
+            "deliveredPerSecond": 82.99850277874116
+          }
+        ]
+      },
+      "resourcePeaks": {
+        "hookrelay-benchmark-redis": {
+          "cpuMillicores": 52,
+          "memoryMiB": 11
+        },
+        "postgres": {
+          "cpuMillicores": 459,
+          "memoryMiB": 348
+        },
+        "redis": {
+          "cpuMillicores": 6,
+          "memoryMiB": 86
+        },
+        "test-receiver": {
+          "cpuMillicores": 113,
+          "memoryMiB": 56
+        },
+        "worker": {
+          "cpuMillicores": 483,
+          "memoryMiB": 60
+        },
+        "hookrelay": {
+          "cpuMillicores": 221,
+          "memoryMiB": 59
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 128,
+          "memoryMiB": 32
+        },
+        "relay": {
+          "cpuMillicores": 113,
+          "memoryMiB": 91
+        }
+      }
+    },
+    {
+      "label": "preliminary-100-concurrent",
+      "profile": "relay-steady",
+      "rate": 100,
+      "seconds": 60,
+      "concurrency": 4,
+      "exitCode": 1,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T11-03-44-379Z-relay-steady",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          },
+          "redis": {
+            "worker": null,
+            "relay": null
+          },
+          "isolatedRedis": true
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "isolatedRedis": {
+          "image": "redis:8-alpine",
+          "arguments": [
+            "redis-server",
+            "--appendonly",
+            "yes",
+            "--appendfsync",
+            "everysec",
+            "--maxmemory",
+            "128mb",
+            "--maxmemory-policy",
+            "noeviction"
+          ],
+          "resources": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          },
+          "storage": {
+            "accessModes": ["ReadWriteOnce"],
+            "resources": {
+              "requests": {
+                "storage": "1Gi"
+              }
+            },
+            "storageClassName": "local-path",
+            "volumeMode": "Filesystem"
+          },
+          "productionQueuePreserved": true
+        },
+        "session": "b710435f-3f05-4728-85e9-93e43bc8d0c0",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T11:04:12.071Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "requireTimingPhases": false
+      },
+      "failure": "Observer failed during ingress",
+      "failedObservation": {
+        "snapshot": {
+          "total": 95,
+          "pending": 95,
+          "delivered": 0,
+          "failed": 0,
+          "unpublished": 30,
+          "effects": 0,
+          "attempts": 1
+        },
+        "errors": ["Observer snapshot failed (Error: unspecified)"]
+      },
+      "resourcePeaks": {
+        "hookrelay-benchmark-redis": {
+          "cpuMillicores": 60,
+          "memoryMiB": 14
+        },
+        "postgres": {
+          "cpuMillicores": 374,
+          "memoryMiB": 337
+        },
+        "redis": {
+          "cpuMillicores": 6,
+          "memoryMiB": 84
+        },
+        "relay": {
+          "cpuMillicores": 128,
+          "memoryMiB": 83
+        },
+        "test-receiver": {
+          "cpuMillicores": 150,
+          "memoryMiB": 54
+        },
+        "worker": {
+          "cpuMillicores": 473,
+          "memoryMiB": 62
+        },
+        "hookrelay": {
+          "cpuMillicores": 242,
+          "memoryMiB": 62
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 133,
+          "memoryMiB": 32
+        }
+      }
+    },
+    {
+      "label": "diagnostic-100-short",
+      "profile": "relay-steady",
+      "rate": 100,
+      "seconds": 20,
+      "concurrency": 4,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T11-06-38-669Z-relay-steady",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.359f8b56-6235-4055-95bb-17ad591006e5",
+        "config": {
+          "rate": 100,
+          "seconds": 20,
+          "concurrency": 4,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 100,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true,
+          "timingPhases": true
+        },
+        "snapshot": {
+          "total": 2001,
+          "pending": 0,
+          "delivered": 2001,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 2001,
+          "attempts": 2001
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 2001
+          }
+        ],
+        "acceptedPerSecond": 100.05,
+        "deliveredPerSecondOverWholeRun": 83.83692152634129,
+        "apiMs": {
+          "count": 2001,
+          "p50": 43.85369999999966,
+          "p95": 98.65930000000662,
+          "p99": 203.13410000000295,
+          "max": 242.7598000000071
+        },
+        "deliveryMs": {
+          "count": 2001,
+          "p50": 3085.2502999999997,
+          "p95": 3586.2649999999994,
+          "p99": 3736.503199999999,
+          "max": 3819.3761000000013
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 23.8677657,
+        "ingressWindow": {
+          "startedSeconds": 1.7849641999999986,
+          "endedSeconds": 23.164285099999997
+        },
+        "drainSeconds": 0.7034806000000026,
+        "recoverySeconds": null,
+        "peakPending": 299,
+        "peakUnpublished": 138,
+        "peakDatabaseConnections": 21,
+        "maxObservationIntervalMs": 1685.9817999999977,
+        "preAckCompletions": 0,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "workerTimings": {
+          "available": false,
+          "attemptStart": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "attemptStartErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalize": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalizeErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "webhook": {
+            "count": 2001,
+            "totalSeconds": 37.81311609400005,
+            "meanMs": 18.8971094922539,
+            "p95UpperBoundMs": 50
+          },
+          "webhookErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processing": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processingErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          }
+        },
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 0.7040599000000007,
+          "deliveredPerSecond": 105.10469350690178,
+          "initialUnpublished": 68,
+          "finalUnpublished": 127,
+          "peakUnpublished": 127,
+          "initialPending": 233,
+          "finalPending": 218,
+          "peakPending": 233,
+          "pendingGrowthPerSecond": -21.3050054405882,
+          "initialQueueWaiting": 146,
+          "finalQueueWaiting": 162,
+          "peakQueueWaiting": 162
+        }
+      },
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          },
+          "redis": {
+            "worker": null,
+            "relay": null
+          },
+          "isolatedRedis": true
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "isolatedRedis": {
+          "image": "redis:8-alpine",
+          "arguments": [
+            "redis-server",
+            "--appendonly",
+            "yes",
+            "--appendfsync",
+            "everysec",
+            "--maxmemory",
+            "128mb",
+            "--maxmemory-policy",
+            "noeviction"
+          ],
+          "resources": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          },
+          "storage": {
+            "accessModes": ["ReadWriteOnce"],
+            "resources": {
+              "requests": {
+                "storage": "1Gi"
+              }
+            },
+            "storageClassName": "local-path",
+            "volumeMode": "Filesystem"
+          },
+          "productionQueuePreserved": true
+        },
+        "session": "f6101f4c-e359-4277-8dbc-5f2df1f91ff1",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T11:07:03.697Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "requireTimingPhases": false
+      },
+      "generatorSummary": {
+        "accepted": 2001,
+        "droppedIterations": 0,
+        "failedRequestRate": 0
+      },
+      "sampleAnalysis": {
+        "pendingSlopePerSecond": -21.3050054405882,
+        "outboxSlopePerSecond": 83.79968806631359,
+        "peakLockWaits": 0,
+        "deadlocksDelta": 0,
+        "minuteWindows": [
+          {
+            "minute": 1,
+            "meanPending": 230.125,
+            "meanUnpublished": 84.34375,
+            "peakPending": 299,
+            "deliveredPerSecond": 86.92670563957016
+          }
+        ]
+      },
+      "resourcePeaks": {
+        "hookrelay-benchmark-redis": {
+          "cpuMillicores": 26,
+          "memoryMiB": 10
+        },
+        "postgres": {
+          "cpuMillicores": 23,
+          "memoryMiB": 311
+        },
+        "redis": {
+          "cpuMillicores": 5,
+          "memoryMiB": 84
+        },
+        "relay": {
+          "cpuMillicores": 363,
+          "memoryMiB": 81
+        },
+        "test-receiver": {
+          "cpuMillicores": 4,
+          "memoryMiB": 54
+        },
+        "hookrelay": {
+          "cpuMillicores": 320,
+          "memoryMiB": 61
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 164,
+          "memoryMiB": 26
+        },
+        "worker": {
+          "cpuMillicores": 458,
+          "memoryMiB": 57
+        }
+      }
+    },
+    {
+      "label": "preliminary-100-concurrent-repeat",
+      "profile": "relay-steady",
+      "rate": 100,
+      "seconds": 60,
+      "concurrency": 4,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T11-08-46-101Z-relay-steady",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.2e91a106-40c6-46fd-b280-57f0f3ebfce1",
+        "config": {
+          "rate": 100,
+          "seconds": 60,
+          "concurrency": 4,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 100,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true,
+          "timingPhases": true
+        },
+        "snapshot": {
+          "total": 6000,
+          "pending": 0,
+          "delivered": 6000,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 6000,
+          "attempts": 6000
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 6000
+          }
+        ],
+        "acceptedPerSecond": 100,
+        "deliveredPerSecondOverWholeRun": 94.21920383255832,
+        "apiMs": {
+          "count": 6000,
+          "p50": 43.760800000003655,
+          "p95": 128.38040000000183,
+          "p99": 307.48760000000766,
+          "max": 583.9152000000031
+        },
+        "deliveryMs": {
+          "count": 6000,
+          "p50": 2881.0144999999975,
+          "p95": 4018.6005000000005,
+          "p99": 4313.326300000001,
+          "max": 4581.6163000000015
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 63.6812853,
+        "ingressWindow": {
+          "startedSeconds": 1.4679124999999986,
+          "endedSeconds": 62.87743449999999
+        },
+        "drainSeconds": 0.8038508000000002,
+        "recoverySeconds": null,
+        "peakPending": 357,
+        "peakUnpublished": 145,
+        "peakDatabaseConnections": 21,
+        "maxObservationIntervalMs": 1406.6814000000013,
+        "preAckCompletions": 0,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "workerTimings": {
+          "available": false,
+          "attemptStart": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "attemptStartErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalize": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalizeErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "webhook": {
+            "count": 6000,
+            "totalSeconds": 108.53672372299992,
+            "meanMs": 18.08945395383332,
+            "p95UpperBoundMs": 50
+          },
+          "webhookErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processing": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processingErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          }
+        },
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 40.02654839999999,
+          "deliveredPerSecond": 104.68052249041791,
+          "initialUnpublished": 136,
+          "finalUnpublished": 115,
+          "peakUnpublished": 145,
+          "initialPending": 315,
+          "finalPending": 104,
+          "peakPending": 325,
+          "pendingGrowthPerSecond": -5.2715012519041,
+          "initialQueueWaiting": 259,
+          "finalQueueWaiting": 44,
+          "peakQueueWaiting": 281
+        }
+      },
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          },
+          "redis": {
+            "worker": null,
+            "relay": null
+          },
+          "isolatedRedis": true
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "isolatedRedis": {
+          "image": "redis:8-alpine",
+          "arguments": [
+            "redis-server",
+            "--appendonly",
+            "yes",
+            "--appendfsync",
+            "everysec",
+            "--maxmemory",
+            "128mb",
+            "--maxmemory-policy",
+            "noeviction"
+          ],
+          "resources": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          },
+          "storage": {
+            "accessModes": ["ReadWriteOnce"],
+            "resources": {
+              "requests": {
+                "storage": "1Gi"
+              }
+            },
+            "storageClassName": "local-path",
+            "volumeMode": "Filesystem"
+          },
+          "productionQueuePreserved": true
+        },
+        "session": "17d6d8aa-be31-4cf0-b119-bd4fa25b6589",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T11:09:15.275Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "requireTimingPhases": false
+      },
+      "generatorSummary": {
+        "accepted": 6000,
+        "droppedIterations": 0,
+        "failedRequestRate": 0
+      },
+      "sampleAnalysis": {
+        "pendingSlopePerSecond": -6.0446665087695735,
+        "outboxSlopePerSecond": -0.030357442678658496,
+        "peakLockWaits": 0,
+        "deadlocksDelta": 0,
+        "minuteWindows": [
+          {
+            "minute": 1,
+            "meanPending": 214.76623376623377,
+            "meanUnpublished": 93.74025974025975,
+            "peakPending": 357,
+            "deliveredPerSecond": 97.34802407536553
+          }
+        ]
+      },
+      "resourcePeaks": {
+        "hookrelay-benchmark-redis": {
+          "cpuMillicores": 63,
+          "memoryMiB": 13
+        },
+        "postgres": {
+          "cpuMillicores": 468,
+          "memoryMiB": 354
+        },
+        "redis": {
+          "cpuMillicores": 5,
+          "memoryMiB": 84
+        },
+        "relay": {
+          "cpuMillicores": 218,
+          "memoryMiB": 89
+        },
+        "test-receiver": {
+          "cpuMillicores": 144,
+          "memoryMiB": 55
+        },
+        "worker": {
+          "cpuMillicores": 496,
+          "memoryMiB": 61
+        },
+        "hookrelay": {
+          "cpuMillicores": 299,
+          "memoryMiB": 63
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 126,
+          "memoryMiB": 31
+        }
+      }
+    },
+    {
+      "label": "preliminary-100-serial",
+      "profile": "relay-steady",
+      "rate": 100,
+      "seconds": 60,
+      "concurrency": 1,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T11-11-31-144Z-relay-steady",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.5c5260d7-95cb-4759-b99f-87a0868c7806",
+        "config": {
+          "rate": 100,
+          "seconds": 60,
+          "concurrency": 1,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 100,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true,
+          "timingPhases": true
+        },
+        "snapshot": {
+          "total": 6000,
+          "pending": 0,
+          "delivered": 6000,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 6000,
+          "attempts": 6000
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 6000
+          }
+        ],
+        "acceptedPerSecond": 100,
+        "deliveredPerSecondOverWholeRun": 77.52409589412814,
+        "apiMs": {
+          "count": 6000,
+          "p50": 40.11460000000079,
+          "p95": 63.81670000000304,
+          "p99": 122.56179999999586,
+          "max": 269.1166999999987
+        },
+        "deliveryMs": {
+          "count": 6000,
+          "p50": 12749.521899999992,
+          "p95": 16579.1339,
+          "p99": 16856.388699999996,
+          "max": 17138.4081
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 77.3952915,
+        "ingressWindow": {
+          "startedSeconds": 1.9190996000000013,
+          "endedSeconds": 63.2584613
+        },
+        "drainSeconds": 14.136830199999997,
+        "recoverySeconds": null,
+        "peakPending": 1638,
+        "peakUnpublished": 131,
+        "peakDatabaseConnections": 15,
+        "maxObservationIntervalMs": 1849.4651000000013,
+        "preAckCompletions": 0,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "workerTimings": {
+          "available": false,
+          "attemptStart": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "attemptStartErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalize": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalizeErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "webhook": {
+            "count": 6000,
+            "totalSeconds": 33.52978082200007,
+            "meanMs": 5.588296803666679,
+            "p95UpperBoundMs": 25
+          },
+          "webhookErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processing": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processingErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          }
+        },
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 40.673409199999995,
+          "deliveredPerSecond": 78.28210279456978,
+          "initialUnpublished": 120,
+          "finalUnpublished": 44,
+          "peakUnpublished": 125,
+          "initialPending": 733,
+          "finalPending": 1568,
+          "peakPending": 1638,
+          "pendingGrowthPerSecond": 20.529383113525682,
+          "initialQueueWaiting": 699,
+          "finalQueueWaiting": 1544,
+          "peakQueueWaiting": 1589
+        }
+      },
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          },
+          "redis": {
+            "worker": null,
+            "relay": null
+          },
+          "isolatedRedis": true
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "isolatedRedis": {
+          "image": "redis:8-alpine",
+          "arguments": [
+            "redis-server",
+            "--appendonly",
+            "yes",
+            "--appendfsync",
+            "everysec",
+            "--maxmemory",
+            "128mb",
+            "--maxmemory-policy",
+            "noeviction"
+          ],
+          "resources": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          },
+          "storage": {
+            "accessModes": ["ReadWriteOnce"],
+            "resources": {
+              "requests": {
+                "storage": "1Gi"
+              }
+            },
+            "storageClassName": "local-path",
+            "volumeMode": "Filesystem"
+          },
+          "productionQueuePreserved": true
+        },
+        "session": "78c2c182-7a08-460c-9f31-5f7f5e97f7da",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T11:11:58.874Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "requireTimingPhases": false
+      },
+      "generatorSummary": {
+        "accepted": 6000,
+        "droppedIterations": 0,
+        "failedRequestRate": 0
+      },
+      "sampleAnalysis": {
+        "pendingSlopePerSecond": 21.32774045084462,
+        "outboxSlopePerSecond": 0.0499087089354318,
+        "peakLockWaits": 0,
+        "deadlocksDelta": 0,
+        "minuteWindows": [
+          {
+            "minute": 1,
+            "meanPending": 893.1304347826087,
+            "meanUnpublished": 79.1413043478261,
+            "peakPending": 1582,
+            "deliveredPerSecond": 72.23002954201424
+          }
+        ]
+      },
+      "resourcePeaks": {
+        "hookrelay-benchmark-redis": {
+          "cpuMillicores": 52,
+          "memoryMiB": 16
+        },
+        "postgres": {
+          "cpuMillicores": 416,
+          "memoryMiB": 341
+        },
+        "redis": {
+          "cpuMillicores": 5,
+          "memoryMiB": 84
+        },
+        "relay": {
+          "cpuMillicores": 355,
+          "memoryMiB": 90
+        },
+        "test-receiver": {
+          "cpuMillicores": 108,
+          "memoryMiB": 55
+        },
+        "worker": {
+          "cpuMillicores": 450,
+          "memoryMiB": 60
+        },
+        "hookrelay": {
+          "cpuMillicores": 366,
+          "memoryMiB": 62
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 107,
+          "memoryMiB": 31
+        }
+      }
+    },
+    {
+      "label": "preliminary-100-confirmation",
+      "profile": "relay-steady",
+      "rate": 100,
+      "seconds": 300,
+      "concurrency": 4,
+      "exitCode": 0,
+      "directory": ".tmp/vps-benchmarks/2026-10-01T11-15-22-827Z-relay-steady",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "result": {
+        "name": "relay-steady",
+        "type": "benchmark.bab04c01-f574-40a5-8ec2-b4c1d12882be",
+        "config": {
+          "rate": 100,
+          "seconds": 300,
+          "concurrency": 4,
+          "replicas": 1,
+          "relay": {
+            "batchSize": 100,
+            "publishEverySeconds": 1
+          }
+        },
+        "generator": {
+          "preAllocatedVUs": 100,
+          "maxVUs": 100
+        },
+        "checks": {
+          "k6": true,
+          "tracked": true,
+          "rate": true,
+          "terminal": true,
+          "effects": true,
+          "attempts": true,
+          "outcomes": true,
+          "observer": true,
+          "resources": true,
+          "metrics": true,
+          "timingPhases": true
+        },
+        "snapshot": {
+          "total": 30001,
+          "pending": 0,
+          "delivered": 30001,
+          "failed": 0,
+          "unpublished": 0,
+          "effects": 30001,
+          "attempts": 30001
+        },
+        "attemptOutcomes": [
+          {
+            "status": "succeeded",
+            "http_status": 204,
+            "error_code": null,
+            "count": 30001
+          }
+        ],
+        "acceptedPerSecond": 100.00333333333333,
+        "deliveredPerSecondOverWholeRun": 98.70608573903162,
+        "apiMs": {
+          "count": 30001,
+          "p50": 42.87880000000587,
+          "p95": 86.47409999999218,
+          "p99": 211.69690000000992,
+          "max": 612.8845000000147
+        },
+        "deliveryMs": {
+          "count": 30001,
+          "p50": 2998.8682000000263,
+          "p95": 3816.6572999999917,
+          "p99": 4523.425800000026,
+          "max": 5528.620999999985
+        },
+        "failureMs": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "totalSeconds": 303.9427587,
+        "ingressWindow": {
+          "startedSeconds": 1.1101852999999973,
+          "endedSeconds": 302.48790909999997
+        },
+        "drainSeconds": 1.454849600000016,
+        "recoverySeconds": null,
+        "peakPending": 303,
+        "peakUnpublished": 271,
+        "peakDatabaseConnections": 22,
+        "maxObservationIntervalMs": 1967.9573000000091,
+        "preAckCompletions": 0,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "workerTimings": {
+          "available": false,
+          "attemptStart": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "attemptStartErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalize": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "finalizeErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "webhook": {
+            "count": 30001,
+            "totalSeconds": 502.76586931600445,
+            "meanMs": 16.758303700410135,
+            "p95UpperBoundMs": 50
+          },
+          "webhookErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processing": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          },
+          "processingErrors": {
+            "count": 0,
+            "totalSeconds": 0,
+            "meanMs": null,
+            "p95UpperBoundMs": null
+          }
+        },
+        "errors": [],
+        "steadyState": {
+          "observationWindowSeconds": 281.10909080000005,
+          "deliveredPerSecond": 100.14973162155735,
+          "initialUnpublished": 67,
+          "finalUnpublished": 150,
+          "peakUnpublished": 271,
+          "initialPending": 267,
+          "finalPending": 185,
+          "peakPending": 275,
+          "pendingGrowthPerSecond": -0.29170170116746713,
+          "initialQueueWaiting": 180,
+          "finalQueueWaiting": 0,
+          "peakQueueWaiting": 224
+        }
+      },
+      "metadata": {
+        "images": {
+          "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+          "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        },
+        "resources": {
+          "hookrelay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "worker": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "relay": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "test-receiver": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "infrastructureResources": {
+          "postgres": {
+            "limits": {
+              "memory": "512Mi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "128Mi"
+            }
+          },
+          "redis": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          }
+        },
+        "relaySettings": {
+          "batchSize": 100,
+          "publishEverySeconds": 1
+        },
+        "restore": {
+          "replicas": 1,
+          "concurrency": null,
+          "target": {
+            "name": "WEBHOOK_TARGET_URL",
+            "value": "http://test-receiver:3001/webhooks"
+          },
+          "relay": {
+            "RELAY_BATCH_SIZE": {
+              "name": "RELAY_BATCH_SIZE",
+              "value": "100"
+            },
+            "RELAY_PUBLISH_INTERVAL_SECONDS": {
+              "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+              "value": "1"
+            }
+          },
+          "redis": {
+            "worker": null,
+            "relay": null
+          },
+          "isolatedRedis": true
+        },
+        "hardware": {
+          "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+          "logicalCpus": 2,
+          "memoryBytes": 4000018432
+        },
+        "version": "v1.36.4+k3s1",
+        "isolatedRedis": {
+          "image": "redis:8-alpine",
+          "arguments": [
+            "redis-server",
+            "--appendonly",
+            "yes",
+            "--appendfsync",
+            "everysec",
+            "--maxmemory",
+            "128mb",
+            "--maxmemory-policy",
+            "noeviction"
+          ],
+          "resources": {
+            "limits": {
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "64Mi"
+            }
+          },
+          "storage": {
+            "accessModes": ["ReadWriteOnce"],
+            "resources": {
+              "requests": {
+                "storage": "1Gi"
+              }
+            },
+            "storageClassName": "local-path",
+            "volumeMode": "Filesystem"
+          },
+          "productionQueuePreserved": true
+        },
+        "session": "8b263c42-1e46-451c-a03d-a119e822d21e",
+        "commit": "8290734d2df271206510cffa41ab2558be4277d2",
+        "startedAt": "2026-10-01T11:15:49.726Z",
+        "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+        "generatorNode": "v26.8.1",
+        "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+        "apiP95GuardMs": 1000,
+        "observerProtocol": "aggregate-snapshot-and-terminal-deltas",
+        "requireTimingPhases": false
+      },
+      "generatorSummary": {
+        "accepted": 30001,
+        "droppedIterations": 0,
+        "failedRequestRate": 0
+      },
+      "sampleAnalysis": {
+        "pendingSlopePerSecond": 0.30488002591433366,
+        "outboxSlopePerSecond": 0.3124103311125701,
+        "peakLockWaits": 0,
+        "deadlocksDelta": 0,
+        "minuteWindows": [
+          {
+            "minute": 1,
+            "meanPending": 184.64473684210526,
+            "meanUnpublished": 95.60526315789474,
+            "peakPending": 303,
+            "deliveredPerSecond": 96.74349063506294
+          },
+          {
+            "minute": 2,
+            "meanPending": 146.94915254237287,
+            "meanUnpublished": 126.59322033898304,
+            "peakPending": 257,
+            "deliveredPerSecond": 98.51295021111119
+          },
+          {
+            "minute": 3,
+            "meanPending": 223.8095238095238,
+            "meanUnpublished": 210.5079365079365,
+            "peakPending": 254,
+            "deliveredPerSecond": 100.0841208961793
+          },
+          {
+            "minute": 4,
+            "meanPending": 217.71929824561403,
+            "meanUnpublished": 185.59649122807016,
+            "peakPending": 242,
+            "deliveredPerSecond": 100.1403253812737
+          },
+          {
+            "minute": 5,
+            "meanPending": 212.8421052631579,
+            "meanUnpublished": 168.6140350877193,
+            "peakPending": 255,
+            "deliveredPerSecond": 99.96683636644491
+          }
+        ]
+      },
+      "resourcePeaks": {
+        "hookrelay-benchmark-redis": {
+          "cpuMillicores": 74,
+          "memoryMiB": 50
+        },
+        "postgres": {
+          "cpuMillicores": 580,
+          "memoryMiB": 372
+        },
+        "redis": {
+          "cpuMillicores": 6,
+          "memoryMiB": 85
+        },
+        "test-receiver": {
+          "cpuMillicores": 145,
+          "memoryMiB": 56
+        },
+        "hookrelay": {
+          "cpuMillicores": 351,
+          "memoryMiB": 66
+        },
+        "hookrelay-benchmark-receiver": {
+          "cpuMillicores": 175,
+          "memoryMiB": 33
+        },
+        "relay": {
+          "cpuMillicores": 140,
+          "memoryMiB": 105
+        },
+        "worker": {
+          "cpuMillicores": 487,
+          "memoryMiB": 63
+        }
+      }
+    }
+  ],
+  "verification": {
+    "images": {
+      "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+      "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+      "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+      "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+    },
+    "restore": {
+      "replicas": 1,
+      "concurrency": null,
+      "target": {
+        "name": "WEBHOOK_TARGET_URL",
+        "value": "http://test-receiver:3001/webhooks"
+      },
+      "relay": {
+        "RELAY_BATCH_SIZE": {
+          "name": "RELAY_BATCH_SIZE",
+          "value": "100"
+        },
+        "RELAY_PUBLISH_INTERVAL_SECONDS": {
+          "name": "RELAY_PUBLISH_INTERVAL_SECONDS",
+          "value": "1"
+        }
+      },
+      "redis": {
+        "worker": null,
+        "relay": null
+      }
+    },
+    "relaySettings": {
+      "batchSize": 100,
+      "publishEverySeconds": 1
+    },
+    "relayReplicas": 1,
+    "relayStrategy": "Recreate",
+    "pending": 0,
+    "unpublished": 0,
+    "fixturesRemoved": true,
+    "remainingKubectlProcesses": 0,
+    "pods": [
+      {
+        "app": "hookrelay",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "ghcr.io/peterculazh/hookrelay@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        ]
+      },
+      {
+        "app": "postgres",
+        "ready": true,
+        "restarts": 1,
+        "imageIds": [
+          "docker.io/library/postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24"
+        ]
+      },
+      {
+        "app": "redis",
+        "ready": true,
+        "restarts": 1,
+        "imageIds": [
+          "docker.io/library/redis@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0"
+        ]
+      },
+      {
+        "app": "relay",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "ghcr.io/peterculazh/hookrelay@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        ]
+      },
+      {
+        "app": "test-receiver",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "ghcr.io/peterculazh/hookrelay@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        ]
+      },
+      {
+        "app": "worker",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "ghcr.io/peterculazh/hookrelay@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+        ]
+      }
+    ]
+  },
+  "history": [
+    {
+      "id": "4aa8f820-6688-4d56-9b6e-0caacb7571c7",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    },
+    {
+      "id": "7db544ee-8596-4939-960a-114b8e7662b8",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    },
+    {
+      "id": "84cfef07-9881-4568-9ae2-b8f5154d2e7e",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    },
+    {
+      "id": "be466b67-ce7e-4edb-91f2-315aa68b189a",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    }
+  ],
+  "audit": [
+    {
+      "label": "preflight-baseline",
+      "exitCode": 0,
+      "groups": [
+        {
+          "type": "benchmark.629ad0be-5402-46fb-981a-6cbbc471b81d",
+          "first_event": "2026-10-01T10:23:27.308Z",
+          "last_event": "2026-10-01T10:23:37.281Z",
+          "total": 51,
+          "delivered": 51,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 51,
+          "successes": 51,
+          "effects": 51
+        }
+      ]
+    },
+    {
+      "label": "preflight-suite",
+      "exitCode": 0,
+      "groups": [
+        {
+          "type": "benchmark.d9614aeb-ab28-4c7f-9858-2b07c7a8da3c",
+          "first_event": "2026-10-01T10:32:43.442Z",
+          "last_event": "2026-10-01T10:32:53.415Z",
+          "total": 51,
+          "delivered": 51,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 51,
+          "successes": 51,
+          "effects": 51
+        },
+        {
+          "type": "benchmark.8c52ecc2-900d-49a9-99d0-d8248e35100f",
+          "first_event": "2026-10-01T10:32:58.301Z",
+          "last_event": "2026-10-01T10:33:08.287Z",
+          "total": 41,
+          "delivered": 41,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 41,
+          "successes": 41,
+          "effects": 41
+        },
+        {
+          "type": "benchmark.9f540b30-86b3-4f5f-89f9-85e85cb7f0fe",
+          "first_event": "2026-10-01T10:33:29.230Z",
+          "last_event": "2026-10-01T10:33:38.978Z",
+          "total": 40,
+          "delivered": 40,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 40,
+          "successes": 40,
+          "effects": 40
+        },
+        {
+          "type": "benchmark.848b61b8-cef5-4366-8f72-792fd75abfb5",
+          "first_event": "2026-10-01T10:33:54.584Z",
+          "last_event": "2026-10-01T10:34:04.582Z",
+          "total": 41,
+          "delivered": 41,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 41,
+          "successes": 41,
+          "effects": 41
+        },
+        {
+          "type": "benchmark.5bf267c5-e8d5-484d-9da6-20e7b95170fc",
+          "first_event": "2026-10-01T10:34:15.421Z",
+          "last_event": "2026-10-01T10:34:19.929Z",
+          "total": 10,
+          "delivered": 10,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 20,
+          "successes": 10,
+          "effects": 10
+        },
+        {
+          "type": "benchmark.4fed2702-0014-4369-99b3-9b302f822aba",
+          "first_event": "2026-10-01T10:34:28.708Z",
+          "last_event": "2026-10-01T10:34:33.693Z",
+          "total": 11,
+          "delivered": 0,
+          "failed": 11,
+          "pending": 0,
+          "attempts": 33,
+          "successes": 0,
+          "effects": 0
+        },
+        {
+          "type": "benchmark.c3437f46-1cf0-4f1f-b45a-7c0b919ca90c",
+          "first_event": "2026-10-01T10:34:52.890Z",
+          "last_event": "2026-10-01T10:34:54.886Z",
+          "total": 3,
+          "delivered": 0,
+          "failed": 3,
+          "pending": 0,
+          "attempts": 9,
+          "successes": 0,
+          "effects": 0
+        },
+        {
+          "type": "benchmark.f16f6e90-3606-4a9d-a7a1-253c920a96d5",
+          "first_event": "2026-10-01T10:35:44.257Z",
+          "last_event": "2026-10-01T10:35:54.246Z",
+          "total": 41,
+          "delivered": 41,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 41,
+          "successes": 41,
+          "effects": 41
+        },
+        {
+          "type": "benchmark.741424ea-9099-4130-a9d3-2c908edbd861",
+          "first_event": "2026-10-01T10:36:25.592Z",
+          "last_event": "2026-10-01T10:36:35.586Z",
+          "total": 41,
+          "delivered": 41,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 41,
+          "successes": 41,
+          "effects": 41
+        },
+        {
+          "type": "benchmark.0c39a50f-39a6-497c-bf40-c8e9993cf416",
+          "first_event": "2026-10-01T10:36:51.206Z",
+          "last_event": "2026-10-01T10:37:06.185Z",
+          "total": 301,
+          "delivered": 301,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 301,
+          "successes": 301,
+          "effects": 301
+        }
+      ]
+    },
+    {
+      "label": "preliminary-85-serial",
+      "exitCode": 1,
+      "groups": [
+        {
+          "type": "benchmark.d5927bbb-a9eb-4ff2-905a-4aa3cfd5decc",
+          "first_event": "2026-10-01T10:42:32.456Z",
+          "last_event": "2026-10-01T10:43:32.453Z",
+          "total": 5101,
+          "delivered": 5101,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 5101,
+          "successes": 5101,
+          "effects": 5101
+        }
+      ]
+    },
+    {
+      "label": "diagnostic-85-serial",
+      "exitCode": 1,
+      "groups": [
+        {
+          "type": "benchmark.59d18b0f-a820-4713-bf83-6ac6af5a5493",
+          "first_event": "2026-10-01T10:52:57.305Z",
+          "last_event": "2026-10-01T10:53:57.268Z",
+          "total": 5101,
+          "delivered": 5101,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 5101,
+          "successes": 5101,
+          "effects": 5101
+        }
+      ]
+    },
+    {
+      "label": "diagnostic-observer-final",
+      "exitCode": 0,
+      "groups": [
+        {
+          "type": "benchmark.3c113a78-be0c-4f55-a74f-4562c5312bd4",
+          "first_event": "2026-10-01T10:58:50.348Z",
+          "last_event": "2026-10-01T10:59:50.296Z",
+          "total": 5100,
+          "delivered": 5100,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 5100,
+          "successes": 5100,
+          "effects": 5100
+        }
+      ]
+    },
+    {
+      "label": "preliminary-85-concurrent",
+      "exitCode": 0,
+      "groups": [
+        {
+          "type": "benchmark.73c36d36-0425-4530-ad9e-ec5a3d5b9c41",
+          "first_event": "2026-10-01T11:01:47.446Z",
+          "last_event": "2026-10-01T11:02:47.412Z",
+          "total": 5101,
+          "delivered": 5101,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 5101,
+          "successes": 5101,
+          "effects": 5101
+        }
+      ]
+    },
+    {
+      "label": "preliminary-100-concurrent",
+      "exitCode": 1,
+      "groups": [
+        {
+          "type": "benchmark.f3108c5c-ba8e-40d3-b338-99190e9f9de7",
+          "first_event": "2026-10-01T11:04:15.400Z",
+          "last_event": "2026-10-01T11:05:15.345Z",
+          "total": 6001,
+          "delivered": 6001,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 6001,
+          "successes": 6001,
+          "effects": 6001
+        }
+      ]
+    },
+    {
+      "label": "diagnostic-100-short",
+      "exitCode": 0,
+      "groups": [
+        {
+          "type": "benchmark.359f8b56-6235-4055-95bb-17ad591006e5",
+          "first_event": "2026-10-01T11:07:07.226Z",
+          "last_event": "2026-10-01T11:07:27.187Z",
+          "total": 2001,
+          "delivered": 2001,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 2001,
+          "successes": 2001,
+          "effects": 2001
+        }
+      ]
+    },
+    {
+      "label": "preliminary-100-concurrent-repeat",
+      "exitCode": 0,
+      "groups": [
+        {
+          "type": "benchmark.2e91a106-40c6-46fd-b280-57f0f3ebfce1",
+          "first_event": "2026-10-01T11:09:18.452Z",
+          "last_event": "2026-10-01T11:10:18.430Z",
+          "total": 6000,
+          "delivered": 6000,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 6000,
+          "successes": 6000,
+          "effects": 6000
+        }
+      ]
+    },
+    {
+      "label": "preliminary-100-serial",
+      "exitCode": 0,
+      "groups": [
+        {
+          "type": "benchmark.5c5260d7-95cb-4759-b99f-87a0868c7806",
+          "first_event": "2026-10-01T11:12:03.436Z",
+          "last_event": "2026-10-01T11:13:03.375Z",
+          "total": 6000,
+          "delivered": 6000,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 6000,
+          "successes": 6000,
+          "effects": 6000
+        }
+      ]
+    },
+    {
+      "label": "preliminary-100-confirmation",
+      "exitCode": 0,
+      "groups": [
+        {
+          "type": "benchmark.bab04c01-f574-40a5-8ec2-b4c1d12882be",
+          "first_event": "2026-10-01T11:15:52.389Z",
+          "last_event": "2026-10-01T11:20:52.348Z",
+          "total": 30001,
+          "delivered": 30001,
+          "failed": 0,
+          "pending": 0,
+          "attempts": 30001,
+          "successes": 30001,
+          "effects": 30001
+        }
+      ]
+    }
+  ]
+}
