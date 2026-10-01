@@ -42,9 +42,27 @@ class ControllerTests(unittest.TestCase):
         context['patch_environment'] = Mock()
         context['database_query'] = Mock(return_value=[{'pending': 2}])
         context['kube'] = Mock()
+        context['time'] = Mock()
         result = context['restore']({'redis': {'worker': None}, 'isolatedRedis': True, 'concurrency': None, 'replicas': 1, 'target': None})
         self.assertTrue(result['fixtureRetained'])
+        self.assertFalse(result['restored'])
+        context['patch_environment'].assert_not_called()
+        context['patch'].assert_any_call('worker', 'WORKER_CONCURRENCY', None, 1)
         context['kube'].assert_not_called()
+
+    def test_isolated_pending_work_drains_before_hosts_are_restored(self):
+        context = controller()
+        context['stop_observer'] = Mock()
+        context['stop_api_forward'] = Mock()
+        context['patch'] = Mock()
+        context['patch_environment'] = Mock()
+        context['time'] = Mock()
+        context['database_query'] = Mock(side_effect=[[{'pending': 2}], [{'pending': 0}], [{'pending': 0}]])
+        context['kube'] = Mock(return_value='')
+        result = context['restore']({'redis': {'worker': None}, 'isolatedRedis': True, 'concurrency': None, 'replicas': 0, 'target': None})
+        self.assertEqual(result, {'restored': True, 'fixtureRetained': False})
+        context['patch'].assert_any_call('worker', 'WORKER_CONCURRENCY', None, 1)
+        context['patch_environment'].assert_called_once_with('worker', {'WORKER_CONCURRENCY': None, 'REDIS_HOST': None}, 0)
 
     def test_forward_cleanup_signals_only_its_owned_process(self):
         context = controller()

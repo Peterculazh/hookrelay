@@ -31,6 +31,7 @@ let stopping = false;
 let tick = 0;
 let forceMetrics = false;
 const completed = new Map();
+let phase = 'snapshot';
 createInterface({ input: process.stdin }).on('line', (line) => {
   if (line === 'metrics') forceMetrics = true;
 });
@@ -44,6 +45,7 @@ for (const signal of ['SIGTERM', 'SIGINT'])
   });
 try {
   while (!stopping) {
+    phase = 'snapshot';
     const {
       rows: [observation],
     } = await pool.query(
@@ -70,6 +72,7 @@ try {
           FROM run_events WHERE status <> 'pending') AS terminals`,
       [config.type],
     );
+    phase = 'database_stats';
     const {
       rows: [database],
     } = await pool.query(`SELECT
@@ -77,6 +80,7 @@ try {
       (SELECT count(*)::int FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock') AS lock_waits,
       xact_commit, xact_rollback, blks_read, blks_hit, deadlocks
       FROM pg_stat_database WHERE datname=current_database()`);
+    phase = 'queue_counts';
     const counts = await queue.getJobCounts('waiting', 'active', 'delayed');
     const sample = {
       kind: 'observation',
@@ -106,6 +110,18 @@ try {
     console.log(JSON.stringify(sample));
     await sleep(500);
   }
+} catch (error) {
+  // Names/codes diagnose failures without exporting SQL or connection details.
+  const safeCode = /^[A-Za-z0-9_]+$/.test(error.code ?? '')
+    ? error.code
+    : 'unspecified';
+  console.log(
+    JSON.stringify({
+      kind: 'observerError',
+      error: `Observer ${phase} failed (${error.name}: ${safeCode})`,
+    }),
+  );
+  process.exitCode = 1;
 } finally {
   await queue.close();
   await pool.end();

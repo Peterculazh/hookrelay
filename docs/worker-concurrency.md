@@ -1,7 +1,8 @@
 # Milestone 14: worker concurrency and delivery timings
 
-Status: implementation and local checks complete; instrumented-release
-deployment, paired comparisons, and longer confirmation are pending.
+Status: implementation and local checks complete; preliminary harness checks
+are running against the existing release. Instrumented-release deployment,
+paired phase-timing comparisons, and longer confirmation are pending.
 
 Milestone 13 verified 75 incoming events/s for two minutes with one worker at
 concurrency one. At 80–100 events/s, deliveries accumulated after publication.
@@ -66,12 +67,19 @@ use this same isolation; the extra idle original Redis and fixture resources
 remain part of VPS resource consumption. This differs from milestone 13's
 populated production queue and must be recorded in comparisons.
 
-Restoration reinstates the original Redis host entries, relay settings, worker
-concurrency/replicas, and API destination. Owned Redis/receiver resources are
-removed after pending fixture deliveries reach zero. If pending work remains,
-fixtures are retained for recovery. Ownership checks refuse deletion of another
+Restoration stops fixture ingress and enables a worker to drain the isolated
+queue before reinstating the original Redis host entries, relay settings, and
+worker concurrency/replicas. Owned Redis/receiver resources are removed after
+pending fixture deliveries reach zero. If the bounded recovery wait expires,
+fixtures and their Redis routing remain available for recovery; the result
+reports `restored: false` and `fixtureRetained: true`. Check `restoration.json`
+before another run. Ownership checks refuse deletion of another
 session's resources. Application PostgreSQL data, receiver effects, and the
 original Redis history are retained. The fixture PVC is disposable test data.
+
+Observer failures include a sanitized phase/error code and exit status.
+Failed runs preserve their last aggregate snapshot, errors, and samples in
+`failed-observation.json`; they are excluded from capacity conclusions.
 
 ## Run the comparison from the local PC
 

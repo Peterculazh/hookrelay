@@ -180,6 +180,8 @@ function observe(message) {
   if (!current || message.type !== current.type) return;
   if (message.kind === 'observerError') {
     current.errors.push(message.error);
+    console.error(message.error);
+    current.observerFailed = true;
     return;
   }
   if (message.kind !== 'observation') return;
@@ -327,6 +329,7 @@ async function runCase(name, config) {
   current.ingressDone = performance.now();
   await writeFile(resolve(directory, 'k6.log'), log);
   checkInterrupted();
+  assert.ok(!current.observerFailed, 'Observer failed during ingress');
   if (config.paused) {
     const deadline = performance.now() + 90000;
     while (
@@ -335,6 +338,10 @@ async function runCase(name, config) {
       performance.now() < deadline
     ) {
       checkInterrupted();
+      assert.ok(
+        !current.observerFailed,
+        'Observer failed while publishing backlog',
+      );
       await sleep(250);
     }
     assert.equal(current.snapshot.total, current.accepted.size);
@@ -355,6 +362,7 @@ async function runCase(name, config) {
     performance.now() < deadline
   ) {
     checkInterrupted();
+    assert.ok(!current.observerFailed, 'Observer failed while draining');
     await sleep(250);
   }
   const summary = JSON.parse(
@@ -642,6 +650,19 @@ try {
 } catch (error) {
   console.error(error.message);
   await writeFile(resolve(output, 'error.txt'), error.message);
+  if (current)
+    await writeFile(
+      resolve(output, 'failed-observation.json'),
+      JSON.stringify(
+        {
+          snapshot: current.snapshot,
+          errors: current.errors,
+          samples: current.samples,
+        },
+        null,
+        2,
+      ),
+    );
   process.exitCode = 1;
 } finally {
   activeK6?.kill('SIGINT');
@@ -659,7 +680,7 @@ try {
       );
       if (restoration.fixtureRetained) {
         console.error(
-          'Settings restored; receiver retained for pending benchmark jobs.',
+          'Fixtures retained for pending benchmark jobs; check restoration.json before continuing.',
         );
         process.exitCode = 1;
       }

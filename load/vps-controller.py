@@ -250,7 +250,7 @@ def start_observer(type_name, source):
             except Exception:
                 emit({'kind': 'observerError', 'type': type_name, 'error': 'Invalid observer output'})
         if observer is process:
-            emit({'kind': 'observerError', 'type': type_name, 'error': 'Observer exited'})
+            emit({'kind': 'observerError', 'type': type_name, 'error': 'Observer exited (code ' + str(process.wait()) + ')'})
 
     observer_thread = threading.Thread(target=forward, daemon=True)
     observer_thread.start()
@@ -259,6 +259,20 @@ def start_observer(type_name, source):
 def restore(state):
     stop_observer()
     stop_api_forward()
+    # Stop new fixture ingress before switching away from its queue. If an
+    # observer failed, the worker must still drain this Redis before deletion.
+    patch('hookrelay', 'WEBHOOK_TARGET_URL', state['target'])
+    pending_sql = "SELECT count(*)::int AS pending FROM events WHERE status='pending' AND target_url='http://hookrelay-benchmark-receiver:3002/webhooks'"
+    pending = database_query(pending_sql)[0]['pending']
+    if pending and 'isolatedRedis' in state:
+        patch('worker', 'WORKER_CONCURRENCY', state['concurrency'], max(1, state['replicas']))
+        for _ in range(30):
+            time.sleep(2)
+            pending = database_query(pending_sql)[0]['pending']
+            if not pending:
+                break
+        if pending:
+            return {'restored': False, 'fixtureRetained': True, 'pending': pending}
     if 'relay' in state:
         entries = dict(state['relay'])
         if 'redis' in state:
@@ -270,8 +284,7 @@ def restore(state):
         patch_environment('worker', {'WORKER_CONCURRENCY': state['concurrency'], 'REDIS_HOST': state['redis']['worker']}, state['replicas'])
     else:
         patch('worker', 'WORKER_CONCURRENCY', state['concurrency'], state['replicas'])
-    patch('hookrelay', 'WEBHOOK_TARGET_URL', state['target'])
-    pending = database_query("SELECT count(*)::int AS pending FROM events WHERE status='pending' AND target_url='http://hookrelay-benchmark-receiver:3002/webhooks'")[0]['pending']
+    pending = database_query(pending_sql)[0]['pending']
     if pending:
         return {'restored': True, 'fixtureRetained': True, 'pending': pending}
     resources = [(kind, proxy_name) for kind in ['deployment', 'service', 'configmap']]
