@@ -22,6 +22,10 @@ in Actions. Deployment remains an explicit operation on the server.
 
 ## 1. Give K3s read access to the private package
 
+For Milestone 11, use this release process before running the
+[remote benchmark harness](vps-load-testing.md). Preserve the known compatible
+release bundle for rollback and take a new off-server backup before updating.
+
 Create a GitHub personal access token (classic) with `read:packages` for an
 account allowed to read the package. This is a server pull credential, separate
 from CI's token. Authorize it for SSO if the account's organization requires it.
@@ -195,7 +199,29 @@ B was a documentation-only commit with the same application code, database
 schema, manifests, and shared configuration as A. This exercise verifies
 version selection and application rollback between compatible releases;
 compatibility must still be reviewed for future code or schema changes. The
-remote applications remain on A. Preserve both image digests and release bundles.
+remote applications remained on A after this exercise. Preserve both image
+digests and release bundles.
+
+### Milestone 11 release, 2026-10-01
+
+The VPS subsequently advanced to commit
+`8c817589dc58ffc6966e33cf49e535ee72c57dee`, image digest
+`sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81`.
+[CI run 36760176540](https://github.com/Peterculazh/hookrelay/actions/runs/36760176540)
+passed before deployment. A new custom-format database archive was copied off
+the VPS and its SHA256 verified. The commit-specific migration Job completed,
+and receiver, API, worker, and relay rollouts all succeeded at that digest.
+
+Readiness returned HTTP 200; fresh event
+`3d51bb35-61ae-4e46-a9c8-3a7c9b07eda5` delivered with HTTP 204. The saved A, B,
+and rollback smoke events remained delivered, with one successful attempt and
+one receiver effect each. After all VPS benchmark runs, fresh event
+`ccaa9d4e-41f9-4f01-b0e1-605d4a0d6c0d` also delivered. Final inspection confirmed
+all four applications' running image IDs match the selected digest, all six
+application/storage Pods are ready, zero events are pending, and original
+settings are restored with benchmark fixtures removed. The VPS now remains on
+this release. Details and backup checksum are in the
+[VPS benchmark report](vps-benchmark-report.md).
 
 References: [GHCR authentication and visibility](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry),
 [publishing from GitHub Actions](https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images),

@@ -1,0 +1,1223 @@
+{
+  "verifiedOn": "2026-10-01",
+  "metadata": {
+    "images": {
+      "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8c817589dc58ffc6966e33cf49e535ee72c57dee@sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81",
+      "worker": "ghcr.io/peterculazh/hookrelay:sha-8c817589dc58ffc6966e33cf49e535ee72c57dee@sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81",
+      "relay": "ghcr.io/peterculazh/hookrelay:sha-8c817589dc58ffc6966e33cf49e535ee72c57dee@sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81",
+      "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8c817589dc58ffc6966e33cf49e535ee72c57dee@sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81"
+    },
+    "resources": {
+      "hookrelay": {
+        "limits": {
+          "memory": "256Mi"
+        },
+        "requests": {
+          "cpu": "100m",
+          "memory": "128Mi"
+        }
+      },
+      "worker": {
+        "limits": {
+          "memory": "256Mi"
+        },
+        "requests": {
+          "cpu": "100m",
+          "memory": "128Mi"
+        }
+      },
+      "relay": {
+        "limits": {
+          "memory": "256Mi"
+        },
+        "requests": {
+          "cpu": "100m",
+          "memory": "128Mi"
+        }
+      },
+      "test-receiver": {
+        "limits": {
+          "memory": "256Mi"
+        },
+        "requests": {
+          "cpu": "50m",
+          "memory": "64Mi"
+        }
+      }
+    },
+    "infrastructureResources": {
+      "postgres": {
+        "limits": {
+          "memory": "512Mi"
+        },
+        "requests": {
+          "cpu": "100m",
+          "memory": "128Mi"
+        }
+      },
+      "redis": {
+        "limits": {
+          "memory": "256Mi"
+        },
+        "requests": {
+          "cpu": "50m",
+          "memory": "64Mi"
+        }
+      }
+    },
+    "restore": {
+      "replicas": 1,
+      "concurrency": null,
+      "target": {
+        "name": "WEBHOOK_TARGET_URL",
+        "value": "http://test-receiver:3001/webhooks"
+      }
+    },
+    "hardware": {
+      "cpuModel": "Intel Core Processor (Haswell, no TSX)",
+      "logicalCpus": 2,
+      "memoryBytes": 4000018432
+    },
+    "version": "v1.36.4+k3s1",
+    "session": "0abb05b1-5f28-4aa9-916e-33ed0fbb1859",
+    "commit": "8c817589dc58ffc6966e33cf49e535ee72c57dee",
+    "startedAt": "2026-10-01T08:04:17.466Z",
+    "network": "Local PC → SSH tunnel → kubectl port-forward → VPS API",
+    "generatorNode": "v26.8.1",
+    "generatorK6": "k6.exe v0.51.0 (commit/33d3caa7d1, go1.22.3, windows/amd64)",
+    "apiP95GuardMs": 1000
+  },
+  "backup": {
+    "name": "backup-RTy7oOqy",
+    "sha256": "8ea6a6e22c0bc7375e12fe3f041df64c39f74159ce05b733340e86f5988019da",
+    "bytes": 12933,
+    "offServerVerified": true,
+    "archiveListVerified": true,
+    "createdAt": "2026-10-01T08:00:05.754Z"
+  },
+  "history": [
+    {
+      "id": "84cfef07-9881-4568-9ae2-b8f5154d2e7e",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    },
+    {
+      "id": "4aa8f820-6688-4d56-9b6e-0caacb7571c7",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    },
+    {
+      "id": "7db544ee-8596-4939-960a-114b8e7662b8",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    },
+    {
+      "id": "3d51bb35-61ae-4e46-a9c8-3a7c9b07eda5",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    }
+  ],
+  "finalHistory": [
+    {
+      "id": "84cfef07-9881-4568-9ae2-b8f5154d2e7e",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    },
+    {
+      "id": "4aa8f820-6688-4d56-9b6e-0caacb7571c7",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    },
+    {
+      "id": "7db544ee-8596-4939-960a-114b8e7662b8",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    },
+    {
+      "id": "ccaa9d4e-41f9-4f01-b0e1-605d4a0d6c0d",
+      "status": "delivered",
+      "effects": 1,
+      "successes": 1
+    }
+  ],
+  "verification": {
+    "images": {
+      "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8c817589dc58ffc6966e33cf49e535ee72c57dee@sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81",
+      "worker": "ghcr.io/peterculazh/hookrelay:sha-8c817589dc58ffc6966e33cf49e535ee72c57dee@sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81",
+      "relay": "ghcr.io/peterculazh/hookrelay:sha-8c817589dc58ffc6966e33cf49e535ee72c57dee@sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81",
+      "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8c817589dc58ffc6966e33cf49e535ee72c57dee@sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81"
+    },
+    "restore": {
+      "replicas": 1,
+      "concurrency": null,
+      "target": {
+        "name": "WEBHOOK_TARGET_URL",
+        "value": "http://test-receiver:3001/webhooks"
+      }
+    },
+    "pending": 0,
+    "fixturesRemoved": true,
+    "pods": [
+      {
+        "app": "hookrelay",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "ghcr.io/peterculazh/hookrelay@sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81"
+        ]
+      },
+      {
+        "app": "postgres",
+        "ready": true,
+        "restarts": 1,
+        "imageIds": [
+          "docker.io/library/postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24"
+        ]
+      },
+      {
+        "app": "redis",
+        "ready": true,
+        "restarts": 1,
+        "imageIds": [
+          "docker.io/library/redis@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0"
+        ]
+      },
+      {
+        "app": "relay",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "ghcr.io/peterculazh/hookrelay@sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81"
+        ]
+      },
+      {
+        "app": "test-receiver",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "ghcr.io/peterculazh/hookrelay@sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81"
+        ]
+      },
+      {
+        "app": "worker",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "ghcr.io/peterculazh/hookrelay@sha256:8130f3a2f85e9ed80a812819c7988cd2398f1b6c2fbd24e2b2f619a1149c8d81"
+        ]
+      }
+    ]
+  },
+  "evidenceDirectory": ".tmp/vps-benchmarks/2026-10-01T08-04-07-784Z-suite",
+  "restoration": {
+    "restored": true,
+    "fixtureRetained": false
+  },
+  "totals": {
+    "total": 582,
+    "delivered": 567,
+    "failed": 15,
+    "effects": 567,
+    "attempts": 623
+  },
+  "resourcePeaksPerPod": {
+    "postgres": {
+      "cpuMillicores": 30,
+      "memoryMiB": 63
+    },
+    "redis": {
+      "cpuMillicores": 9,
+      "memoryMiB": 12
+    },
+    "relay": {
+      "cpuMillicores": 68,
+      "memoryMiB": 83
+    },
+    "test-receiver": {
+      "cpuMillicores": 22,
+      "memoryMiB": 44
+    },
+    "worker": {
+      "cpuMillicores": 359,
+      "memoryMiB": 56
+    },
+    "hookrelay": {
+      "cpuMillicores": 278,
+      "memoryMiB": 53
+    },
+    "hookrelay-benchmark-receiver": {
+      "cpuMillicores": 17,
+      "memoryMiB": 25
+    }
+  },
+  "results": [
+    {
+      "name": "baseline",
+      "type": "benchmark.8a88645a-e1b7-443c-b0a6-5985f06b9820",
+      "config": {
+        "rate": 5,
+        "seconds": 10,
+        "replicas": 1,
+        "concurrency": 1
+      },
+      "checks": {
+        "k6": true,
+        "tracked": true,
+        "rate": true,
+        "terminal": true,
+        "effects": true,
+        "attempts": true,
+        "outcomes": true,
+        "observer": true,
+        "resources": true,
+        "metrics": true
+      },
+      "snapshot": {
+        "total": 51,
+        "pending": 0,
+        "delivered": 51,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 51,
+        "attempts": 51
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 51
+        }
+      ],
+      "acceptedPerSecond": 5.1,
+      "deliveredPerSecondOverWholeRun": 4.127201683050188,
+      "apiMs": {
+        "count": 51,
+        "p50": 49.99910000000091,
+        "p95": 57.654099999999744,
+        "p99": 113.63539999999921,
+        "max": 113.63539999999921
+      },
+      "deliveryMs": {
+        "count": 51,
+        "p50": 5682.696599999999,
+        "p95": 9768.632399999999,
+        "p99": 10170.917699999998,
+        "max": 10170.917699999998
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 12.357040899999998,
+      "drainSeconds": 0.5285818999999974,
+      "recoverySeconds": null,
+      "peakPending": 48,
+      "peakUnpublished": 48,
+      "peakDatabaseConnections": 8,
+      "maxObservationIntervalMs": 1169.5907999999981,
+      "errors": []
+    },
+    {
+      "name": "slow-serial",
+      "type": "benchmark.04e993b5-f847-4a5c-9b27-a7d45c4d4d39",
+      "config": {
+        "rate": 4,
+        "seconds": 10,
+        "delayMs": 500,
+        "replicas": 1,
+        "concurrency": 1
+      },
+      "checks": {
+        "k6": true,
+        "tracked": true,
+        "rate": true,
+        "terminal": true,
+        "effects": true,
+        "attempts": true,
+        "outcomes": true,
+        "observer": true,
+        "resources": true,
+        "metrics": true
+      },
+      "snapshot": {
+        "total": 40,
+        "pending": 0,
+        "delivered": 40,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 40,
+        "attempts": 40
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 40
+        }
+      ],
+      "acceptedPerSecond": 4,
+      "deliveredPerSecondOverWholeRun": 1.3776360230108473,
+      "apiMs": {
+        "count": 40,
+        "p50": 48.486900000003516,
+        "p95": 51.795500000000175,
+        "p99": 69.9413999999997,
+        "max": 69.9413999999997
+      },
+      "deliveryMs": {
+        "count": 40,
+        "p50": 13209.587799999994,
+        "p95": 17894.559499999996,
+        "p99": 18415.9487,
+        "max": 18415.9487
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 29.0352454,
+      "drainSeconds": 17.5255591,
+      "recoverySeconds": null,
+      "peakPending": 36,
+      "peakUnpublished": 29,
+      "peakDatabaseConnections": 6,
+      "maxObservationIntervalMs": 1005.5426999999981,
+      "errors": []
+    },
+    {
+      "name": "slow-concurrency",
+      "type": "benchmark.a804707a-eeca-4f87-894e-97bf57e24aa5",
+      "config": {
+        "rate": 4,
+        "seconds": 10,
+        "delayMs": 500,
+        "concurrency": 4,
+        "replicas": 1
+      },
+      "checks": {
+        "k6": true,
+        "tracked": true,
+        "rate": true,
+        "terminal": true,
+        "effects": true,
+        "attempts": true,
+        "outcomes": true,
+        "observer": true,
+        "resources": true,
+        "metrics": true
+      },
+      "snapshot": {
+        "total": 41,
+        "pending": 0,
+        "delivered": 41,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 41,
+        "attempts": 41
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 41
+        }
+      ],
+      "acceptedPerSecond": 4.1,
+      "deliveredPerSecondOverWholeRun": 2.281158429223682,
+      "apiMs": {
+        "count": 41,
+        "p50": 48.71520000000601,
+        "p95": 60.11059999999998,
+        "p99": 64.81169999999838,
+        "max": 64.81169999999838
+      },
+      "deliveryMs": {
+        "count": 41,
+        "p50": 8066.321100000001,
+        "p95": 10221.248999999996,
+        "p99": 10708.075500000006,
+        "max": 10708.075500000006
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 17.973324200000004,
+      "drainSeconds": 6.3261538,
+      "recoverySeconds": null,
+      "peakPending": 30,
+      "peakUnpublished": 30,
+      "peakDatabaseConnections": 12,
+      "maxObservationIntervalMs": 1193.4958000000042,
+      "errors": []
+    },
+    {
+      "name": "slow-replicas",
+      "type": "benchmark.834d742f-04ca-4263-85ca-3669e070af1c",
+      "config": {
+        "rate": 4,
+        "seconds": 10,
+        "delayMs": 500,
+        "replicas": 2,
+        "concurrency": 1
+      },
+      "checks": {
+        "k6": true,
+        "tracked": true,
+        "rate": true,
+        "terminal": true,
+        "effects": true,
+        "attempts": true,
+        "outcomes": true,
+        "observer": true,
+        "resources": true,
+        "metrics": true
+      },
+      "snapshot": {
+        "total": 41,
+        "pending": 0,
+        "delivered": 41,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 41,
+        "attempts": 41
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 41
+        }
+      ],
+      "acceptedPerSecond": 4.1,
+      "deliveredPerSecondOverWholeRun": 1.8548592371754764,
+      "apiMs": {
+        "count": 41,
+        "p50": 49.32749999999942,
+        "p95": 53.0625,
+        "p99": 66.34500000000116,
+        "max": 66.34500000000116
+      },
+      "deliveryMs": {
+        "count": 41,
+        "p50": 10722.859000000011,
+        "p95": 11024.055800000002,
+        "p99": 11116.795299999998,
+        "max": 11116.795299999998
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 22.104103199999997,
+      "drainSeconds": 10.34613859999999,
+      "recoverySeconds": null,
+      "peakPending": 29,
+      "peakUnpublished": 29,
+      "peakDatabaseConnections": 8,
+      "maxObservationIntervalMs": 1185.8510999999999,
+      "errors": []
+    },
+    {
+      "name": "retry",
+      "type": "benchmark.2a80f3e0-4f9a-43b4-8331-4d90f1659449",
+      "config": {
+        "rate": 2,
+        "seconds": 5,
+        "failAttempts": 1,
+        "concurrency": 4,
+        "replicas": 1
+      },
+      "checks": {
+        "k6": true,
+        "tracked": true,
+        "rate": true,
+        "terminal": true,
+        "effects": true,
+        "attempts": true,
+        "outcomes": true,
+        "observer": true,
+        "resources": true,
+        "metrics": true
+      },
+      "snapshot": {
+        "total": 11,
+        "pending": 0,
+        "delivered": 11,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 11,
+        "attempts": 22
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 11
+        },
+        {
+          "status": "failed",
+          "http_status": 503,
+          "error_code": "HTTP_ERROR",
+          "count": 11
+        }
+      ],
+      "acceptedPerSecond": 2.2,
+      "deliveredPerSecondOverWholeRun": 0.5178035085847936,
+      "apiMs": {
+        "count": 11,
+        "p50": 48.58200000000943,
+        "p95": 87.03310000000056,
+        "p99": 87.03310000000056,
+        "max": 87.03310000000056
+      },
+      "deliveryMs": {
+        "count": 11,
+        "p50": 8314.214600000007,
+        "p95": 14915.8465,
+        "p99": 14915.8465,
+        "max": 14915.8465
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 21.243579500000006,
+      "drainSeconds": 14.210862000000008,
+      "recoverySeconds": null,
+      "peakPending": 11,
+      "peakUnpublished": 10,
+      "peakDatabaseConnections": 12,
+      "maxObservationIntervalMs": 1425.6591000000044,
+      "errors": []
+    },
+    {
+      "name": "failure",
+      "type": "benchmark.6d72002c-94f6-4e1e-9f91-3ab6909ff06f",
+      "config": {
+        "rate": 2,
+        "seconds": 5,
+        "failAttempts": 3,
+        "concurrency": 4,
+        "expected": "failed",
+        "replicas": 1
+      },
+      "checks": {
+        "k6": true,
+        "tracked": true,
+        "rate": true,
+        "terminal": true,
+        "effects": true,
+        "attempts": true,
+        "outcomes": true,
+        "observer": true,
+        "resources": true,
+        "metrics": true
+      },
+      "snapshot": {
+        "total": 11,
+        "pending": 0,
+        "delivered": 0,
+        "failed": 11,
+        "unpublished": 0,
+        "effects": 0,
+        "attempts": 33
+      },
+      "attemptOutcomes": [
+        {
+          "status": "failed",
+          "http_status": 503,
+          "error_code": "HTTP_ERROR",
+          "count": 33
+        }
+      ],
+      "acceptedPerSecond": 2.2,
+      "deliveredPerSecondOverWholeRun": 0,
+      "apiMs": {
+        "count": 11,
+        "p50": 49.01970000000438,
+        "p95": 67.68739999999525,
+        "p99": 67.68739999999525,
+        "max": 67.68739999999525
+      },
+      "deliveryMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "failureMs": {
+        "count": 11,
+        "p50": 18417.34540000002,
+        "p95": 25096.872299999988,
+        "p99": 25096.872299999988,
+        "max": 25096.872299999988
+      },
+      "totalSeconds": 28.956147800000007,
+      "drainSeconds": 22.40837419999999,
+      "recoverySeconds": null,
+      "peakPending": 11,
+      "peakUnpublished": 6,
+      "peakDatabaseConnections": 9,
+      "maxObservationIntervalMs": 995.0877000000037,
+      "errors": []
+    },
+    {
+      "name": "timeout",
+      "type": "benchmark.b4cef219-cb38-406a-a64b-e2ca9e7f7a65",
+      "config": {
+        "rate": 1,
+        "seconds": 3,
+        "delayMs": 11000,
+        "concurrency": 4,
+        "expected": "failed",
+        "replicas": 1
+      },
+      "checks": {
+        "k6": true,
+        "tracked": true,
+        "rate": true,
+        "terminal": true,
+        "effects": true,
+        "attempts": true,
+        "outcomes": true,
+        "observer": true,
+        "resources": true,
+        "metrics": true
+      },
+      "snapshot": {
+        "total": 4,
+        "pending": 0,
+        "delivered": 0,
+        "failed": 4,
+        "unpublished": 0,
+        "effects": 0,
+        "attempts": 12
+      },
+      "attemptOutcomes": [
+        {
+          "status": "failed",
+          "http_status": null,
+          "error_code": "TIMEOUT",
+          "count": 12
+        }
+      ],
+      "acceptedPerSecond": 1.3333333333333333,
+      "deliveredPerSecondOverWholeRun": 0,
+      "apiMs": {
+        "count": 4,
+        "p50": 48.358299999992596,
+        "p95": 64.5910000000149,
+        "p99": 64.5910000000149,
+        "max": 64.5910000000149
+      },
+      "deliveryMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "failureMs": {
+        "count": 4,
+        "p50": 47444.973,
+        "p95": 55105.03169999999,
+        "p99": 55105.03169999999,
+        "max": 55105.03169999999
+      },
+      "totalSeconds": 58.93991639999999,
+      "drainSeconds": 54.37769689999998,
+      "recoverySeconds": null,
+      "peakPending": 4,
+      "peakUnpublished": 3,
+      "peakDatabaseConnections": 8,
+      "maxObservationIntervalMs": 952.4241000000038,
+      "errors": []
+    },
+    {
+      "name": "backlog-serial",
+      "type": "benchmark.62c0a1a6-d145-4e1c-af4d-0397a993fec9",
+      "config": {
+        "rate": 4,
+        "seconds": 10,
+        "delayMs": 500,
+        "paused": true,
+        "replicas": 1,
+        "concurrency": 1
+      },
+      "checks": {
+        "k6": true,
+        "tracked": true,
+        "rate": true,
+        "terminal": true,
+        "effects": true,
+        "attempts": true,
+        "outcomes": true,
+        "observer": true,
+        "resources": true,
+        "metrics": true
+      },
+      "snapshot": {
+        "total": 41,
+        "pending": 0,
+        "delivered": 41,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 41,
+        "attempts": 41
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 41
+        }
+      ],
+      "acceptedPerSecond": 4.1,
+      "deliveredPerSecondOverWholeRun": 1.0106726663811565,
+      "apiMs": {
+        "count": 41,
+        "p50": 50.08879999999772,
+        "p95": 52.137000000017,
+        "p99": 66.02420000001439,
+        "max": 66.02420000001439
+      },
+      "deliveryMs": {
+        "count": 41,
+        "p50": 24296.306900000025,
+        "p95": 28988.024600000004,
+        "p99": 29492.731899999984,
+        "max": 29492.731899999984
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 40.56704149999997,
+      "drainSeconds": 28.741484799999977,
+      "recoverySeconds": 26.663760299999964,
+      "peakPending": 41,
+      "peakUnpublished": 31,
+      "peakDatabaseConnections": 6,
+      "maxObservationIntervalMs": 7375.3822999999975,
+      "errors": []
+    },
+    {
+      "name": "backlog-concurrency",
+      "type": "benchmark.3202e01f-2131-4971-bca8-1fbea3ef0bb3",
+      "config": {
+        "rate": 4,
+        "seconds": 10,
+        "delayMs": 500,
+        "paused": true,
+        "concurrency": 4,
+        "replicas": 1
+      },
+      "checks": {
+        "k6": true,
+        "tracked": true,
+        "rate": true,
+        "terminal": true,
+        "effects": true,
+        "attempts": true,
+        "outcomes": true,
+        "observer": true,
+        "resources": true,
+        "metrics": true
+      },
+      "snapshot": {
+        "total": 41,
+        "pending": 0,
+        "delivered": 41,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 41,
+        "attempts": 41
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 41
+        }
+      ],
+      "acceptedPerSecond": 4.1,
+      "deliveredPerSecondOverWholeRun": 1.7474485790986298,
+      "apiMs": {
+        "count": 41,
+        "p50": 48.17719999997644,
+        "p95": 50.74790000001667,
+        "p99": 63.632800000021234,
+        "max": 63.632800000021234
+      },
+      "deliveryMs": {
+        "count": 41,
+        "p50": 14474.157699999982,
+        "p95": 17995.127800000017,
+        "p99": 18487.34779999999,
+        "max": 18487.34779999999
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 23.462779099999985,
+      "drainSeconds": 11.838868000000017,
+      "recoverySeconds": 11.578560300000012,
+      "peakPending": 41,
+      "peakUnpublished": 37,
+      "peakDatabaseConnections": 12,
+      "maxObservationIntervalMs": 7578.735700000019,
+      "errors": []
+    },
+    {
+      "name": "relay-pressure",
+      "type": "benchmark.c331b300-8d5c-4e2a-b34a-763c35ab7df4",
+      "config": {
+        "rate": 20,
+        "seconds": 15,
+        "concurrency": 4,
+        "replicas": 1
+      },
+      "checks": {
+        "k6": true,
+        "tracked": true,
+        "rate": true,
+        "terminal": true,
+        "effects": true,
+        "attempts": true,
+        "outcomes": true,
+        "observer": true,
+        "resources": true,
+        "metrics": true
+      },
+      "snapshot": {
+        "total": 301,
+        "pending": 0,
+        "delivered": 301,
+        "failed": 0,
+        "unpublished": 0,
+        "effects": 301,
+        "attempts": 301
+      },
+      "attemptOutcomes": [
+        {
+          "status": "succeeded",
+          "http_status": 204,
+          "error_code": null,
+          "count": 301
+        }
+      ],
+      "acceptedPerSecond": 20.066666666666666,
+      "deliveredPerSecondOverWholeRun": 8.033914221364055,
+      "apiMs": {
+        "count": 301,
+        "p50": 47.074199999973644,
+        "p95": 52.86310000001686,
+        "p99": 82.13900000002468,
+        "max": 135.98040000000037
+      },
+      "deliveryMs": {
+        "count": 301,
+        "p50": 9549.488499999978,
+        "p95": 16098.847899999993,
+        "p99": 16686.686600000015,
+        "max": 21512.558099999966
+      },
+      "failureMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "totalSeconds": 37.46617049999995,
+      "drainSeconds": 20.76907369999995,
+      "recoverySeconds": null,
+      "peakPending": 201,
+      "peakUnpublished": 201,
+      "peakDatabaseConnections": 13,
+      "maxObservationIntervalMs": 1014.9060999999638,
+      "errors": []
+    }
+  ],
+  "supplemental": [
+    {
+      "evidenceDirectory": ".tmp/vps-benchmarks/2026-10-01T08-02-53-691Z-baseline",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "results": [
+        {
+          "name": "baseline",
+          "type": "benchmark.24ae864b-72b7-4f7a-b3fd-d106112a0ac8",
+          "config": {
+            "rate": 5,
+            "seconds": 10,
+            "replicas": 1,
+            "concurrency": 1
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true
+          },
+          "snapshot": {
+            "total": 51,
+            "pending": 0,
+            "delivered": 51,
+            "failed": 0,
+            "unpublished": 0,
+            "effects": 51,
+            "attempts": 51
+          },
+          "attemptOutcomes": [
+            {
+              "status": "succeeded",
+              "http_status": 204,
+              "error_code": null,
+              "count": 51
+            }
+          ],
+          "acceptedPerSecond": 5.1,
+          "deliveredPerSecondOverWholeRun": 3.2594379342142528,
+          "apiMs": {
+            "count": 51,
+            "p50": 50.49829999999929,
+            "p95": 56.51119999999719,
+            "p99": 101.61460000000079,
+            "max": 101.61460000000079
+          },
+          "deliveryMs": {
+            "count": 51,
+            "p50": 5796.318199999998,
+            "p95": 9992.711799999997,
+            "p99": 10404.968,
+            "max": 10404.968
+          },
+          "failureMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "totalSeconds": 15.646869500000001,
+          "drainSeconds": 3.5342667000000003,
+          "recoverySeconds": null,
+          "peakPending": 34,
+          "peakUnpublished": 34,
+          "peakDatabaseConnections": 6,
+          "maxObservationIntervalMs": 1424.4514999999992,
+          "errors": []
+        }
+      ]
+    },
+    {
+      "evidenceDirectory": ".tmp/vps-benchmarks/2026-10-01T08-10-29-978Z-backlog-serial",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "results": [
+        {
+          "name": "backlog-serial",
+          "type": "benchmark.f736dfdb-625d-4143-8476-ee3547704d74",
+          "config": {
+            "rate": 4,
+            "seconds": 10,
+            "delayMs": 500,
+            "paused": true,
+            "replicas": 1,
+            "concurrency": 1
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true
+          },
+          "snapshot": {
+            "total": 40,
+            "pending": 0,
+            "delivered": 40,
+            "failed": 0,
+            "unpublished": 0,
+            "effects": 40,
+            "attempts": 40
+          },
+          "attemptOutcomes": [
+            {
+              "status": "succeeded",
+              "http_status": 204,
+              "error_code": null,
+              "count": 40
+            }
+          ],
+          "acceptedPerSecond": 4,
+          "deliveredPerSecondOverWholeRun": 1.0271931117991255,
+          "apiMs": {
+            "count": 40,
+            "p50": 50.40780000000086,
+            "p95": 52.15850000000137,
+            "p99": 106.91820000000007,
+            "max": 106.91820000000007
+          },
+          "deliveryMs": {
+            "count": 40,
+            "p50": 22935.758500000004,
+            "p95": 27602.6723,
+            "p99": 28120.997300000003,
+            "max": 28120.997300000003
+          },
+          "failureMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "totalSeconds": 38.9410711,
+          "drainSeconds": 27.202276500000004,
+          "recoverySeconds": 24.867072300000004,
+          "peakPending": 40,
+          "peakUnpublished": 30,
+          "peakDatabaseConnections": 6,
+          "maxObservationIntervalMs": 6302.463799999998,
+          "errors": []
+        }
+      ]
+    },
+    {
+      "evidenceDirectory": ".tmp/vps-benchmarks/2026-10-01T08-11-33-942Z-backlog-concurrency",
+      "restoration": {
+        "restored": true,
+        "fixtureRetained": false
+      },
+      "results": [
+        {
+          "name": "backlog-concurrency",
+          "type": "benchmark.dede8745-67df-4b93-9e0e-191aac61fdd9",
+          "config": {
+            "rate": 4,
+            "seconds": 10,
+            "delayMs": 500,
+            "paused": true,
+            "concurrency": 4,
+            "replicas": 1
+          },
+          "checks": {
+            "k6": true,
+            "tracked": true,
+            "rate": true,
+            "terminal": true,
+            "effects": true,
+            "attempts": true,
+            "outcomes": true,
+            "observer": true,
+            "resources": true,
+            "metrics": true
+          },
+          "snapshot": {
+            "total": 40,
+            "pending": 0,
+            "delivered": 40,
+            "failed": 0,
+            "unpublished": 0,
+            "effects": 40,
+            "attempts": 40
+          },
+          "attemptOutcomes": [
+            {
+              "status": "succeeded",
+              "http_status": 204,
+              "error_code": null,
+              "count": 40
+            }
+          ],
+          "acceptedPerSecond": 4,
+          "deliveredPerSecondOverWholeRun": 1.3591987126702783,
+          "apiMs": {
+            "count": 40,
+            "p50": 50.33549999999741,
+            "p95": 57.87879999999859,
+            "p99": 76.07380000000012,
+            "max": 76.07380000000012
+          },
+          "deliveryMs": {
+            "count": 40,
+            "p50": 21254.8935,
+            "p95": 24526.161699999997,
+            "p99": 24998.022599999997,
+            "max": 24998.022599999997
+          },
+          "failureMs": {
+            "count": 0,
+            "p50": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "totalSeconds": 29.429103800000004,
+          "drainSeconds": 17.864785100000002,
+          "recoverySeconds": 10.8341882,
+          "peakPending": 40,
+          "peakUnpublished": 30,
+          "peakDatabaseConnections": 12,
+          "maxObservationIntervalMs": 7497.612899999996,
+          "errors": []
+        }
+      ]
+    }
+  ]
+}

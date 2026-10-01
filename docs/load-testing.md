@@ -1,5 +1,10 @@
 # Load testing and tuning
 
+This guide records Milestone 10's local baseline. Milestone 11's
+[VPS deployment and remote load testing](vps-load-testing.md) is also complete,
+with k6 on the PC and the application pipeline on the VPS. Relay tuning follows
+these measurements.
+
 Milestone 10 uses k6 to drive event acceptance independently of delivery, then
 observes committed delivery results and queue recovery. The local benchmark
 stack is defined in `load/compose.yml`, uses the fixed Compose project

@@ -39,7 +39,8 @@
     "prepare:release": "node scripts/prepare-release.mjs",
     "test:release": "node --test scripts/release.test.mjs",
     "benchmark": "node scripts/benchmark.mjs",
-    "benchmark:suite": "node scripts/benchmark.mjs suite"
+    "benchmark:suite": "node scripts/benchmark.mjs suite",
+    "benchmark:vps": "node scripts/benchmark-vps.mjs"
   },
   "dependencies": {
     "@nestjs/bullmq": "^12.0.0",
