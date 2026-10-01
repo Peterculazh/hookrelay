@@ -1,0 +1,293 @@
+{
+  "verifiedAt": "2026-10-01T12:12:16.417Z",
+  "deployment": {
+    "kind": "result",
+    "namespace": "hookrelay-monitoring",
+    "configurationChecksum": "47566cb9cd2a335a5a1cd1ce851960df66f575bef79a76ec8a400fb9776c5a42",
+    "targets": [
+      {
+        "job": "hookrelay-api",
+        "health": "up"
+      },
+      {
+        "job": "hookrelay-relay",
+        "health": "up"
+      },
+      {
+        "job": "hookrelay-worker",
+        "health": "up"
+      }
+    ],
+    "datasourceHealthy": true,
+    "dashboardUid": "hookrelay-overview",
+    "dashboardPanels": 12,
+    "pods": [
+      {
+        "app": "hookrelay-grafana",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "docker.io/grafana/grafana@sha256:b0ae311af06228bcfd4a620504b653db80f5b91e94dc3dc2a5b7dab202bcde20"
+        ]
+      },
+      {
+        "app": "hookrelay-prometheus",
+        "ready": true,
+        "restarts": 0,
+        "imageIds": [
+          "docker.io/prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996"
+        ]
+      }
+    ],
+    "verifiedAt": "2026-10-01T11:56:24.897Z"
+  },
+  "dashboardQueries": {
+    "verifiedAt": "2026-10-01T12:04:13.792Z",
+    "localPort": 18083,
+    "dashboardUid": "hookrelay-overview",
+    "dashboardPanels": 12,
+    "requiresLogin": true,
+    "datasourceHealthy": true,
+    "targets": [
+      {
+        "job": "hookrelay-api",
+        "health": "up"
+      },
+      {
+        "job": "hookrelay-relay",
+        "health": "up"
+      },
+      {
+        "job": "hookrelay-worker",
+        "health": "up"
+      }
+    ],
+    "panels": [
+      {
+        "id": 1,
+        "title": "Scrape health (1 = up, 0 = down)",
+        "refId": "A",
+        "series": 3,
+        "finiteSamples": 183
+      },
+      {
+        "id": 2,
+        "title": "Delivery attempts in selected period",
+        "refId": "A",
+        "series": 2,
+        "finiteSamples": 122
+      },
+      {
+        "id": 3,
+        "title": "API traffic by route and HTTP status",
+        "refId": "A",
+        "series": 4,
+        "finiteSamples": 244
+      },
+      {
+        "id": 4,
+        "title": "API HTTP error rate (4xx / 5xx)",
+        "refId": "A",
+        "series": 1,
+        "finiteSamples": 61
+      },
+      {
+        "id": 4,
+        "title": "API HTTP error rate (4xx / 5xx)",
+        "refId": "B",
+        "series": 1,
+        "finiteSamples": 61
+      },
+      {
+        "id": 5,
+        "title": "API latency p95",
+        "refId": "A",
+        "series": 4,
+        "finiteSamples": 145
+      },
+      {
+        "id": 6,
+        "title": "Receiver response time p95",
+        "refId": "A",
+        "series": 2,
+        "finiteSamples": 11
+      },
+      {
+        "id": 7,
+        "title": "Delivery attempt rate by outcome",
+        "refId": "A",
+        "series": 2,
+        "finiteSamples": 122
+      },
+      {
+        "id": 8,
+        "title": "Queue jobs by state",
+        "refId": "A",
+        "series": 3,
+        "finiteSamples": 183
+      },
+      {
+        "id": 9,
+        "title": "Unpublished outbox records",
+        "refId": "A",
+        "series": 1,
+        "finiteSamples": 61
+      },
+      {
+        "id": 10,
+        "title": "Process resident memory",
+        "refId": "A",
+        "series": 3,
+        "finiteSamples": 183
+      },
+      {
+        "id": 11,
+        "title": "Event-loop delay p99",
+        "refId": "A",
+        "series": 3,
+        "finiteSamples": 183
+      },
+      {
+        "id": 12,
+        "title": "Service process CPU (% of one core)",
+        "refId": "A",
+        "series": 3,
+        "finiteSamples": 183
+      }
+    ]
+  },
+  "state": {
+    "applicationHealth": [
+      {
+        "app": "hookrelay",
+        "ready": true,
+        "restarts": 0
+      },
+      {
+        "app": "postgres",
+        "ready": true,
+        "restarts": 1
+      },
+      {
+        "app": "redis",
+        "ready": true,
+        "restarts": 1
+      },
+      {
+        "app": "relay",
+        "ready": true,
+        "restarts": 0
+      },
+      {
+        "app": "test-receiver",
+        "ready": true,
+        "restarts": 0
+      },
+      {
+        "app": "worker",
+        "ready": true,
+        "restarts": 0
+      }
+    ],
+    "monitoringHealth": [
+      {
+        "app": "hookrelay-grafana",
+        "ready": true,
+        "restarts": 0
+      },
+      {
+        "app": "hookrelay-prometheus",
+        "ready": true,
+        "restarts": 0
+      }
+    ],
+    "images": {
+      "hookrelay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+      "relay": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+      "test-receiver": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921",
+      "worker": "ghcr.io/peterculazh/hookrelay:sha-8290734d2df271206510cffa41ab2558be4277d2@sha256:c80584dddfe5c1d3127c75b05b4c0a26ece7daae89268a0a35d6277e31fe5921"
+    },
+    "settings": {
+      "hookrelay": {
+        "replicas": 1,
+        "environment": {
+          "WEBHOOK_TARGET_URL": "http://test-receiver:3001/webhooks"
+        }
+      },
+      "relay": {
+        "replicas": 1,
+        "environment": {}
+      },
+      "test-receiver": {
+        "replicas": 1,
+        "environment": {}
+      },
+      "worker": {
+        "replicas": 1,
+        "environment": {}
+      }
+    },
+    "claims": [
+      {
+        "name": "grafana-data",
+        "phase": "Bound",
+        "capacity": "1Gi"
+      },
+      {
+        "name": "prometheus-data",
+        "phase": "Bound",
+        "capacity": "2Gi"
+      }
+    ],
+    "services": [
+      {
+        "name": "grafana",
+        "type": "ClusterIP",
+        "externalAddressesConfigured": false
+      },
+      {
+        "name": "prometheus",
+        "type": "ClusterIP",
+        "externalAddressesConfigured": false
+      }
+    ],
+    "monitoringUsageSnapshot": [
+      {
+        "app": "grafana",
+        "containers": [
+          {
+            "name": "grafana",
+            "cpu": "3346782n",
+            "memory": "153776Ki"
+          }
+        ]
+      },
+      {
+        "app": "prometheus",
+        "containers": [
+          {
+            "name": "prometheus",
+            "cpu": "1219920n",
+            "memory": "32188Ki"
+          }
+        ]
+      }
+    ],
+    "memory": {
+      "MemTotal": 4000018432,
+      "MemAvailable": 1896902656
+    }
+  },
+  "freshDelivery": {
+    "eventId": "887b432f-c77c-49bc-b155-7506ca0121f1",
+    "status": "delivered",
+    "httpStatus": 204,
+    "successfulAttempts": 1,
+    "receiverEffects": 1
+  },
+  "historicalEventIdsVerified": [
+    "4aa8f820-6688-4d56-9b6e-0caacb7571c7",
+    "7db544ee-8596-4939-960a-114b8e7662b8",
+    "84cfef07-9881-4568-9ae2-b8f5154d2e7e"
+  ]
+}

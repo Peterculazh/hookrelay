@@ -100,6 +100,8 @@ docker compose -f docker-compose.yml down
 
 ## Observability
 
+For the deployed VPS, use [the private Grafana dashboard](http://localhost:18083/d/hookrelay-overview) through the PC's SSH tunnel. The [VPS monitoring guide](docs/vps-monitoring.md) explains login, reconnection, charts, retention, and deployment. Prometheus keeps collecting on the VPS while the PC is disconnected.
+
 After starting Compose, open [HookRelay delivery overview](http://localhost:18082/d/hookrelay-overview) in Grafana. Log in with `admin` / `hookrelay-local` (override with `GRAFANA_ADMIN_PASSWORD` before first startup). The Prometheus data source and dashboard are provisioned from `observability/`; no manual dashboard setup is needed. [Prometheus targets](http://localhost:9090/targets) should show all three services up. Host ports can be changed using `GRAFANA_HOST_PORT` and `PROMETHEUS_HOST_PORT`.
 
 The dashboard shows API traffic and HTTP errors, API p95 latency, delivery attempts by outcome, receiver p95 response time, waiting/active/delayed queue jobs, and unpublished outbox records. Allow two five-second scrapes for rates to appear. Percentiles are estimates from histogram buckets and are empty when there are no observations.
@@ -290,7 +292,7 @@ kubectl --context docker-desktop -n hookrelay get pods,services,pvc,jobs
 
 Keep exactly one relay replica. Its Deployment uses `Recreate` to avoid overlapping relay Pods during an update. Rebuild/import an image containing the relay before applying its manifest.
 
-The API has startup, liveness, and PostgreSQL readiness probes. Worker and relay probes call `/health/live` on their internal metrics listeners (9465 and 9466). This endpoint responds without querying dependencies or collecting metrics, so a database or Redis outage does not trigger restart loops. Their readiness means the process can respond; it does not prove delivery capacity. The receiver has startup, liveness, and readiness probes on its root endpoint. Verify the full path with the smoke test next. The Prometheus/Grafana setup above is currently Compose-only.
+The API has startup, liveness, and PostgreSQL readiness probes. Worker and relay probes call `/health/live` on their internal metrics listeners (9465 and 9466). This endpoint responds without querying dependencies or collecting metrics, so a database or Redis outage does not trigger restart loops. Their readiness means the process can respond; it does not prove delivery capacity. The receiver has startup, liveness, and readiness probes on its root endpoint. Verify the full path with the smoke test next. The Compose instructions above cover local monitoring; the [VPS monitoring guide](docs/vps-monitoring.md) covers the deployed K3s dashboard.
 
 ### 6. Forward the API and verify delivery
 

@@ -1,0 +1,285 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hookrelay-monitoring
+  labels:
+    app.kubernetes.io/part-of: hookrelay-monitoring
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hookrelay-api-metrics
+  namespace: hookrelay
+  labels:
+    app.kubernetes.io/part-of: hookrelay-monitoring
+spec:
+  clusterIP: None
+  selector:
+    app: hookrelay
+  ports:
+    - name: metrics
+      port: 9464
+      targetPort: 9464
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hookrelay-worker-metrics
+  namespace: hookrelay
+  labels:
+    app.kubernetes.io/part-of: hookrelay-monitoring
+spec:
+  clusterIP: None
+  selector:
+    app: worker
+  ports:
+    - name: metrics
+      port: 9465
+      targetPort: 9465
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hookrelay-relay-metrics
+  namespace: hookrelay
+  labels:
+    app.kubernetes.io/part-of: hookrelay-monitoring
+spec:
+  clusterIP: None
+  selector:
+    app: relay
+  ports:
+    - name: metrics
+      port: 9466
+      targetPort: 9466
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-data
+  namespace: hookrelay-monitoring
+  labels:
+    app.kubernetes.io/part-of: hookrelay-monitoring
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-data
+  namespace: hookrelay-monitoring
+  labels:
+    app.kubernetes.io/part-of: hookrelay-monitoring
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: hookrelay-monitoring
+  labels:
+    app.kubernetes.io/part-of: hookrelay-monitoring
+spec:
+  type: ClusterIP
+  selector:
+    app: hookrelay-prometheus
+  ports:
+    - name: http
+      port: 9090
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: hookrelay-monitoring
+  labels:
+    app.kubernetes.io/part-of: hookrelay-monitoring
+spec:
+  type: ClusterIP
+  selector:
+    app: hookrelay-grafana
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: hookrelay-monitoring
+  labels:
+    app.kubernetes.io/part-of: hookrelay-monitoring
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: hookrelay-prometheus
+  template:
+    metadata:
+      labels:
+        app: hookrelay-prometheus
+      annotations:
+        hookrelay/configuration-sha256: CONFIGURATION_SHA256
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v3.5.0
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+            - --storage.tsdb.retention.time=7d
+            - --storage.tsdb.retention.size=1GB
+          ports:
+            - name: http
+              containerPort: 9090
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /-/ready
+              port: http
+            periodSeconds: 2
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: http
+          volumeMounts:
+            - name: configuration
+              mountPath: /etc/prometheus
+              readOnly: true
+            - name: data
+              mountPath: /prometheus
+      volumes:
+        - name: configuration
+          configMap:
+            name: hookrelay-prometheus
+        - name: data
+          persistentVolumeClaim:
+            claimName: prometheus-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: hookrelay-monitoring
+  labels:
+    app.kubernetes.io/part-of: hookrelay-monitoring
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: hookrelay-grafana
+  template:
+    metadata:
+      labels:
+        app: hookrelay-grafana
+      annotations:
+        hookrelay/configuration-sha256: CONFIGURATION_SHA256
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 472
+        runAsGroup: 472
+        fsGroup: 472
+      containers:
+        - name: grafana
+          image: grafana/grafana:12.4.0
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: admin
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-admin
+                  key: admin-password
+            - name: GF_USERS_ALLOW_SIGN_UP
+              value: 'false'
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: 'false'
+            - name: GF_ANALYTICS_REPORTING_ENABLED
+              value: 'false'
+            - name: GF_ANALYTICS_CHECK_FOR_UPDATES
+              value: 'false'
+          ports:
+            - name: http
+              containerPort: 3000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 768Mi
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            periodSeconds: 2
+            failureThreshold: 90
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+          volumeMounts:
+            - name: provisioning
+              mountPath: /etc/grafana/provisioning/datasources
+              subPath: datasources
+              readOnly: true
+            - name: provisioning
+              mountPath: /etc/grafana/provisioning/dashboards
+              subPath: dashboards
+              readOnly: true
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/grafana
+      volumes:
+        - name: provisioning
+          configMap:
+            name: hookrelay-grafana-provisioning
+            items:
+              - key: datasource.yml
+                path: datasources/prometheus.yml
+              - key: dashboard.yml
+                path: dashboards/hookrelay.yml
+        - name: dashboards
+          configMap:
+            name: hookrelay-grafana-dashboard
+        - name: data
+          persistentVolumeClaim:
+            claimName: grafana-data
