@@ -104,6 +104,53 @@ describe('EventsProcessor', () => {
     expect(eventDeliveryRepository.markFailed).not.toHaveBeenCalled();
   });
 
+  it('adds the signer headers for the exact body it sends', async () => {
+    const signatureHeaders = {
+      'x-hookrelay-signature': 'v1=abc',
+      'x-hookrelay-timestamp': '1789207200',
+      'x-hookrelay-key-id': 'key-7',
+    };
+    const sign = vi.fn().mockResolvedValue(signatureHeaders);
+    processor = new EventsProcessor(
+      eventDeliveryRepository as unknown as EventDeliveryRepository,
+      { sign },
+    );
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+
+    await processor.process(createJob());
+
+    const [, request] = fetchMock.mock.calls[0];
+    expect(sign).toHaveBeenCalledWith(jobData.event.id, request.body);
+    expect(request.headers).toEqual({
+      'content-type': 'application/json',
+      ...signatureHeaders,
+    });
+  });
+
+  it('records a signer failure and retries without contacting the receiver', async () => {
+    const error = new Error('14 UNAVAILABLE: No connection established');
+    processor = new EventsProcessor(
+      eventDeliveryRepository as unknown as EventDeliveryRepository,
+      { sign: vi.fn().mockRejectedValue(error) },
+    );
+
+    await expect(processor.process(createJob())).rejects.toBe(error);
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(eventDeliveryRepository.markFailed).toHaveBeenCalledWith(
+      attemptId,
+      jobData.event.id,
+      {
+        httpStatus: null,
+        errorCode: 'SIGNER_ERROR',
+        errorMessage: error.message,
+      },
+      now,
+      'pending',
+    );
+    expect((await workerMetrics.attempts.get()).values).toEqual([]);
+  });
+
   it('waits for BullMQ to drain before completing module destruction', async () => {
     let release!: () => void;
     const close = vi.fn(

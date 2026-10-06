@@ -78,6 +78,13 @@ jobs:
                   RECEIVER_COMPOSE_PROJECT: hookrelay-ci
               run: npm run test:receiver
 
+            - name: Verify webhook signing
+              timeout-minutes: 4
+              env:
+                  SIGNING_COMPOSE_FILE: docker-compose.ci.yml
+                  SIGNING_COMPOSE_PROJECT: hookrelay-ci
+              run: npm run test:signing
+
             - name: Verify worker crash recovery
               timeout-minutes: 6
               env:

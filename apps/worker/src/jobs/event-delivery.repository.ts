@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService, schema } from '@app/database';
 import { and, eq } from 'drizzle-orm';
 
-export type DeliveryErrorCode = 'HTTP_ERROR' | 'TIMEOUT' | 'NETWORK_ERROR';
+export type DeliveryErrorCode =
+  'HTTP_ERROR' | 'TIMEOUT' | 'NETWORK_ERROR' | 'SIGNER_ERROR';
 export type EventStatusAfterFailure = 'pending' | 'failed';
 
 export interface FailedDeliveryAttempt {

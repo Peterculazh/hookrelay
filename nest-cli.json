@@ -55,6 +55,24 @@
         "tsConfigPath": "apps/relay/tsconfig.app.json"
       }
     },
+    "signer": {
+      "type": "application",
+      "root": "apps/signer",
+      "entryFile": "main",
+      "sourceRoot": "apps/signer/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/signer/tsconfig.app.json"
+      }
+    },
+    "grpc": {
+      "type": "library",
+      "root": "libs/grpc",
+      "entryFile": "index",
+      "sourceRoot": "libs/grpc/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/grpc/tsconfig.lib.json"
+      }
+    },
     "queue": {
       "type": "library",
       "root": "libs/queue",

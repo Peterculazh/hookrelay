@@ -20,6 +20,8 @@ COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/dist ./dist
 COPY --from=build --chown=node:node /app/drizzle.config.ts ./
 COPY --from=build --chown=node:node /app/libs/database/src ./libs/database/src
+# gRPC services and clients load their .proto definitions at startup.
+COPY --from=build --chown=node:node /app/libs/grpc/proto ./libs/grpc/proto
 
 USER node
 

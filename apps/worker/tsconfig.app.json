@@ -14,6 +14,9 @@
     },
     {
       "path": "../../libs/queue/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/grpc/tsconfig.lib.json"
     }
   ]
 }
