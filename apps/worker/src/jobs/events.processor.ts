@@ -1,5 +1,5 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
-import type { OnModuleDestroy } from '@nestjs/common';
+import { Inject, type OnModuleDestroy } from '@nestjs/common';
 import type { Job } from 'bullmq';
 import { UnrecoverableError } from 'bullmq';
 import {
@@ -15,11 +15,13 @@ import {
   type DeliveryOperationOutcome,
 } from '../../../../libs/observability/src/metrics.js';
 import { loadWorkerConcurrency } from './worker.config.js';
+import { WEBHOOK_SIGNER, type WebhookSigner } from './webhook-signer.js';
 
 const WEBHOOK_TIMEOUT_MS = 10_000;
 const HTTP_ERROR = 'HTTP_ERROR';
 const TIMEOUT = 'TIMEOUT';
 const NETWORK_ERROR = 'NETWORK_ERROR';
+const SIGNER_ERROR = 'SIGNER_ERROR';
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -77,8 +79,14 @@ export class EventsProcessor extends WorkerHost implements OnModuleDestroy {
 
   constructor(
     private readonly eventDeliveryRepository: EventDeliveryRepository,
+    @Inject(WEBHOOK_SIGNER)
+    private readonly webhookSigner: WebhookSigner | null = null,
   ) {
     super();
+    this.logger.info({
+      action: 'worker.configured',
+      signing: this.webhookSigner !== null,
+    });
   }
 
   override async process(
@@ -143,15 +151,59 @@ export class EventsProcessor extends WorkerHost implements OnModuleDestroy {
       attemptNumber: job.attemptsMade + 1,
     });
 
+    const body = JSON.stringify(event);
+    const headers: Record<string, string> = {
+      'content-type': 'application/json',
+    };
+    if (this.webhookSigner) {
+      try {
+        Object.assign(headers, await this.webhookSigner.sign(event.id, body));
+      } catch (error) {
+        // The receiver was never contacted, so no receiver outcome is counted.
+        const eventStatus = eventStatusAfterFailure(job);
+
+        await this.measureDatabase('finalize', () =>
+          this.eventDeliveryRepository.markFailed(
+            attemptId,
+            event.id,
+            {
+              httpStatus: null,
+              errorCode: SIGNER_ERROR,
+              errorMessage: errorMessage(error),
+            },
+            new Date(),
+            eventStatus,
+          ),
+        );
+
+        const failureLog = {
+          action: 'delivery.failed',
+          eventId: event.id,
+          jobId: job.id,
+          attemptId,
+          attemptNumber: job.attemptsMade + 1,
+          httpStatus: null,
+          errorCode: SIGNER_ERROR,
+          eventStatus,
+        };
+
+        if (eventStatus === 'failed') {
+          this.logger.error(failureLog);
+        } else {
+          this.logger.warn(failureLog);
+        }
+
+        throw error;
+      }
+    }
+
     let response: Response;
     const started = performance.now();
     try {
       response = await fetch(targetUrl, {
         method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(event),
+        headers,
+        body,
         signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
       });
     } catch (error) {

@@ -58,3 +58,8 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # docker
 docker-compose.override.yml
 .docker-tmp
+
+
+# AI
+.claude/worktrees/
+.worktreeinclude

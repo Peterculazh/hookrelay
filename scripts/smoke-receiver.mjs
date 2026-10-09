@@ -37,11 +37,29 @@ async function check(stage, ids) {
     type: 'receiver.test',
     payload: { orderId: id, amount: 100 },
   });
-  async function send(body) {
+  const { createHmac } = await import('node:crypto');
+  // Runs with the receiver's own env, so sign exactly when it verifies.
+  function signatureHeaders(body) {
+    const secret = process.env.WEBHOOK_SIGNING_SECRET;
+    if (!secret) return {};
+    const timestamp = String(Math.floor(Date.now() / 1000));
+    const signature = createHmac('sha256', secret)
+      .update(`${timestamp}.${body}`)
+      .digest('hex');
+    return {
+      'x-hookrelay-signature': `v1=${signature}`,
+      'x-hookrelay-timestamp': timestamp,
+    };
+  }
+  async function send(event) {
+    const body = JSON.stringify(event);
     const response = await fetch(`${url}/webhooks`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
+      headers: {
+        'content-type': 'application/json',
+        ...signatureHeaders(body),
+      },
+      body,
       signal: AbortSignal.timeout(5000),
     });
     await response.text();

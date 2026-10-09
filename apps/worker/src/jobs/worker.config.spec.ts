@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { loadWorkerConcurrency } from './worker.config.js';
+import { loadSignerUrl, loadWorkerConcurrency } from './worker.config.js';
+
+describe('signer address', () => {
+  it('leaves signing off unless an address is configured', () => {
+    expect(loadSignerUrl({})).toBeUndefined();
+    expect(loadSignerUrl({ SIGNER_URL: 'signer:5051' })).toBe('signer:5051');
+    expect(() => loadSignerUrl({ SIGNER_URL: '' })).toThrow();
+  });
+});
 
 describe('worker concurrency', () => {
   it('preserves serial delivery by default and accepts bounded parallelism', () => {

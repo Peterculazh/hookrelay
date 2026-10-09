@@ -12,3 +12,7 @@ scrape_configs:
   - job_name: hookrelay-relay
     static_configs:
       - targets: ['relay:9466']
+
+  - job_name: hookrelay-signer
+    static_configs:
+      - targets: ['signer:9467']

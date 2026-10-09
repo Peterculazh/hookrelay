@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package signer;
+
+service SignerService {
+  // Returns the HMAC-SHA256 of "<timestamp>.<body>" under the active key.
+  rpc Sign(SignRequest) returns (SignResponse);
+}
+
+message SignRequest {
+  string event_id = 1;
+  // Unix seconds; sent to the receiver so it can reject stale deliveries.
+  int64 timestamp = 2;
+  // Exact bytes of the webhook request body.
+  bytes body = 3;
+}
+
+message SignResponse {
+  // Lowercase hex digest.
+  string signature = 1;
+  string key_id = 2;
+}
