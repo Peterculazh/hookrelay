@@ -1,0 +1,26 @@
+[
+  {
+    "file": "apps/test-receiver/src/signature.guard.spec.ts",
+    "tests": ["known answers", "accepts the HMAC of \"<timestamp>.<body>\"", "rejects an HMAC of the body alone"]
+  },
+  {
+    "file": "apps/signer/src/signer.grpc.spec.ts",
+    "tests": ["does not let a captured signature be replayed under a fresh timestamp"]
+  },
+  {
+    "file": "scripts/smoke-receiver.mjs",
+    "tests": ["counts(id, 1)", "counts(ids[0], 1)", "counts(ids[1], 1)"]
+  },
+  {
+    "file": "apps/test-receiver/src/test-receiver.replay.spec.ts",
+    "tests": [
+      "in-window replay",
+      "acknowledges the same signed request twice but processes it once",
+      "still remembers the event id at 300 s and rejects the resend at 301 s"
+    ]
+  },
+  {
+    "file": "apps/worker/src/jobs/events.processor.spec.ts",
+    "tests": ["re-signs each retry with a fresh timestamp the receiver still accepts"]
+  }
+]

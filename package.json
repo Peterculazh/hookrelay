@@ -40,6 +40,7 @@
     "prepare:vps": "node scripts/prepare-vps.mjs",
     "prepare:release": "node scripts/prepare-release.mjs",
     "test:release": "node --test scripts/release.test.mjs",
+    "verify:check": "node .claude/skills/verify/scripts/check.mjs",
     "benchmark": "node scripts/benchmark.mjs",
     "benchmark:suite": "node scripts/benchmark.mjs suite",
     "benchmark:vps": "node scripts/benchmark-vps.mjs"
