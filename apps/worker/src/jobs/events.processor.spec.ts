@@ -1,8 +1,11 @@
+import { createHmac } from 'node:crypto';
+import type { ExecutionContext } from '@nestjs/common';
 import type { Job, Worker } from 'bullmq';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PUBLISH_EVENT_JOB, type PublishEventJobData } from '@app/queue';
 import type { EventDeliveryRepository } from './event-delivery.repository.js';
 import { EventsProcessor } from './events.processor.js';
+import { SignatureGuard } from '../../../test-receiver/src/signature.guard.js';
 import { workerMetrics } from '../../../../libs/observability/src/metrics.js';
 
 const now = new Date('2026-09-12T10:00:00.000Z');
@@ -70,6 +73,7 @@ describe('EventsProcessor', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
     vi.restoreAllMocks();
   });
 
@@ -149,6 +153,64 @@ describe('EventsProcessor', () => {
       'pending',
     );
     expect((await workerMetrics.attempts.get()).values).toEqual([]);
+  });
+
+  it('re-signs each retry with a fresh timestamp the receiver still accepts', async () => {
+    const secret = 'worker-retry-signing-secret-0123456789';
+    vi.stubEnv('WEBHOOK_SIGNING_SECRET', secret);
+    // Signs like the signer service does, stamping the time of the call.
+    const sign = vi.fn((_eventId: string, body: string) => {
+      const timestamp = String(Math.floor(Date.now() / 1000));
+      const digest = createHmac('sha256', secret)
+        .update(`${timestamp}.${body}`)
+        .digest('hex');
+      return Promise.resolve({
+        'x-hookrelay-signature': `v1=${digest}`,
+        'x-hookrelay-timestamp': timestamp,
+        'x-hookrelay-key-id': 'key-7',
+      });
+    });
+    processor = new EventsProcessor(
+      eventDeliveryRepository as unknown as EventDeliveryRepository,
+      { sign },
+    );
+    // The receiver's own verification, run against what the worker put on the wire.
+    const receiverAccepts = (sent: {
+      headers: Record<string, string>;
+      body: string;
+    }) =>
+      new SignatureGuard().canActivate({
+        switchToHttp: () => ({
+          getRequest: () => ({
+            rawBody: Buffer.from(sent.body),
+            header: (name: string) => sent.headers[name],
+          }),
+        }),
+      } as unknown as ExecutionContext);
+    fetchMock
+      .mockResolvedValueOnce(new Response(null, { status: 500 }))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }));
+
+    await expect(processor.process(createJob())).rejects.toThrow(
+      'responded with 500',
+    );
+    // The backoff outlasts the receiver's 300 s tolerance for the first signature.
+    const retryAt = now.getTime() + 301_000;
+    vi.setSystemTime(retryAt);
+    await processor.process(createJob({ attemptsMade: 1 }));
+
+    const [[, first], [, retry]] = fetchMock.mock.calls;
+    expect(sign).toHaveBeenCalledTimes(2);
+    expect(first.headers['x-hookrelay-timestamp']).toBe(
+      String(now.getTime() / 1000),
+    );
+    expect(retry.headers['x-hookrelay-timestamp']).toBe(
+      String(retryAt / 1000),
+    );
+    expect(receiverAccepts(retry)).toBe(true);
+    expect(() => receiverAccepts(first)).toThrow(
+      'Signature timestamp is out of range',
+    );
   });
 
   it('waits for BullMQ to drain before completing module destruction', async () => {
