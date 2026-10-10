@@ -26,3 +26,14 @@ Any change to these is FAIL unless the user explicitly asked for it:
 - signer.grpc.spec.ts > replay test: the signature must come from the real SignerService
 - scripts/smoke-receiver.mjs: the counts(id, 1) assertions for sequential and concurrent duplicates
 - test-receiver.replay.spec.ts, and the retry re-sign test in events.processor.spec.ts
+
+## How to run the CI-stack tests
+Docker must already be running; if it isn't, stop and ask. Use only this repo's disposable stack:
+1. docker build --tag hookrelay:ci .
+2. docker compose -p hookrelay-ci -f docker-compose.ci.yml up -d --no-build --wait
+3. Run the tests the change needs. Worker tests need the compose env:
+   CRASH_COMPOSE_FILE=docker-compose.ci.yml CRASH_COMPOSE_PROJECT=hookrelay-ci npm run test:worker-crash
+   (same for test:shutdown and test:worker-exhaustion)
+4. Always tear down, even after a failure:
+   docker compose -p hookrelay-ci -f docker-compose.ci.yml down --volumes --remove-orphans
+A test that failed its precondition did not run: report it as not run, never as passed.

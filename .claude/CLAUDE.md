@@ -1,0 +1,1 @@
+- After changing code in apps/ or libs/, run the verify skill before saying the task is done, and report its verdict.

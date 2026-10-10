@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Verify a code change in hookrelay before calling it done - run lint, typecheck, unit tests and build, review the diff, and check that no test was weakened to make things pass. Use after editing code, before committing, or when asked to check, verify or review changes.
+description: Run after finishing any code change in this repo, before reporting the task as done or committing. Runs lint, typecheck, unit tests and build, reviews the diff, checks that no test was weakened, and runs the CI-stack tests the change needs. Also use when asked to verify, check or review changes.
 allowed-tools: Bash(npm run verify:check*) Bash(git diff *) Bash(git status *)
 ---
 
