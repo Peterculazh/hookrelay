@@ -1,4 +1,16 @@
 {
+  "permissions": {
+    "deny": [
+      "Bash(ssh *)",
+      "Bash(scp *)",
+      "Bash(bash scripts/deploy-release.sh*)",
+      "Bash(./scripts/deploy-release.sh*)",
+      "Bash(scripts/deploy-release.sh*)",
+      "PowerShell(ssh *)",
+      "PowerShell(scp *)",
+      "PowerShell(bash scripts/deploy-release.sh*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

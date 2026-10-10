@@ -13,7 +13,7 @@ FAIL if any gate fails or any test was weakened. Never fix a failure by loosenin
 !`git diff --stat HEAD`
 
 ## Steps
-1. Run `npm run verify:check` (lint, typecheck, unit tests, build, test-weakening signals). Don't edit code while it runs.
+1. Run exactly `npm run verify:check` as a standalone command: no cd, no pipes, no redirection. It runs lint, typecheck, unit tests, build, the load-bearing gate and test-weakening signals. Don't edit code while it runs.
 2. Read the diff of every changed test file(`git diff HEAD -- '*.spec.ts' scripts/`). Judge weakening with the checklist in [reference.md](reference.md). Scripts signals are leads, not verdicts: confirm each in the diff.
 3. If the change touches the receiver, signer, worker, database or compose files, run the CI-stack tests listed in [reference.md](reference.md). If Docker isn't running, stop and ask.
 4. Report:
