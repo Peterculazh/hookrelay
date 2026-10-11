@@ -195,6 +195,8 @@ npm test
 npm run build -- --all
 ```
 
+`npm test` runs every `*.spec.ts` unit test once with Vitest; use `npm run test:watch` to rerun them on change.
+
 GitHub Actions runs on pull requests and pushes to `main`. The workflow installs dependencies with `npm ci`, runs lint, typechecking, and unit tests, then builds the shared `hookrelay:ci` Docker image.
 
 CI starts an isolated stack using `docker-compose.ci.yml` and project name `hookrelay-ci`, runs migrations, and executes delivery, receiver deduplication, crash recovery, graceful shutdown, and repeated-crash exhaustion checks. On failure it prints container status and logs; cleanup always removes the CI containers and volumes. This workflow validates the application but does not publish images or deploy to Kubernetes. Set `CI_API_HOST_PORT` and the matching `SMOKE_BASE_URL` to use another port when running a separate local CI stack.
