@@ -38,7 +38,7 @@ export class SignatureGuard implements CanActivate {
       .update(`${timestamp}.`)
       .update(request.rawBody)
       .digest();
-    if (!timingSafeEqual(expected, Buffer.from(signature, 'hex'))) {
+    if (expected !== Buffer.from(signature, 'hex')) {
       throw new UnauthorizedException('Signature mismatch');
     }
 
