@@ -13,10 +13,56 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    describe:
+    # Runs the pull request's own code (npm ci, tests, build), so it gets no
+    # secrets and only read access. Its result reaches `describe` as an artifact.
+    verify:
         # Fork and Dependabot pull requests do not receive repository secrets.
         if: >-
             github.event.pull_request.head.repo.full_name == github.repository
+            && github.actor != 'dependabot[bot]'
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        permissions:
+            contents: read
+
+        steps:
+            - name: Check out pull request head
+              uses: actions/checkout@v7
+              with:
+                  ref: ${{ github.event.pull_request.head.sha }}
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: "24"
+
+            - name: Install dependencies
+              run: npm ci
+
+            # A failing gate is a result to report, not a reason to fail the job.
+            - name: Run verify gates
+              env:
+                  VERIFY_BASE: ${{ github.event.pull_request.base.sha }}
+              run: |
+                  set +e
+                  npm run verify:check > verify.txt 2>&1
+                  echo "exit_code=$?" >> verify.txt
+                  exit 0
+
+            - name: Upload verify result
+              uses: actions/upload-artifact@v4
+              with:
+                  name: verify
+                  path: verify.txt
+
+    describe:
+        needs: verify
+        # Still describe the PR if verify broke (for example, npm ci failed).
+        if: >-
+            !cancelled()
+            && github.event.pull_request.head.repo.full_name == github.repository
             && github.actor != 'dependabot[bot]'
         runs-on: ubuntu-latest
         timeout-minutes: 10
@@ -49,6 +95,14 @@ jobs:
                   git diff --stat "$BASE_SHA...$HEAD_SHA" > .pr-context/stat.txt
                   git diff "$BASE_SHA...$HEAD_SHA" > .pr-context/diff.patch
 
+            # Missing artifact means verify did not run; the prompt reports that.
+            - name: Add verify result
+              continue-on-error: true
+              uses: actions/download-artifact@v4
+              with:
+                  name: verify
+                  path: .pr-context
+
             # The diff is untrusted input, so this step gets read-only tools,
             # ignores the repository's Claude settings and has no GitHub token.
             - name: Write description
@@ -64,9 +118,9 @@ jobs:
                     echo "::error::Set the CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY repository secret."
                     exit 1
                   fi
-                  claude --print --restricted --strict-mcp-config \
+                  claude --print --restricted --strict-mcp-config --disable-slash-commands \
                     --tools "Read,Grep,Glob" --allowedTools "Read,Grep,Glob" \
-                    --model claude-sonnet-5-5 --output-format text \
+                    --model claude-sonnet-5-5 --max-turns 30 --output-format text \
                     < .github/pr-description-prompt.md > .pr-context/summary.md
 
             - name: Update pull request description
