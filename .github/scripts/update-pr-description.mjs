@@ -16,6 +16,11 @@ export function mergeBody(currentBody, summary) {
   const block = `${START}\n${text}\n${END}`;
 
   const start = body.indexOf(START);
+  if (start !== -1 && body.indexOf(END, start + START.length) === -1) {
+    throw new Error(
+      'Start marker without an end marker after it: fix the PR description by hand',
+    );
+  }
   const end = start === -1 ? -1 : body.indexOf(END, start + START.length);
   if (end === -1) {
     const existing = body.trimEnd();

@@ -8,7 +8,7 @@ export default defineConfig({
   test: {
     globals: true,
     root: './',
-    include: ['**/*.spec.ts'],
+    include: ['**/*.spec.ts', '.github/scripts/**/*.spec.mjs'],
     // Nested git worktrees are full copies of the repo with their own specs.
     exclude: [...configDefaults.exclude, '.claude/worktrees/**'],
   },

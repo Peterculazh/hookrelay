@@ -1,1 +1,1 @@
-- After changing code in apps/ or libs/, run the verify skill before saying the task is done, and report its verdict.
+- After changing code or test setup (apps/, libs/, scripts/, .github/, package.json, vitest.config.ts, tsconfig*.json), run the verify skill before saying the task is done, and report its verdict.

@@ -49,7 +49,6 @@ jobs:
                   node --check load/vps-observer.mjs
                   node --test load/observation-state.test.mjs
                   node --test load/worker-timings.test.mjs
-                  node --test .github/scripts/update-pr-description.test.mjs
 
             - name: Build Docker image
               run: >
