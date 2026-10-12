@@ -62,4 +62,5 @@ docker-compose.override.yml
 
 # AI
 .claude/worktrees/
+.claude/.state/
 .worktreeinclude

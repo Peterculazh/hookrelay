@@ -24,7 +24,7 @@
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
-    "test:e2e": "viapps/hookrelay/test run --config ./vitest.config.e2e.ts",
+    "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
     "start:h:dev": "nest start hookrelay --watch --env-file apps/hookrelay/.env",
     "start:w:dev": "nest start worker --watch --env-file .env",
     "start:r:dev": "nest start test-receiver --watch --env-file apps/test-receiver/.env",

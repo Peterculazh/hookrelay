@@ -52,6 +52,9 @@
     },
     {
       "path": "./apps/signer/tsconfig.app.json"
+    },
+    {
+      "path": "./libs/observability/tsconfig.lib.json"
     }
   ]
 }
