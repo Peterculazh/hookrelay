@@ -1,0 +1,77 @@
+name: PR description
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+    contents: read
+    pull-requests: write
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
+
+jobs:
+    describe:
+        # Fork and Dependabot pull requests do not receive repository secrets.
+        if: >-
+            github.event.pull_request.head.repo.full_name == github.repository
+            && github.actor != 'dependabot[bot]'
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+
+        steps:
+            - name: Check out pull request head
+              uses: actions/checkout@v7
+              with:
+                  ref: ${{ github.event.pull_request.head.sha }}
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: "24"
+
+            - name: Install Claude Code
+              run: npm install --global @anthropic-ai/claude-code@2.1.296
+
+            - name: Collect pull request changes
+              env:
+                  BASE_SHA: ${{ github.event.pull_request.base.sha }}
+                  HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+                  PR_TITLE: ${{ github.event.pull_request.title }}
+              run: |
+                  mkdir -p .pr-context
+                  printf '%s\n' "$PR_TITLE" > .pr-context/title.txt
+                  git log --oneline "$BASE_SHA..$HEAD_SHA" > .pr-context/log.txt
+                  git diff --stat "$BASE_SHA...$HEAD_SHA" > .pr-context/stat.txt
+                  git diff "$BASE_SHA...$HEAD_SHA" > .pr-context/diff.patch
+
+            # The diff is untrusted input, so this step gets read-only tools,
+            # ignores the repository's Claude settings and has no GitHub token.
+            - name: Write description
+              env:
+                  OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+                  API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+              run: |
+                  if [ -n "$OAUTH_TOKEN" ]; then
+                    export CLAUDE_CODE_OAUTH_TOKEN="$OAUTH_TOKEN"
+                  elif [ -n "$API_KEY" ]; then
+                    export ANTHROPIC_API_KEY="$API_KEY"
+                  else
+                    echo "::error::Set the CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY repository secret."
+                    exit 1
+                  fi
+                  claude --print --restricted --strict-mcp-config \
+                    --tools "Read,Grep,Glob" --allowedTools "Read,Grep,Glob" \
+                    --model claude-sonnet-5-5 --output-format text \
+                    < .github/pr-description-prompt.md > .pr-context/summary.md
+
+            - name: Update pull request description
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  GH_REPO: ${{ github.repository }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+              run: node .github/scripts/update-pr-description.mjs

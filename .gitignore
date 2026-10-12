@@ -64,3 +64,6 @@ docker-compose.override.yml
 .claude/worktrees/
 .claude/.state/
 .worktreeinclude
+
+# CI scratch files for the PR description workflow
+.pr-context/
