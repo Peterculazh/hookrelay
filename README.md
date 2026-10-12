@@ -103,6 +103,8 @@ docker compose -f docker-compose.yml down
 
 The worker asks the `signer` app over gRPC (`SIGNER_URL`, `signer:5051` in Compose and CI) to sign each delivery and adds `x-hookrelay-signature` (`v1=<hex HMAC-SHA256>`), `x-hookrelay-timestamp`, and `x-hookrelay-key-id` headers. If `SIGNER_URL` is unset, the worker sends unsigned webhooks; the Kubernetes worker manifest does not set it. The `test-receiver` verifies signatures only when `WEBHOOK_SIGNING_SECRET` is set (Compose and CI set it, defaulting to `SIGNING_SECRET`; `RECEIVER_SIGNING_SECRET` overrides it) and rejects timestamps more than 300 seconds old. Run `npm run test:signing` against the Compose stack to check signed delivery.
 
+Signature format: `x-hookrelay-signature: v1=<hex>`, where `<hex>` is HMAC-SHA256 with the shared secret over the string `<x-hookrelay-timestamp>.<raw request body>`. Receivers should recompute it over the raw body, compare in constant time, reject timestamps older than 300 seconds, and deduplicate by event ID: a captured request can still be replayed inside the 300-second window.
+
 ## Configuration
 
 Copy `.env.example` to `.env` for local development. Variables read by the applications:
