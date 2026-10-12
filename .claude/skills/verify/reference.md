@@ -19,6 +19,7 @@ A test change is weakening if the test now passes in more situations than before
 - a timeout or retry count raised to get a flaky test through
 - the unit under test mocked, or errors swallowed with try/catch inside a test
 - a snapshot updated without explaining why the output should change
+- the test runner config changed (include/exclude, thresholds): confirm no tests were dropped by comparing the "Total tests" count with the previous run
 
 ## Load-bearing tests (proven by mutation)
 Any change to these is FAIL unless the user explicitly asked for it:

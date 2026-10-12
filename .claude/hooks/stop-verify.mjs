@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-const AREAS = 'apps libs scripts';
+const AREAS = 'apps libs scripts .github package.json vitest.config.ts tsconfig*.json';
 
 process.stdin.setEncoding('utf8');
 let raw = '';
