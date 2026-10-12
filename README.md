@@ -24,6 +24,7 @@ Client -> REST API -> PostgreSQL (event + outbox, one transaction)
 | `worker`        | Run webhook delivery processors independently of the relay.                          |
 | `relay`         | Publish committed outbox records to BullMQ; run exactly one instance.                |
 | `test-receiver` | Apply each event once in PostgreSQL; acknowledge committed duplicates with HTTP 204. |
+| `signer`        | gRPC service (port 5051) that signs webhook bodies for the worker. Runs in Docker Compose and the CI stack only; the Kubernetes manifests in `k8s/` have no signer, so Kubernetes/VPS deliveries are unsigned. |
 
 The API returns HTTP 202 after committing the event and outbox record together. The relay enqueues unpublished records using the event ID as the BullMQ job ID, then marks them published. Its default interval is ten seconds; the Kubernetes manifest selects one second. Each job contains the delivery snapshot, including the target URL.
 
@@ -80,7 +81,7 @@ docker compose -f docker-compose.yml ps --all
 npm run test:smoke
 ```
 
-This starts PostgreSQL, Redis, the migration service, the API, the relay, the worker, the receiver, Prometheus, and Grafana. The migration service must finish successfully before the API, relay, worker, and receiver start. Its `Exited (0)` status is expected.
+This starts PostgreSQL, Redis, the migration service, the API, the relay, the worker, the signer, the receiver, Prometheus, and Grafana. The migration service must finish successfully before the API, relay, worker, and receiver start. Its `Exited (0)` status is expected.
 
 The API is available at `http://localhost:3200`. PostgreSQL is exposed on `127.0.0.1:5433`; the applications use `postgres:5432` internally. Redis and the receiver do not need host ports.
 
@@ -98,15 +99,63 @@ To stop and remove the local containers while retaining database and Redis volum
 docker compose -f docker-compose.yml down
 ```
 
+## Webhook signing
+
+The worker asks the `signer` app over gRPC (`SIGNER_URL`, `signer:5051` in Compose and CI) to sign each delivery and adds `x-hookrelay-signature` (`v1=<hex HMAC-SHA256>`), `x-hookrelay-timestamp`, and `x-hookrelay-key-id` headers. If `SIGNER_URL` is unset, the worker sends unsigned webhooks; the Kubernetes worker manifest does not set it. The `test-receiver` verifies signatures only when `WEBHOOK_SIGNING_SECRET` is set (Compose and CI set it, defaulting to `SIGNING_SECRET`; `RECEIVER_SIGNING_SECRET` overrides it) and rejects timestamps more than 300 seconds old. Run `npm run test:signing` against the Compose stack to check signed delivery.
+
+## Configuration
+
+Copy `.env.example` to `.env` for local development. Variables read by the applications:
+
+| Variable | Used by | Default / notes |
+| -------- | ------- | --------------- |
+| `NODE_ENV` | all apps | `development`; `production` in Compose and Kubernetes. |
+| `PORT` | `hookrelay` | `3000`. |
+| `TEST_RECEIVER_PORT` | `test-receiver` | `3001`. |
+| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | `hookrelay`, `worker`, `relay`, `test-receiver`, migrations | `DB_USER`, `DB_PASSWORD`, `DB_NAME` and `DB_PORT` default to `dbuser`, `dbpassword`, `db` and `5432`. `DB_HOST` defaults to `localhost` in development and `postgres` otherwise. |
+| `DB_SSL` | database clients | `false`. |
+| `DB_POOL_MAX` | database clients | `10`. |
+| `DB_IDLE_TIMEOUT` | database clients | `10000` ms. |
+| `DB_CONNECTION_TIMEOUT` | database clients | `5000` ms. |
+| `REDIS_HOST`, `REDIS_PORT`, `REDIS_DB`, `REDIS_PASSWORD` | `hookrelay`, `worker`, `relay` | `localhost`, `6379`, `0`, no password. |
+| `WEBHOOK_TARGET_URL` | `hookrelay` | Target stored in each delivery snapshot. |
+| `WORKER_CONCURRENCY` | `worker` | 1–100, default 1; the Kubernetes manifest sets 4. |
+| `RELAY_BATCH_SIZE` | `relay` | 1–1000, default 100. |
+| `RELAY_PUBLISH_INTERVAL_SECONDS` | `relay` | 1–60, default 10; Kubernetes uses 1. |
+| `SIGNER_URL` | `worker` | gRPC address of the signer; unset means unsigned. |
+| `SIGNING_SECRET`, `SIGNING_KEY_ID` | `signer` (Compose/CI only) | Secret of at least 32 characters; key ID defaults to `v1`. |
+| `SIGNER_GRPC_URL` | `signer` | Listen address, default `0.0.0.0:5051`. |
+| `WEBHOOK_SIGNING_SECRET` | `test-receiver` | Unset accepts unsigned webhooks. |
+| `GRPC_PROTO_DIR` | gRPC clients and server | Defaults to `libs/grpc/proto` under the working directory. |
+| `LOG_LEVEL` | API, worker, relay, signer | `info`. |
+| `METRICS_HOST`, `METRICS_PORT` | API, worker, relay, signer | Override the metrics listener (default `0.0.0.0` and the per-app port above). |
+
+Compose-only host settings (`API_HOST_PORT`, `PROMETHEUS_HOST_PORT`, `GRAFANA_HOST_PORT`, `GRAFANA_ADMIN_PASSWORD`, `RECEIVER_SIGNING_SECRET`) and the benchmark and smoke-test variables are described in the sections that use them and in `docs/`.
+
+## npm scripts
+
+| Script | Purpose |
+| ------ | ------- |
+| `build`, `format`, `lint`, `typecheck` | Build with Nest, format with Prettier, lint with oxlint, typecheck. |
+| `start`, `start:dev`, `start:debug`, `start:prod`, `deploy` | Nest start modes for the default app; `start:prod` runs `dist/apps/hookrelay/main`. `deploy` runs `nest deploy`. |
+| `start:h:dev`, `start:w:dev`, `start:r:dev`, `start:relay:dev`, `start:s:dev` | Watch-mode API, worker, receiver, relay, and signer. `start:all:dev` runs all five together. |
+| `db:generate`, `db:migrate` | Generate and apply Drizzle migrations. |
+| `test`, `test:watch`, `test:cov`, `test:debug`, `test:e2e` | Vitest unit tests (watch, coverage, inspector) and the e2e config. |
+| `test:smoke`, `test:receiver`, `test:signing`, `test:observability`, `test:worker-crash`, `test:shutdown`, `test:worker-exhaustion` | Compose-based acceptance scripts in `scripts/`. |
+| `test:k8s` | Kubernetes smoke test. |
+| `test:release`, `prepare:release`, `prepare:vps` | Release bundle tests and VPS/release preparation (see `docs/versioned-deployment.md`, `docs/vps-deployment.md`). |
+| `verify:check` | Repository verification helper (`.claude/skills/verify`). |
+| `benchmark`, `benchmark:suite`, `benchmark:vps` | Load testing (see below). |
+
 ## Observability
 
 For the deployed VPS, use [the private Grafana dashboard](http://localhost:18083/d/hookrelay-overview) through the PC's SSH tunnel. The [VPS monitoring guide](docs/vps-monitoring.md) explains login, reconnection, charts, retention, and deployment. Prometheus keeps collecting on the VPS while the PC is disconnected.
 
-After starting Compose, open [HookRelay delivery overview](http://localhost:18082/d/hookrelay-overview) in Grafana. Log in with `admin` / `hookrelay-local` (override with `GRAFANA_ADMIN_PASSWORD` before first startup). The Prometheus data source and dashboard are provisioned from `observability/`; no manual dashboard setup is needed. [Prometheus targets](http://localhost:9090/targets) should show all three services up. Host ports can be changed using `GRAFANA_HOST_PORT` and `PROMETHEUS_HOST_PORT`.
+After starting Compose, open [HookRelay delivery overview](http://localhost:18082/d/hookrelay-overview) in Grafana. Log in with `admin` / `hookrelay-local` (override with `GRAFANA_ADMIN_PASSWORD` before first startup). The Prometheus data source and dashboard are provisioned from `observability/`; no manual dashboard setup is needed. [Prometheus targets](http://localhost:9090/targets) should show all four Compose services (API, worker, relay, signer) up. Host ports can be changed using `GRAFANA_HOST_PORT` and `PROMETHEUS_HOST_PORT`.
 
 The dashboard shows API traffic and HTTP errors, API p95 latency, delivery attempts by outcome, receiver p95 response time, waiting/active/delayed queue jobs, and unpublished outbox records. Allow two five-second scrapes for rates to appear. Percentiles are estimates from histogram buckets and are empty when there are no observations.
 
-All three processes expose `GET /metrics` on separate internal HTTP listeners: API port 9464, worker port 9465, and relay port 9466. Compose does not publish these ports to the host. For local Node development, `METRICS_HOST` and `METRICS_PORT` override their bindings. The API's public port does not expose metrics. A failed collector returns HTTP 503 instead of a misleading zero. The API collects the outbox gauge directly so backlog growth remains visible when the relay is stopped. Queue metrics are collected by the relay, so queue backlog remains visible while workers are stopped. Relay downtime leaves a queue-metric gap, while the API still reports unpublished outbox records.
+The API, worker, and relay expose `GET /metrics` on separate internal HTTP listeners: API port 9464, worker port 9465, and relay port 9466. The signer, which runs only in Compose, uses port 9467. Compose does not publish these ports to the host. For local Node development, `METRICS_HOST` and `METRICS_PORT` override their bindings. The API's public port does not expose metrics. A failed collector returns HTTP 503 instead of a misleading zero. The API collects the outbox gauge directly so backlog growth remains visible when the relay is stopped. Queue metrics are collected by the relay, so queue backlog remains visible while workers are stopped. Relay downtime leaves a queue-metric gap, while the API still reports unpublished outbox records.
 
 Metrics use bounded method, route template, status, outcome, and state labels. IDs, payloads, and receiver URLs are never labels. API middleware counts completed responses including validation errors and unmatched routes. Delivery counters count actual receiver request outcomes, including every retry, before database finalization. A receiver 2xx followed by a database failure still counts as a successful receiver response; `job.failed` logs and event history explain finalization failures. Counters reset when a process restarts; the dashboard uses `rate`/`increase` to handle resets. A process killed before the next scrape can lose unobserved increments.
 
