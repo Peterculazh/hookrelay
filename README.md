@@ -201,6 +201,8 @@ GitHub Actions runs on pull requests and pushes to `main`. The workflow installs
 
 CI starts an isolated stack using `docker-compose.ci.yml` and project name `hookrelay-ci`, runs migrations, and executes delivery, receiver deduplication, crash recovery, graceful shutdown, and repeated-crash exhaustion checks. On failure it prints container status and logs; cleanup always removes the CI containers and volumes. This workflow validates the application but does not publish images or deploy to Kubernetes. Set `CI_API_HOST_PORT` and the matching `SMOKE_BASE_URL` to use another port when running a separate local CI stack.
 
+A second workflow, `.github/workflows/pr-description.yml`, runs Claude Code on every push to a pull request and rewrites the part of the description between `<!-- claude-pr-description:start -->` and `<!-- claude-pr-description:end -->` from the full diff, following `.github/pr-description-prompt.md`. Text outside the markers is kept. It needs a `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` repository secret and skips pull requests from forks and Dependabot.
+
 The smoke test:
 
 1. Waits up to 30 seconds for `/health/ready` to return HTTP 200.
