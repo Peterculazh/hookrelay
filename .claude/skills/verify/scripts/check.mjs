@@ -104,7 +104,15 @@ for (const { file: name, line, text } of removed) {
 }
 
 console.log(`\nTest-weakening signals: ${signals.length === 0 ? 'none' : signals.length}`);
-for (const signal of signals.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line)) console.log(`${signal.file}:${signal.line}: ${signal.kind}${signal.text ? `: ${signal.text.trim()}` : ''}`);
+// GitHub workflow commands: % and line breaks are escaped everywhere, : and , also in properties.
+const escapeData = (value) => value.replaceAll('%', '%25').replaceAll('\r', '%0D').replaceAll('\n', '%0A');
+const escapeProperty = (value) => escapeData(value).replaceAll(':', '%3A').replaceAll(',', '%2C');
+const annotate = signalsOnly && process.env.GITHUB_ACTIONS === 'true';
+for (const signal of signals.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line)) {
+  const description = `${signal.kind}${signal.text ? `: ${signal.text.trim()}` : ''}`;
+  console.log(`${signal.file}:${signal.line}: ${description}`);
+  if (annotate) console.log(`::error file=${escapeProperty(signal.file)},line=${signal.line}::${escapeData(description)}`);
+}
 if (signalsOnly) process.exit(signals.length === 0 ? 0 : 1);
 console.log(`\nGates: ${failed.length === 0 ? 'all passed' : `FAILED: ${failed.join(', ')}`}`);
 process.exit(failed.length === 0 ? 0 : 1);
