@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHmac } from 'node:crypto';
 import {
   Injectable,
   UnauthorizedException,
@@ -37,8 +37,8 @@ export class SignatureGuard implements CanActivate {
     const expected = createHmac('sha256', this.secret)
       .update(`${timestamp}.`)
       .update(request.rawBody)
-      .digest();
-    if (!timingSafeEqual(expected, Buffer.from(signature, 'hex'))) {
+      .digest('hex');
+    if (expected !== signature) {
       throw new UnauthorizedException('Signature mismatch');
     }
 
