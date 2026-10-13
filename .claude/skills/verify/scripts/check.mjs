@@ -4,7 +4,9 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../../../../', import.meta.url));
-const gates = ['npm run lint', 'npm run typecheck', 'npm test', 'npm run build -- --all'];
+// --signals-only skips the gates and turns the test-weakening scan into the exit code (CI gate).
+const signalsOnly = process.argv.includes('--signals-only');
+const gates = signalsOnly ? [] : ['npm run lint', 'npm run typecheck', 'npm test', 'npm run build -- --all'];
 const tailLines = 15;
 
 // Run every gate even after a failure, so one run reports all of them.
@@ -19,21 +21,23 @@ for (const command of gates) {
   if (exitCode !== 0) failed.push(command);
   if (command === 'npm test') totalTests = /^\s*Tests\s.*\((\d+)\)\s*$/m.exec(lines.join('\n'))?.[1] ?? totalTests;
 }
-console.log(`\nTotal tests: ${totalTests}`);
+if (!signalsOnly) {
+  console.log(`\nTotal tests: ${totalTests}`);
 
-// Load-bearing tests must still exist: a deleted or renamed one fails the run like any other gate.
-const missing = [];
-for (const { file, tests } of JSON.parse(readFileSync(new URL('load-bearing.json', import.meta.url), 'utf8'))) {
-  if (!existsSync(join(root, file))) missing.push(`${file}: file missing`);
-  else {
-    const source = readFileSync(join(root, file), 'utf8');
-    for (const test of tests) if (!source.includes(test)) missing.push(`${file}: test missing: ${test}`);
+  // Load-bearing tests must still exist: a deleted or renamed one fails the run like any other gate.
+  const missing = [];
+  for (const { file, tests } of JSON.parse(readFileSync(new URL('load-bearing.json', import.meta.url), 'utf8'))) {
+    if (!existsSync(join(root, file))) missing.push(`${file}: file missing`);
+    else {
+      const source = readFileSync(join(root, file), 'utf8');
+      for (const test of tests) if (!source.includes(test)) missing.push(`${file}: test missing: ${test}`);
+    }
   }
+  console.log(`\n$ load-bearing tests\nexit code: ${missing.length === 0 ? 0 : 1}\n${missing.length === 0 ? 'all listed files and tests present' : missing.join('\n')}`);
+  if (missing.length > 0) failed.push('load-bearing tests');
 }
-console.log(`\n$ load-bearing tests\nexit code: ${missing.length === 0 ? 0 : 1}\n${missing.length === 0 ? 'all listed files and tests present' : missing.join('\n')}`);
-if (missing.length > 0) failed.push('load-bearing tests');
 
-// Signals are leads for the skill to confirm in the diff, so they never change the exit code.
+// Signals are leads for the skill to confirm in the diff, so they change the exit code only with --signals-only.
 const git = (...args) => execFileSync('git', ['-c', 'core.quotepath=false', ...args], { cwd: root, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] }).replaceAll('\r\n', '\n');
 // Diff against the merge base, so changes already committed on the branch are scanned along with uncommitted ones.
 let ref = process.env.VERIFY_BASE || 'origin/main';
@@ -101,5 +105,6 @@ for (const { file: name, line, text } of removed) {
 
 console.log(`\nTest-weakening signals: ${signals.length === 0 ? 'none' : signals.length}`);
 for (const signal of signals.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line)) console.log(`${signal.file}:${signal.line}: ${signal.kind}${signal.text ? `: ${signal.text.trim()}` : ''}`);
+if (signalsOnly) process.exit(signals.length === 0 ? 0 : 1);
 console.log(`\nGates: ${failed.length === 0 ? 'all passed' : `FAILED: ${failed.join(', ')}`}`);
 process.exit(failed.length === 0 ? 0 : 1);
