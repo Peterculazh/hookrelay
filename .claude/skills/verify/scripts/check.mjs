@@ -34,7 +34,18 @@ console.log(`\n$ load-bearing tests\nexit code: ${missing.length === 0 ? 0 : 1}\
 if (missing.length > 0) failed.push('load-bearing tests');
 
 // Signals are leads for the skill to confirm in the diff, so they never change the exit code.
-const git = (...args) => execFileSync('git', ['-c', 'core.quotepath=false', ...args], { cwd: root, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).replaceAll('\r\n', '\n');
+const git = (...args) => execFileSync('git', ['-c', 'core.quotepath=false', ...args], { cwd: root, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] }).replaceAll('\r\n', '\n');
+// Diff against the merge base, so changes already committed on the branch are scanned along with uncommitted ones.
+let ref = process.env.VERIFY_BASE || 'origin/main';
+let base;
+try {
+  base = git('merge-base', ref, 'HEAD').trim();
+} catch {
+  console.log('\nWARNING: only uncommitted changes scanned');
+  ref = 'HEAD';
+  base = 'HEAD';
+}
+console.log(`\nTest-weakening scan base: ${ref} (${git('rev-parse', '--short', base).trim()})`);
 const paths = [':(glob)**/*.spec.ts', ':(glob)scripts/*.mjs', ':(glob)**/__snapshots__/**'];
 const isSnapshot = (file) => file.split('/').includes('__snapshots__');
 const added = [];
@@ -43,7 +54,7 @@ const signals = [];
 let file;
 let oldLine = 0;
 let newLine = 0;
-for (const line of git('diff', 'HEAD', '--no-color', '--no-ext-diff', '--unified=0', '--src-prefix=a/', '--dst-prefix=b/', '--', ...paths).split('\n')) {
+for (const line of git('diff', base, '--no-color', '--no-ext-diff', '--unified=0', '--src-prefix=a/', '--dst-prefix=b/', '--', ...paths).split('\n')) {
   const hunk = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,(\d+))? @@/.exec(line);
   if (line.startsWith('diff --git ')) file = undefined;
   else if (line.startsWith('--- a/')) file = line.slice(6);
