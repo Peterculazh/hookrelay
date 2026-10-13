@@ -1,0 +1,39 @@
+name: Test integrity
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    signals:
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v7
+              with:
+                  fetch-depth: 0
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: "24"
+
+            - name: Allow labelled test changes
+              if: contains(github.event.pull_request.labels.*.name, 'allow-test-change')
+              run: echo "::notice::Label allow-test-change is set, test-weakening scan skipped."
+
+            # The scan needs only git and Node built-ins, so there is no npm ci.
+            - name: Scan for test-weakening signals
+              if: ${{ !contains(github.event.pull_request.labels.*.name, 'allow-test-change') }}
+              env:
+                  VERIFY_BASE: ${{ github.event.pull_request.base.sha }}
+              run: npm run verify:signals
