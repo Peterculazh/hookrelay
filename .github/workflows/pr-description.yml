@@ -118,10 +118,26 @@ jobs:
                     echo "::error::Set the CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY repository secret."
                     exit 1
                   fi
+                  set +e
                   claude --print --restricted --strict-mcp-config --disable-slash-commands \
                     --tools "Read,Grep,Glob" --allowedTools "Read,Grep,Glob" \
-                    --model claude-sonnet-5-5 --max-turns 30 --output-format text \
-                    < .github/pr-description-prompt.md > .pr-context/summary.md
+                    --model claude-sonnet-5-5 --max-turns 30 --output-format json \
+                    < .github/pr-description-prompt.md > .pr-context/claude.json
+                  code=$?
+                  set -e
+
+                  # Only a successful, non-empty result may reach the PR body.
+                  out=.pr-context/claude.json
+                  fail() { echo "::error::$1"; exit 1; }
+                  [ "$code" -eq 0 ] || fail "claude exited with code $code"
+                  jq -e . "$out" > /dev/null 2>&1 || fail "claude output is not valid JSON"
+                  subtype=$(jq -r '.subtype' "$out")
+                  [ "$subtype" = "success" ] || fail "subtype is '$subtype', expected 'success'"
+                  is_error=$(jq -r '.is_error' "$out")
+                  [ "$is_error" = "false" ] || fail "is_error is '$is_error', expected 'false'"
+                  jq -e '.result | type == "string" and test("[^[:space:]]")' "$out" > /dev/null \
+                    || fail "result is empty or missing"
+                  jq -r '.result' "$out" > .pr-context/summary.md
 
             - name: Update pull request description
               env:
