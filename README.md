@@ -101,7 +101,7 @@ docker compose -f docker-compose.yml down
 
 ## Webhook signing
 
-The worker asks the `signer` app over gRPC (`SIGNER_URL`, `signer:5051` in Compose and CI) to sign each delivery and adds `x-hookrelay-signature` (`v1=<hex HMAC-SHA256>`), `x-hookrelay-timestamp`, and `x-hookrelay-key-id` headers. If `SIGNER_URL` is unset, the worker sends unsigned webhooks; the Kubernetes worker manifest does not set it. The `test-receiver` verifies signatures only when `WEBHOOK_SIGNING_SECRET` is set (Compose and CI set it, defaulting to `SIGNING_SECRET`; `RECEIVER_SIGNING_SECRET` overrides it) and rejects timestamps more than 300 seconds old. Run `npm run test:signing` against the Compose stack to check signed delivery.
+The worker asks the `signer` app over gRPC (`SIGNER_URL`, `signer:5051` in Compose and CI) to sign each delivery and adds `x-hookrelay-signature` (`v1=<hex HMAC-SHA256>`), `x-hookrelay-timestamp`, and `x-hookrelay-key-id` headers. If `SIGNER_URL` is unset, the worker sends unsigned webhooks; the Kubernetes worker manifest does not set it. The `test-receiver` verifies signatures only when `WEBHOOK_SIGNING_SECRET` is set (Compose and CI set it, defaulting to `SIGNING_SECRET`; `RECEIVER_SIGNING_SECRET` overrides it) and rejects timestamps more than 300 seconds old. Run `npm run test:signing` against the Compose stack to check signed delivery; `SIGNING_COMPOSE_FILE` (default `docker-compose.yml`) and `SIGNING_COMPOSE_PROJECT` select another Compose stack, and `SMOKE_BASE_URL` overrides the API URL.
 
 Signature format: `x-hookrelay-signature: v1=<hex>`, where `<hex>` is HMAC-SHA256 with the shared secret over the string `<x-hookrelay-timestamp>.<raw request body>`. Receivers should recompute it over the raw body, compare in constant time, reject timestamps older than 300 seconds, and deduplicate by event ID: a captured request can still be replayed inside the 300-second window.
 
@@ -123,7 +123,7 @@ Copy `.env.example` to `.env` for local development. Variables read by the appli
 | `WEBHOOK_TARGET_URL` | `hookrelay` | Target stored in each delivery snapshot. |
 | `WORKER_CONCURRENCY` | `worker` | 1–100, default 1; the Kubernetes manifest sets 4. |
 | `RELAY_BATCH_SIZE` | `relay` | 1–1000, default 100. |
-| `RELAY_PUBLISH_INTERVAL_SECONDS` | `relay` | 1–60, default 10; Kubernetes uses 1. |
+| `RELAY_PUBLISH_INTERVAL_SECONDS` | `relay` | 1–60 and must divide 60 evenly (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60), default 10; Kubernetes uses 1. |
 | `SIGNER_URL` | `worker` | gRPC address of the signer; unset means unsigned. |
 | `SIGNING_SECRET`, `SIGNING_KEY_ID` | `signer` (Compose/CI only) | Secret of at least 32 characters; key ID defaults to `v1`. |
 | `SIGNER_GRPC_URL` | `signer` | Listen address, default `0.0.0.0:5051`. |
