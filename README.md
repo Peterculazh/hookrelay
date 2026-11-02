@@ -114,7 +114,7 @@ Copy `.env.example` to `.env` for local development. Variables read by the appli
 | `NODE_ENV` | all apps | `development`; `production` in Compose and Kubernetes. |
 | `PORT` | `hookrelay` | `3000`. |
 | `TEST_RECEIVER_PORT` | `test-receiver` | `3001`. |
-| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | `hookrelay`, `worker`, `relay`, `test-receiver`, migrations | `DB_USER`, `DB_PASSWORD`, `DB_NAME` and `DB_PORT` default to `dbuser`, `dbpassword`, `db` and `5432`. `DB_HOST` defaults to `localhost` in development and `postgres` otherwise. |
+| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | `hookrelay`, `worker`, `relay`, `test-receiver`, migrations | Required, no defaults: startup fails validation (`libs/database`) if any is missing. |
 | `DB_SSL` | database clients | `false`. |
 | `DB_POOL_MAX` | database clients | `10`. |
 | `DB_IDLE_TIMEOUT` | database clients | `10000` ms. |
@@ -146,7 +146,7 @@ Compose-only host settings (`API_HOST_PORT`, `PROMETHEUS_HOST_PORT`, `GRAFANA_HO
 | `test:smoke`, `test:receiver`, `test:signing`, `test:observability`, `test:worker-crash`, `test:shutdown`, `test:worker-exhaustion` | Compose-based acceptance scripts in `scripts/`. |
 | `test:k8s` | Kubernetes smoke test. |
 | `test:release`, `prepare:release`, `prepare:vps` | Release bundle tests and VPS/release preparation (see `docs/versioned-deployment.md`, `docs/vps-deployment.md`). |
-| `verify:check` | Repository verification helper (`.claude/skills/verify`). |
+| `verify:check`, `verify:signals` | Repository verification helper (`.claude/skills/verify`); `verify:signals` passes `--signals-only`. |
 | `benchmark`, `benchmark:suite`, `benchmark:vps` | Load testing (see below). |
 
 ## Observability
