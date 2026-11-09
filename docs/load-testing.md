@@ -144,6 +144,7 @@ Redis and the proxy have one CPU and 256 MiB. Each application has a ten-connect
 database pool. The host-side k6/observer have no container CPU limits.
 Instrumented processes use warning-level logs by default. Set `BENCH_LOG_LEVEL`
 to `info` when running existing crash/shutdown probes that inspect drain logs.
+The benchmark-only `receiver-proxy` service (`load/compose.yml`; not in the main Compose file, CI, Kubernetes or the VPS) forwards to `RECEIVER_URL`, default `http://test-receiver:3001/webhooks`.
 
 ## Tuning and interpretation
 
