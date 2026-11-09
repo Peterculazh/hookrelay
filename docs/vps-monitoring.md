@@ -28,7 +28,7 @@ After restarting the PC or losing the connection, open PowerShell in the reposit
 .\scripts\connect-monitoring.ps1
 ```
 
-The script connects using `hookrelay-vps`. Keep that terminal open while viewing Grafana; Ctrl+C closes the tunnel. It also accepts `VPS_SSH_TARGET` and `VPS_SSH_KEY` from the terminal environment.
+The script connects using `hookrelay-vps`. Keep that terminal open while viewing Grafana; Ctrl+C closes the tunnel. It also accepts `VPS_SSH_TARGET`, `VPS_SSH_KEY` and `SSH_EXECUTABLE` (path of the `ssh` binary, default `ssh`) from the terminal environment. `SSH_EXECUTABLE` is likewise read by the VPS deployment and benchmark scripts.
 
 The default PC port is **18083**, leaving the local Compose Grafana port 18082 available. To select another local port:
 
@@ -84,6 +84,6 @@ With the tunnel open and recent application traffic:
 node scripts/smoke-monitoring.mjs
 ```
 
-This read-only check loads the local login file, verifies that anonymous dashboard access requires login, checks the Prometheus data source and all scrape targets, compares the deployed panel queries with the versioned dashboard, and executes every query over the last five minutes. It requires finite samples, so latency panels may fail this check after five minutes without relevant traffic. It saves filtered results in `.tmp/monitoring-smoke.json`; it does not create events or interrupt workloads.
+Set `GRAFANA_URL` to a local tunnel address to override the one in the login file (it must resolve to localhost). This read-only check loads the local login file, verifies that anonymous dashboard access requires login, checks the Prometheus data source and all scrape targets, compares the deployed panel queries with the versioned dashboard, and executes every query over the last five minutes. It requires finite samples, so latency panels may fail this check after five minutes without relevant traffic. It saves filtered results in `.tmp/monitoring-smoke.json`; it does not create events or interrupt workloads.
 
 Deployment acceptance verified 12 panels / 13 queries, all three scrape jobs up, two ready monitoring Pods, bound persistent claims, unchanged application releases/settings, and one fresh delivery with HTTP 204 and one receiver effect. Historical delivery records were also preserved. See [the numeric evidence](vps-monitoring-results.json).
