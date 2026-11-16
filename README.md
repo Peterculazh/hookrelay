@@ -123,7 +123,7 @@ Copy `.env.example` to `.env` for local development. Variables read by the appli
 | `WEBHOOK_TARGET_URL` | `hookrelay` | Target stored in each delivery snapshot. |
 | `WORKER_CONCURRENCY` | `worker` | 1–100, default 1; the Kubernetes manifest sets 4. |
 | `RELAY_BATCH_SIZE` | `relay` | 1–1000, default 100. |
-| `RELAY_PUBLISH_INTERVAL_SECONDS` | `relay` | 1–60, default 10; Kubernetes uses 1. |
+| `RELAY_PUBLISH_INTERVAL_SECONDS` | `relay` | 1–60 and must divide 60 evenly (for example 1, 2, 5, 10, 30, 60), default 10; Kubernetes uses 1. |
 | `SIGNER_URL` | `worker` | gRPC address of the signer; unset means unsigned. |
 | `SIGNING_SECRET`, `SIGNING_KEY_ID` | `signer` (Compose/CI only) | Secret of at least 32 characters; key ID defaults to `v1`. |
 | `SIGNER_GRPC_URL` | `signer` | Listen address, default `0.0.0.0:5051`. |
@@ -146,7 +146,7 @@ Compose-only host settings (`API_HOST_PORT`, `PROMETHEUS_HOST_PORT`, `GRAFANA_HO
 | `test:smoke`, `test:receiver`, `test:signing`, `test:observability`, `test:worker-crash`, `test:shutdown`, `test:worker-exhaustion` | Compose-based acceptance scripts in `scripts/`. |
 | `test:k8s` | Kubernetes smoke test. |
 | `test:release`, `prepare:release`, `prepare:vps` | Release bundle tests and VPS/release preparation (see `docs/versioned-deployment.md`, `docs/vps-deployment.md`). |
-| `verify:check` | Repository verification helper (`.claude/skills/verify`). |
+| `verify:check`, `verify:signals` | Repository verification helper (`.claude/skills/verify`). `verify:signals` runs only the test-weakening scan and is the CI gate in `.github/workflows/test-integrity.yml`. |
 | `benchmark`, `benchmark:suite`, `benchmark:vps` | Load testing (see below). |
 
 ## Observability
